@@ -1,0 +1,59 @@
+{
+  "sceneId": "academy_exterior",
+  "titleAr": "أكاديمية أوريون الدولية — الخارج",
+  "titleEn": "Orion Academy — Exterior",
+  "purpose": "Shot 01 opening cinematic: rainy twilight exterior of Orion Academy with illuminated second-floor windows and wet courtyard reflections.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "rainy_dusk",
+    "ambientColor": "#111827",
+    "direction": { "fromX": 0.25, "fromY": 0.10, "toX": 0.60, "toY": 0.78, "label": "Storm overcast top-left + warm window & lobby glow" },
+    "weather": "heavy_rain"
+  },
+  "camera": {
+    "framing": "wide_establishing_slow_pan",
+    "startZoom": 1.0,
+    "endZoom": 1.14,
+    "focusTarget": { "x": 0.48, "y": 0.48 },
+    "panDurationMs": 3600
+  },
+  "floorLineY": 0.78,
+  "walkableArea": [],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "titleCardZone": { "x": 0.18, "y": 0.26, "w": 0.64, "h": 0.26 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "sky_backdrop", "depth": 0 },
+    { "id": "rain_particles", "depth": 90 },
+    { "id": "cinematic_vignette", "depth": 100 }
+  ],
+  "objects": [
+    {
+      "id": "main_facade",
+      "label": "Orion Academy Facade",
+      "visualMode": "baked",
+      "layer": "academy_building",
+      "x": 0.50,
+      "y": 0.50,
+      "w": 1.0,
+      "h": 1.0,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": false
+    }
+  ],
+  "characters": [],
+  "evidence": [],
+  "dialogueTriggers": [],
+  "transitions": [
+    {
+      "to": "academy_entrance",
+      "condition": { "flag": "ch1_exterior_pan_done", "equals": true },
+      "type": "crossfade",
+      "durationMs": 700
+    }
+  ]
+}

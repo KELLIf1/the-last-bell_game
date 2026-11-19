@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="140" viewBox="0 0 220 140">
+  <defs>
+    <linearGradient id="deskBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2B211C" />
+      <stop offset="100%" stop-color="#140F0D" />
+    </linearGradient>
+    <linearGradient id="deskTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4D3D33" />
+      <stop offset="100%" stop-color="#2C221C" />
+    </linearGradient>
+    <linearGradient id="drawerFace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#372B24" />
+      <stop offset="100%" stop-color="#201915" />
+    </linearGradient>
+  </defs>
+  <!-- Ground contact shadow -->
+  <ellipse cx="110" cy="132" rx="104" ry="7.5" fill="#020617" fill-opacity="0.65" />
+  <!-- Desk body + Ambient occlusion under top overhang -->
+  <rect x="20" y="42" width="180" height="86" fill="url(#deskBody)" stroke="#090D16" stroke-width="3" />
+  <rect x="21" y="47" width="178" height="6" fill="#020617" fill-opacity="0.45" />
+  <!-- Drawers with brushed steel pulls -->
+  <rect x="132" y="49" width="64" height="31" fill="url(#drawerFace)" stroke="#090D16" stroke-width="2" />
+  <rect x="132" y="83" width="64" height="38" fill="url(#drawerFace)" stroke="#090D16" stroke-width="2" />
+  <line x1="154" y1="64" x2="174" y2="64" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+  <line x1="154" y1="101" x2="174" y2="101" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+  <!-- Desk Top Surface + subtle rim highlight -->
+  <polygon points="8,36 212,36 202,48 18,48" fill="url(#deskTop)" stroke="#090D16" stroke-width="3" />
+  <line x1="10" y1="37" x2="210" y2="37" stroke="#94A3B8" stroke-width="1" stroke-opacity="0.35" />
+  <!-- Old Seating Chart Sheet + Notebook + Inkwell/Pen cup -->
+  <polygon points="36,34 94,34 88,43 30,43" fill="#E2E8F0" stroke="#334155" stroke-width="1.2" />
+  <line x1="42" y1="37" x2="78" y2="37" stroke="#DC2626" stroke-width="1.2" />
+  <rect x="106" y="29" width="38" height="10" rx="1" fill="#334155" stroke="#090D16" stroke-width="1.5" />
+  <rect x="156" y="24" width="26" height="15" rx="2" fill="#475569" stroke="#090D16" stroke-width="1.5" />
+</svg>

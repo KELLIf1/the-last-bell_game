@@ -1,0 +1,53 @@
+{
+  "puzzleId": "puzzle_01_seating",
+  "titleAr": "اللغز الأول: ترتيب المقاعد في الصورة القديمة",
+  "titleEn": "Puzzle 01: The Seating Order",
+  "instructionsAr": "استخدم جدول الجلوس القديم وتسلسل الأرقام على السبورة (4 - 1 - 7 - 2 - 6 - 3 - 5) لترتيب الأسماء في خانات الصورة الجماعية من اليسار إلى اليمين.",
+  "instructionsEn": "Cross-reference the old seating chart with the board cipher (4 - 1 - 7 - 2 - 6 - 3 - 5) to place each name into the old photograph slots from left to right.",
+  "unlockCondition": {
+    "allOf": [
+      { "flag": "ev_board_examined", "equals": true },
+      { "flag": "ev_desk_examined", "equals": true },
+      { "flag": "ev_photo_examined", "equals": true }
+    ]
+  },
+  "boardSequence": [4, 1, 7, 2, 6, 3, 5],
+  "seatingChart": [
+    { "seatNumber": 1, "studentNameAr": "ياسين", "studentNameEn": "Yacine" },
+    { "seatNumber": 2, "studentNameAr": "إيلينا", "studentNameEn": "Elena" },
+    { "seatNumber": 3, "studentNameAr": "مريم", "studentNameEn": "Mariam" },
+    { "seatNumber": 4, "studentNameAr": "كريم", "studentNameEn": "Karim" },
+    { "seatNumber": 5, "studentNameAr": "نور", "studentNameEn": "Nour" },
+    { "seatNumber": 6, "studentNameAr": "ليان", "studentNameEn": "Layan" },
+    { "seatNumber": 7, "studentNameAr": "اسم تالف / مجهول", "studentNameEn": "Damaged / Unknown", "damaged": true }
+  ],
+  "photoSlotsOrder": ["karim", "yacine", "unknown", "elena", "layan", "mariam", "nour"],
+  "labels": [
+    { "id": "karim", "textAr": "كريم", "textEn": "Karim" },
+    { "id": "yacine", "textAr": "ياسين", "textEn": "Yacine" },
+    { "id": "unknown", "textAr": "اسم تالف / مجهول", "textEn": "Damaged / Unknown" },
+    { "id": "elena", "textAr": "إيلينا", "textEn": "Elena" },
+    { "id": "layan", "textAr": "ليان", "textEn": "Layan" },
+    { "id": "mariam", "textAr": "مريم", "textEn": "Mariam" },
+    { "id": "nour", "textAr": "نور", "textEn": "Nour" }
+  ],
+  "hints": [
+    {
+      "attemptThreshold": 1,
+      "textAr": "تلميح 1: الرقم الأول على السبورة هو 4. ابحث في جدول الجلوس عمن كان يجلس في المقعد رقم 4.",
+      "textEn": "Hint 1: The first board number is 4. Check who sat at Seat #4 in the old chart."
+    },
+    {
+      "attemptThreshold": 2,
+      "textAr": "تلميح 2: الموضع الثالث في الصورة هو الذي قُصّ بالمقص، ويقابله الرقم الثالث على السبورة (7 — الاسم التالف/المجهول).",
+      "textEn": "Hint 2: The 3rd photo slot corresponds to the cut-out figure and board number 7 (Damaged / Unknown)."
+    },
+    {
+      "attemptThreshold": 3,
+      "textAr": "تلميح 3: طابق كل رقم من 4-1-7-2-6-3-5 مباشرة مع أرقام جدول الجلوس: كريم، ياسين، مجهول، إيلينا، ليان، مريم، نور.",
+      "textEn": "Hint 3: Map 4-1-7-2-6-3-5 directly to Seats: Karim, Yacine, Unknown, Elena, Layan, Mariam, Nour."
+    }
+  ],
+  "successRevealAr": "لم تكن إيلينا وحدها في ذلك اليوم.",
+  "successRevealEn": "ELENA WAS NOT ALONE THAT DAY."
+}

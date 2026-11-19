@@ -1,0 +1,446 @@
+[
+  {
+    "id": "ch1_opening_classroom",
+    "titleAr": "بداية الاجتماع — الساعة 16:20",
+    "titleEn": "Classroom Opening — 16:20",
+    "entryNodeId": "open_1",
+    "nodes": {
+      "open_1": {
+        "id": "open_1",
+        "speaker": "yacine",
+        "speakerNameAr": "ياسين",
+        "speakerNameEn": "Yacine",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "angle_clock_1620",
+        "textAr": "الساعة تجاوزت الرابعة وعشرين دقيقة... لماذا طلب منا الأستاذ المشرف الانتظار هنا وحدنا بينما غادر الجميع؟",
+        "textEn": "It's past 16:20... Why did the supervisor ask us to wait here after everyone else left?",
+        "nextNodeId": "open_2"
+      },
+      "open_2": {
+        "id": "open_2",
+        "speaker": "nour",
+        "speakerNameAr": "نور",
+        "speakerNameEn": "Nour",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "angle_window_rain",
+        "textAr": "ربما يحضّر لنا مفاجأة أكاديمية، أو نسي أنه حجز القاعة من الأساس! المطر في الخارج لا يبشر بعودة سريعة.",
+        "textEn": "Maybe it's an academic surprise—or he forgot he booked the room! The storm outside isn't helping.",
+        "nextNodeId": "open_3"
+      },
+      "open_3": {
+        "id": "open_3",
+        "speaker": "mariam",
+        "speakerNameAr": "مريم",
+        "speakerNameEn": "Mariam",
+        "expression": "angry",
+        "speaking": true,
+        "cameraShot": "angle_door_lock",
+        "textAr": "إن لم يعد خلال خمس دقائق، سأغادر. ليس لدي وقت أضيعه في مجاملات الإدارة.",
+        "textEn": "If he isn't back in five minutes, I'm walking out. I don't have time for administration games.",
+        "nextNodeId": "open_4"
+      },
+      "open_4": {
+        "id": "open_4",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "angle_seat7_empty",
+        "textAr": "انتظروا... ألا تلاحظون أن ستة فقط حضروا، بينما توجد سبعة مقاعد مُرتبة هنا؟",
+        "textEn": "Wait... hasn't anyone noticed only six of us are here, yet seven seats are laid out?",
+        "nextNodeId": "open_5"
+      },
+      "open_5": {
+        "id": "open_5",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_karim",
+        "textAr": "والمصعد في الممر توقف قبل قليل... إشارة الشبكة عندي انقطعت فجأة.",
+        "textEn": "And the hallway elevator just shut down... my signal dropped completely.",
+        "nextNodeId": "open_6"
+      },
+      "open_6": {
+        "id": "open_6",
+        "speaker": "samer",
+        "speakerNameAr": "سامر",
+        "speakerNameEn": "Samer",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "closeup_samer",
+        "textAr": "هناك شيء غير طبيعي في هذا الاجتماع. ابقوا هادئين لحظة—",
+        "textEn": "Something about this meeting isn't right. Hold on a second—",
+        "setFlags": { "ch1_opening_dialogue_done": true }
+      }
+    }
+  },
+  {
+    "id": "ch1_blackout_reaction",
+    "titleAr": "انقطاع الكهرباء — الساعة 16:20",
+    "titleEn": "Sudden Blackout — 16:20",
+    "entryNodeId": "blk_1",
+    "nodes": {
+      "blk_1": {
+        "id": "blk_1",
+        "speaker": "nour",
+        "speakerNameAr": "نور",
+        "speakerNameEn": "Nour",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_nour",
+        "textAr": "ما الذي حدث؟! انطفأت كل الأنوار فجأة— زجاجتي سقطت!",
+        "textEn": "What just happened?! The lights died out of nowhere— I dropped my bottle!",
+        "nextNodeId": "blk_2"
+      },
+      "blk_2": {
+        "id": "blk_2",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "angle_door_lock",
+        "textAr": "انتظروا... الباب أصدر صوت قفل إلكتروني، وجهاز العرض في السقف يعمل وحده!",
+        "textEn": "Wait... the door just clicked locked, and the ceiling projector is booting up on its own!",
+        "setFlags": { "ch1_blackout_triggered": true }
+      }
+    }
+  },
+  {
+    "id": "ch1_adam_broadcast",
+    "titleAr": "بث الأستاذ آدم",
+    "titleEn": "Adam's Broadcast",
+    "entryNodeId": "adam_1",
+    "nodes": {
+      "adam_1": {
+        "id": "adam_1",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "neutral",
+        "speaking": true,
+        "textAr": "مساء الخير. أعرف أنكم تتساءلون لماذا أنتم هنا. أمامكم ليلة واحدة فقط لتعرفوا لماذا اجتمعتم في هذا المكان. تذكروا شيئًا واحدًا: الوقت لا ينتظر أحدًا.",
+        "textEn": "Good evening. I know you are wondering why you are here. You have one night to learn why you were gathered in this room. Remember one thing: time waits for no one.",
+        "nextNodeId": "adam_2"
+      },
+      "adam_2": {
+        "id": "adam_2",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "neutral",
+        "speaking": true,
+        "textAr": "قبل ثلاث سنوات، كانت هناك فتاة تجلس في أحد مقاعد هذا الفصل. كانت تضحك معكم، وتدرس معكم، ثم اختفت. أنتم تعرفون اسمها... إيلينا مراد.",
+        "textEn": "Three years ago, a girl sat at one of these desks. She laughed with you, studied with you, and then she was gone. You know her name... Elena Mourad.",
+        "nextNodeId": "adam_3"
+      },
+      "adam_3": {
+        "id": "adam_3",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "angry",
+        "speaking": true,
+        "textAr": "كل مهمة لها وقت محدد. إذا انتهى الوقت دون حلها، فسوف يخسر أحدكم حقه في البقاء. سبعة طلاب، سبعة مقاعد... ابحثوا عن أول كذبة قيلت في هذا الفصل.",
+        "textEn": "Every task has a timer. If time expires, one of you forfeits their right to stay. Seven students, seven seats... find the first lie told in this room.",
+        "setFlags": { "ch1_adam_broadcast_seen": true, "ch1_intro_completed": true }
+      }
+    }
+  },
+  {
+    "id": "conv_layan",
+    "characterId": "layan",
+    "titleAr": "محادثة: ليان",
+    "titleEn": "Conversation: Layan",
+    "entryNodeId": "l_1",
+    "nodes": {
+      "l_1": {
+        "id": "l_1",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "angle_board_cipher",
+        "textAr": "سامر، آدم لا يمزح. كل التفاصيل في هذا الفصل موضوعة بحساب دقيق... انظر إلى الأرقام على السبورة.",
+        "textEn": "Samer, Adam isn't bluffing. Every detail in this classroom was arranged deliberately... look at the numbers on the board.",
+        "nextNodeId": "l_photo_check"
+      },
+      "l_photo_check": {
+        "id": "l_photo_check",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "sad",
+        "speaking": true,
+        "cameraShot": "angle_seat7_empty",
+        "condition": { "flag": "ev_photo_examined", "equals": true },
+        "textAr": "أرأيت الصورة المقصوصة فوق المقعد السابع؟ الشخص المقطوع منها لم يكن إيلينا... هناك شخص ثانٍ كان واقفًا بجانبها ذلك اليوم.",
+        "textEn": "Did you see the cut photograph on the seventh desk? The missing figure wasn't Elena... there was a second person standing beside her that day.",
+        "unlockClueIds": ["clue_second_figure"],
+        "nextNodeId": "l_choice"
+      },
+      "l_choice": {
+        "id": "l_choice",
+        "speaker": "samer",
+        "speakerNameAr": "سامر",
+        "speakerNameEn": "Samer",
+        "expression": "neutral",
+        "speaking": false,
+        "cameraShot": "two_shot_conversation",
+        "textAr": "كيف نربط بين جدول الجلوس والسبورة؟",
+        "textEn": "How should I respond to Layan?",
+        "choices": [
+          {
+            "id": "l_trust",
+            "textAr": "سأحل اللغز معكِ، أخبريني بكل ما تعرفينه عن آدم.",
+            "textEn": "We'll solve this together. Tell me everything you know about Adam.",
+            "relationshipDelta": { "layan": 1 },
+            "unlockClueIds": ["clue_adam_elena_bond"],
+            "nextNodeId": "l_reply_trust"
+          },
+          {
+            "id": "l_cautious",
+            "textAr": "لماذا تبدين خائفة منه أكثر من البقية؟ هل تخفين شيئًا؟",
+            "textEn": "Why do you seem more afraid of him than the others? Are you hiding something?",
+            "relationshipDelta": { "layan": -1 },
+            "nextNodeId": "l_reply_cautious"
+          }
+        ]
+      },
+      "l_reply_trust": {
+        "id": "l_reply_trust",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "sad",
+        "speaking": true,
+        "cameraShot": "closeup_layan",
+        "textAr": "آدم شقيق إيلينا الأكبر. كان أستاذنا قبل ثلاث سنوات... وبعد وفاتها، أُغلق الملف بسرعة واختفى. والآن عاد يطلب الحقيقة.",
+        "textEn": "Adam is Elena's older brother. He taught here three years ago... after she died, the case was buried quickly and he vanished.",
+        "setFlags": { "talked_layan": true }
+      },
+      "l_reply_cautious": {
+        "id": "l_reply_cautious",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_layan",
+        "textAr": "لست المذنبة يا سامر... لكني احتفظت بنسخة من رسالة قديمة تخص إيلينا، وأخشى أن يعرف الآخرون.",
+        "textEn": "I'm not the guilty one, Samer... I just kept a copy of an old letter about Elena, and I'm afraid of what happens if it surfaces.",
+        "setFlags": { "talked_layan": true }
+      }
+    }
+  },
+  {
+    "id": "conv_yacine",
+    "characterId": "yacine",
+    "titleAr": "محادثة: ياسين",
+    "titleEn": "Conversation: Yacine",
+    "entryNodeId": "y_1",
+    "nodes": {
+      "y_1": {
+        "id": "y_1",
+        "speaker": "yacine",
+        "speakerNameAr": "ياسين",
+        "speakerNameEn": "Yacine",
+        "expression": "angry",
+        "speaking": true,
+        "cameraShot": "angle_door_lock",
+        "textAr": "كفاكم تضيعًا للوقت في نبش الماضي! علينا إيجاد طريقة لكسر هذا القفل قبل أن تتدخل عائلتي.",
+        "textEn": "Stop wasting time digging up the past! We need to force this lock before my family has to tear the place down.",
+        "nextNodeId": "y_choice"
+      },
+      "y_choice": {
+        "id": "y_choice",
+        "speaker": "samer",
+        "speakerNameAr": "سامر",
+        "speakerNameEn": "Samer",
+        "expression": "neutral",
+        "speaking": false,
+        "cameraShot": "two_shot_conversation",
+        "textAr": "وجهك تغير فور ظهور صورة إيلينا...",
+        "textEn": "Ask Yacine about his reaction:",
+        "choices": [
+          {
+            "id": "y_press",
+            "textAr": "تغير لون وجهك عندما ظهرت صورة إيلينا. ماذا حدث بينكم؟",
+            "textEn": "You went pale the moment Elena's photo appeared. What happened between you?",
+            "relationshipDelta": { "yacine": -1 },
+            "unlockClueIds": ["clue_yacine_avoids_elena"],
+            "nextNodeId": "y_reply"
+          },
+          {
+            "id": "y_calm",
+            "textAr": "إذا أردنا الخروج، فعلينا فهم سبب اختيار آدم لنا تحديدًا.",
+            "textEn": "If we want out, we have to figure out why Adam chose us specifically.",
+            "relationshipDelta": { "yacine": 1 },
+            "unlockClueIds": ["clue_yacine_avoids_elena"],
+            "nextNodeId": "y_reply"
+          }
+        ]
+      },
+      "y_reply": {
+        "id": "y_reply",
+        "speaker": "yacine",
+        "speakerNameAr": "ياسين",
+        "speakerNameEn": "Yacine",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_yacine",
+        "textAr": "لم يكن بيني وبينها شيء! كانت فتاة منعزلة لا تتحدث مع أحد... توقف عن ترديد كلام أستاذ فقد صوابه.",
+        "textEn": "There was nothing between us! She kept to herself and barely spoke to anyone... stop repeating a broken teacher's script.",
+        "setFlags": { "talked_yacine": true }
+      }
+    }
+  },
+  {
+    "id": "conv_nour",
+    "characterId": "nour",
+    "titleAr": "محادثة: نور",
+    "titleEn": "Conversation: Nour",
+    "entryNodeId": "n_1",
+    "nodes": {
+      "n_1": {
+        "id": "n_1",
+        "speaker": "nour",
+        "speakerNameAr": "نور",
+        "speakerNameEn": "Nour",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "angle_window_rain",
+        "textAr": "آسفة على الزجاجة... يدي ارتعشت عندما انطفأت الأنوار فجأة. هل تظن أن الكاميرات تسجل كل كلمة نقولها؟",
+        "textEn": "Sorry about the bottle... my hand slipped when the lights died. Do you think the cameras are recording everything?",
+        "nextNodeId": "n_choice"
+      },
+      "n_choice": {
+        "id": "n_choice",
+        "speaker": "samer",
+        "speakerNameAr": "سامر",
+        "speakerNameEn": "Samer",
+        "expression": "neutral",
+        "speaking": false,
+        "cameraShot": "closeup_samer",
+        "textAr": "كيف أسأل نور؟",
+        "textEn": "Choose what to ask Nour:",
+        "choices": [
+          {
+            "id": "n_ask_photo",
+            "textAr": "هل رأيتِ هذه الصورة الجماعية القديمة؟ لماذا قُصّ أحد الوجوه منها؟",
+            "textEn": "Have you seen this old class photo? Why was someone cut out of it?",
+            "condition": { "flag": "ev_photo_examined", "equals": true },
+            "setFlags": { "asked_nour_photo": true },
+            "relationshipDelta": { "nour": -1 },
+            "nextNodeId": "n_photo_react"
+          },
+          {
+            "id": "n_reassure",
+            "textAr": "تنفسي بهدوء يا نور. هل تواصلتِ مع إيلينا قبل رحيلها؟",
+            "textEn": "Breathe, Nour. Were you in touch with Elena before she died?",
+            "relationshipDelta": { "nour": 1 },
+            "nextNodeId": "n_normal_reply"
+          }
+        ]
+      },
+      "n_photo_react": {
+        "id": "n_photo_react",
+        "speaker": "nour",
+        "speakerNameAr": "نور",
+        "speakerNameEn": "Nour",
+        "expression": "sad",
+        "speaking": true,
+        "cameraShot": "angle_seat7_empty",
+        "textAr": "أبعدها من هنا... أرجوك. لو عرفت الإدارة أنني ما زلت أحتفظ بآخر رسائلها، لن يرحمني أحد.",
+        "textEn": "Put it away... please. If anyone finds out I still had her last messages, I'm finished.",
+        "setFlags": { "talked_nour": true }
+      },
+      "n_normal_reply": {
+        "id": "n_normal_reply",
+        "speaker": "nour",
+        "speakerNameAr": "نور",
+        "speakerNameEn": "Nour",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_nour",
+        "textAr": "كنا نتبادل الملاحظات الدراسية أحيانًا... لم أكن أعرف أن الأمور وصلت إلى هذا الحد، صدقني!",
+        "textEn": "We only traded study notes sometimes... I didn't know things had gotten that bad, believe me!",
+        "setFlags": { "talked_nour": true }
+      }
+    }
+  },
+  {
+    "id": "conv_mariam",
+    "characterId": "mariam",
+    "titleAr": "محادثة: مريم",
+    "titleEn": "Conversation: Mariam",
+    "entryNodeId": "m_1",
+    "nodes": {
+      "m_1": {
+        "id": "m_1",
+        "speaker": "mariam",
+        "speakerNameAr": "مريم",
+        "speakerNameEn": "Mariam",
+        "expression": "angry",
+        "speaking": true,
+        "cameraShot": "closeup_mariam",
+        "textAr": "ياسين يتصرف وكأن الصمت سيحل المشكلة، ونور ترتجف. على الأقل أنت تتحقق من الأدلة فعلًا يا سامر.",
+        "textEn": "Yacine acts like silence will fix this, and Nour is shaking. At least you're actually checking the evidence, Samer.",
+        "nextNodeId": "m_2"
+      },
+      "m_2": {
+        "id": "m_2",
+        "speaker": "mariam",
+        "speakerNameAr": "مريم",
+        "speakerNameEn": "Mariam",
+        "expression": "sad",
+        "speaking": true,
+        "cameraShot": "two_shot_conversation",
+        "textAr": "إيلينا لم تكن فتاة غريبة كما يصفونها. كانت ترسم وتكتب بذكاء نادر... لكننا تشاجرنا قبل النهاية، وطلبت مني الابتعاد. لم أُصلح ذلك يومًا.",
+        "textEn": "Elena wasn't some recluse like they claim. She drew and wrote with rare depth... but we argued before the end, and she told me to stay away. I never fixed it.",
+        "unlockClueIds": ["clue_elena_personality"],
+        "setFlags": { "talked_mariam": true }
+      }
+    }
+  },
+  {
+    "id": "conv_karim",
+    "characterId": "karim",
+    "titleAr": "محادثة: كريم",
+    "titleEn": "Conversation: Karim",
+    "entryNodeId": "k_1",
+    "nodes": {
+      "k_1": {
+        "id": "k_1",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_karim",
+        "textAr": "الشبكة الداخلية للأكاديمية لم تُغلق بالكامل. أرى إشارة قادمة من خادم قديم لا يظهر في الخرائط الرسمية: PROJECT ECHO.",
+        "textEn": "The academy intranet isn't completely dead. I'm picking up a route from an unmapped legacy server: PROJECT ECHO.",
+        "unlockClueIds": ["clue_project_echo"],
+        "nextNodeId": "k_2"
+      },
+      "k_2": {
+        "id": "k_2",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "angle_teachers_desk",
+        "textAr": "إذا رنّ هذا الجهاز اللوحي باستدعاء، لا تثقوا بأي رسالة تأتي باسم الإدارة. هناك تسجيلات قديمة حاولوا حذفها.",
+        "textEn": "If this tablet pings again, don't trust anything sent under administration's name. There are old recordings they tried to scrub.",
+        "setFlags": { "talked_karim": true }
+      }
+    }
+  }
+]

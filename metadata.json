@@ -1,0 +1,6 @@
+{
+  "name": "The Last Bell — Chapter 01: The Locked Classroom",
+  "description": "A 2D psychological mystery thriller in Phaser 3. Investigate Orion Academy's locked classroom, gather evidence, question five classmates, and solve the seating cipher before the bell rings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

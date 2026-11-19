@@ -1,0 +1,65 @@
+{
+  "sceneId": "classroom_dark",
+  "titleAr": "انقطاع الكهرباء",
+  "titleEn": "Classroom — Blackout & Projector Reveal",
+  "purpose": "Shot 05 / Scene 02b: Power outage silhouette beat with ceiling projector beam illuminating the centered digital whiteboard.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "blackout_projector_cone",
+    "ambientColor": "#04070D",
+    "direction": { "fromX": 0.511, "fromY": 0.06, "toX": 0.511, "toY": 0.394, "label": "Crisp volumetric projector cone onto digital blackboard" },
+    "weather": "night_storm_silhouette"
+  },
+  "camera": {
+    "framing": "classroom_wide_master",
+    "startZoom": 1.15,
+    "endZoom": 1.19,
+    "focusTarget": { "x": 0.515, "y": 0.535 },
+    "panDurationMs": 1400
+  },
+  "floorLineY": 0.61,
+  "walkableArea": [],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "dark_room", "depth": 0 },
+    { "id": "entities_by_y", "depthMode": "by_y", "minDepth": 430, "maxDepth": 700 },
+    { "id": "projector_beam_volumetric", "depth": 900 }
+  ],
+  "objects": [
+    { "id": "projector", "label": "Booting Projector", "visualMode": "baked", "x": 0.511, "y": 0.06, "w": 0.07, "h": 0.05, "origin": [0.5, 0.5], "depth": 20, "interactive": false },
+    { "id": "board", "label": "Lit Projector Screen", "visualMode": "baked", "x": 0.511, "y": 0.394, "w": 0.206, "h": 0.203, "origin": [0.5, 0.5], "depth": 15, "interactive": false },
+
+    { "id": "desk_f1", "label": "Front Desk 1", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.305, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_f2", "label": "Front Desk 2", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.515, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_m1", "label": "Middle Desk 1 (Seat 7)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.268, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_m1", "label": "Empty Chair (Seat 7)", "textureKey": "obj_chair_board", "flipX": true, "shadow": true, "x": 0.244, "y": 0.822, "w": 0, "h": 0.152, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_m2", "label": "Middle Desk 2", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.505, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_m2", "label": "Samer's Chair", "textureKey": "obj_chair_board", "shadow": true, "x": 0.529, "y": 0.822, "w": 0, "h": 0.152, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_m3", "label": "Middle Desk 3", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.706, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_r1", "label": "Rear Desk 1", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.230, "y": 0.916, "w": 0, "h": 0.186, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_r1", "label": "Empty Rear Chair", "textureKey": "obj_chair_board", "flipX": true, "shadow": true, "x": 0.204, "y": 0.940, "w": 0, "h": 0.172, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_r2", "label": "Rear Desk 2", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.772, "y": 0.922, "w": 0, "h": 0.186, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false }
+  ],
+  "characters": [
+    { "id": "layan", "label": "Layan (Silhouette)", "pose": "seated", "x": 0.284, "y": 0.678, "normHeight": 0.200, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "yacine", "label": "Yacine (Silhouette)", "pose": "seated", "x": 0.538, "y": 0.686, "normHeight": 0.234, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "left", "interactive": false },
+    { "id": "samer", "label": "Samer (Silhouette)", "pose": "standing", "x": 0.388, "y": 0.788, "normHeight": 0.312, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "mariam", "label": "Mariam (Silhouette)", "pose": "seated", "x": 0.682, "y": 0.786, "normHeight": 0.248, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "nour", "label": "Nour (Silhouette)", "pose": "standing", "x": 0.146, "y": 0.818, "normHeight": 0.304, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "karim", "label": "Karim (Silhouette + Tablet)", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false }
+  ],
+  "evidence": [],
+  "dialogueTriggers": ["ch1_blackout_reaction"],
+  "transitions": [
+    {
+      "to": "projector_closeup",
+      "condition": { "flag": "ch1_blackout_triggered", "equals": true },
+      "type": "zoom_to_projector",
+      "durationMs": 700
+    }
+  ]
+}

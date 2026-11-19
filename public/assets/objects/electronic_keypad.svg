@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="140" viewBox="0 0 96 140">
+  <defs>
+    <linearGradient id="keypadShell" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <radialGradient id="keypadRedGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#EF4444" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#DC2626" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#DC2626" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect x="14" y="13" width="72" height="120" rx="4" fill="#020617" fill-opacity="0.45" />
+  <rect x="12" y="10" width="72" height="120" rx="4" fill="url(#keypadShell)" stroke="#090D16" stroke-width="3.5" />
+  <rect x="22" y="22" width="52" height="24" rx="2" fill="#090D16" stroke="#475569" stroke-width="1.5" />
+  <circle cx="48" cy="34" r="14" fill="url(#keypadRedGlow)" />
+  <circle cx="48" cy="34" r="5" fill="#DC2626" />
+  <circle cx="46.5" cy="32.5" r="1.5" fill="#FCA5A5" />
+  <!-- Keypad grid -->
+  <g fill="#334155" stroke="#0F172A" stroke-width="1">
+    <rect x="24" y="56" width="13" height="12" rx="1" />
+    <rect x="41" y="56" width="13" height="12" rx="1" />
+    <rect x="58" y="56" width="13" height="12" rx="1" />
+    <rect x="24" y="72" width="13" height="12" rx="1" />
+    <rect x="41" y="72" width="13" height="12" rx="1" />
+    <rect x="58" y="72" width="13" height="12" rx="1" />
+    <rect x="24" y="88" width="13" height="12" rx="1" />
+    <rect x="41" y="88" width="13" height="12" rx="1" />
+    <rect x="58" y="88" width="13" height="12" rx="1" />
+  </g>
+</svg>

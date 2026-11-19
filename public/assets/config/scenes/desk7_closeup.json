@@ -1,0 +1,57 @@
+{
+  "sceneId": "desk7_closeup",
+  "titleAr": "المقعد السابع الفارغ",
+  "titleEn": "Seat 7 — Elena's Empty Desk",
+  "purpose": "Shot 06: Close-up inspection of Elena's empty 7th desk featuring the worn notebook, pencil, and cut vintage class photograph.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "rainy_window_closeup",
+    "ambientColor": "#182536",
+    "direction": { "fromX": 0.12, "fromY": 0.20, "toX": 0.65, "toY": 0.72, "label": "Soft overcast window daylight grazing wooden desktop" },
+    "weather": "exterior_window_rain"
+  },
+  "camera": {
+    "framing": "closeup_desk7",
+    "startZoom": 1.0,
+    "endZoom": 1.04,
+    "focusTarget": { "x": 0.52, "y": 0.52 },
+    "panDurationMs": 900
+  },
+  "floorLineY": 0.85,
+  "walkableArea": [],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "desk_surface", "depth": 0 }
+  ],
+  "objects": [
+    {
+      "id": "class_photo",
+      "label": "Cut Class Photo (Seat 7 Desk)",
+      "visualMode": "baked",
+      "x": 0.61,
+      "y": 0.54,
+      "w": 0.25,
+      "h": 0.18,
+      "origin": [0.5, 0.5],
+      "depth": 20,
+      "interactive": true,
+      "interactionZone": { "x": 0.48, "y": 0.44, "w": 0.26, "h": 0.20 },
+      "evidenceId": "ev_cut_photo"
+    }
+  ],
+  "characters": [],
+  "evidence": ["ev_cut_photo"],
+  "dialogueTriggers": [],
+  "transitions": [
+    {
+      "to": "classroom_emergency",
+      "condition": { "flag": "ev_photo_examined", "equals": true },
+      "type": "fade",
+      "durationMs": 450
+    }
+  ]
+}

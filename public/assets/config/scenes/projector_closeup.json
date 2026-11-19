@@ -1,0 +1,42 @@
+{
+  "sceneId": "projector_closeup",
+  "titleAr": "شاشة العرض",
+  "titleEn": "Projector Screen — Close-Up",
+  "purpose": "Shot 07 / Scenes 02c & 07: Close-up of the glowing digital blackboard displaying Adam Mourad's broadcast, Elena's archival portrait, 59:59 countdown, and the final Room 0 teaser.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "projector_screen_focus",
+    "ambientColor": "#0B1220",
+    "direction": { "fromX": 0.51, "fromY": 0.06, "toX": 0.51, "toY": 0.50, "label": "High-contrast cold screen radiance + subtle horizontal scanlines" },
+    "weather": "none"
+  },
+  "camera": {
+    "framing": "closeup_screen",
+    "startZoom": 1.0,
+    "endZoom": 1.0,
+    "focusTarget": { "x": 0.515, "y": 0.46 }
+  },
+  "floorLineY": 0.85,
+  "walkableArea": [],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "wall_frame", "depth": 0 },
+    { "id": "broadcast_portrait_and_timer", "depth": 20 },
+    { "id": "scanline_fx", "depth": 40 }
+  ],
+  "objects": [
+    { "id": "projector_frame", "label": "Digital Blackboard Surface", "visualMode": "baked", "x": 0.518, "y": 0.462, "w": 0.540, "h": 0.500, "origin": [0.5, 0.5], "depth": 10, "interactive": false },
+    { "id": "broadcast_message_slot", "label": "Projected Broadcast Feed", "visualMode": "baked", "x": 0.518, "y": 0.462, "w": 0.520, "h": 0.460, "origin": [0.5, 0.5], "depth": 20, "interactive": true, "interactionZone": { "x": 0.258, "y": 0.230, "w": 0.520, "h": 0.460 } }
+  ],
+  "characters": [],
+  "evidence": [],
+  "dialogueTriggers": ["ch1_adam_broadcast", "ch1_room0_teaser"],
+  "transitions": [
+    { "to": "classroom_emergency", "condition": { "flag": "ch1_adam_broadcast_seen", "equals": true }, "type": "zoom_out", "durationMs": 600 },
+    { "to": "door_closeup", "condition": { "flag": "ch1_room0_teaser_seen", "equals": true }, "type": "pan_to_door", "durationMs": 1200 }
+  ]
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+  <circle cx="22" cy="22" r="19" fill="#080E1A" fill-opacity="0.92" stroke="#E2E8F0" stroke-width="1.8" />
+  <circle cx="22" cy="22" r="15" fill="none" stroke="#334155" stroke-width="1" />
+  <text x="22" y="27" text-anchor="middle" fill="#F8FAFC" font-family="JetBrains Mono, monospace" font-size="16" font-weight="700">E</text>
+</svg>

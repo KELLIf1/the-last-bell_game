@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <radialGradient id="clockWood" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#4A352A" />
+      <stop offset="65%" stop-color="#291E18" />
+      <stop offset="100%" stop-color="#140E0B" />
+    </radialGradient>
+    <radialGradient id="clockFace" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#F1F5F9" />
+      <stop offset="75%" stop-color="#CBD5E1" />
+      <stop offset="100%" stop-color="#94A3B8" />
+    </radialGradient>
+    <linearGradient id="brassRim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="50%" stop-color="#92400E" />
+      <stop offset="100%" stop-color="#451A03" />
+    </linearGradient>
+    <linearGradient id="glassGlare" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.34" />
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+  <!-- Wall drop shadow -->
+  <circle cx="67" cy="68" r="56" fill="#020617" fill-opacity="0.52" />
+  <circle cx="64" cy="64" r="56" fill="url(#clockWood)" stroke="#090D16" stroke-width="3.5" />
+  <circle cx="64" cy="64" r="48" fill="#1E293B" stroke="url(#brassRim)" stroke-width="3" />
+  <circle cx="64" cy="64" r="43" fill="url(#clockFace)" stroke="#334155" stroke-width="1.5" />
+  <!-- Inner recessed shadow ring -->
+  <circle cx="64" cy="64" r="41" fill="none" stroke="#0F172A" stroke-width="2" stroke-opacity="0.18" />
+  <!-- Hour ticks -->
+  <g stroke="#0F172A" stroke-width="2.4" stroke-linecap="round">
+    <line x1="64" y1="25" x2="64" y2="32" />
+    <line x1="64" y1="96" x2="64" y2="103" />
+    <line x1="25" y1="64" x2="32" y2="64" />
+    <line x1="96" y1="64" x2="103" y2="64" />
+    <line x1="83" y1="30" x2="80" y2="36" />
+    <line x1="98" y1="45" x2="92" y2="48" />
+    <line x1="98" y1="83" x2="92" y2="80" />
+    <line x1="83" y1="98" x2="80" y2="92" />
+    <line x1="45" y1="98" x2="48" y2="92" />
+    <line x1="30" y1="83" x2="36" y2="80" />
+    <line x1="30" y1="45" x2="36" y2="48" />
+    <line x1="45" y1="30" x2="48" y2="36" />
+  </g>
+  <!-- Stopped at 16:20 -->
+  <line x1="64" y1="64" x2="85" y2="79" stroke="#090D16" stroke-width="4.5" stroke-linecap="round" />
+  <line x1="64" y1="64" x2="92" y2="80" stroke="#DC2626" stroke-width="2.6" stroke-linecap="round" />
+  <circle cx="64" cy="64" r="4.8" fill="#090D16" stroke="#D97706" stroke-width="1.5" />
+  <!-- Curved glass glare reflection -->
+  <path d="M27,46 A42,42 0 0,1 89,30 Q62,54 27,46 Z" fill="url(#glassGlare)" />
+</svg>

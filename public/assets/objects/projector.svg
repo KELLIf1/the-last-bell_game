@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="80" viewBox="0 0 140 80">
+  <defs>
+    <linearGradient id="projBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <radialGradient id="projLens" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#BAE6FD" stop-opacity="0.95" />
+      <stop offset="55%" stop-color="#38BDF8" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#0284C7" stop-opacity="0.2" />
+    </radialGradient>
+  </defs>
+  <rect x="64" y="0" width="12" height="26" fill="#334155" stroke="#090D16" stroke-width="2" />
+  <rect x="22" y="24" width="96" height="38" rx="6" fill="url(#projBody)" stroke="#090D16" stroke-width="3" />
+  <line x1="26" y1="26" x2="114" y2="26" stroke="#94A3B8" stroke-width="1" stroke-opacity="0.45" />
+  <!-- Cooling vents -->
+  <g stroke="#090D16" stroke-width="1.5">
+    <line x1="30" y1="36" x2="44" y2="36" /><line x1="30" y1="42" x2="44" y2="42" /><line x1="30" y1="48" x2="44" y2="48" />
+  </g>
+  <circle cx="70" cy="45" r="14" fill="#0F172A" stroke="#64748B" stroke-width="2.5" />
+  <circle cx="70" cy="45" r="9" fill="url(#projLens)" />
+  <circle cx="67" cy="42" r="2.5" fill="#F8FAFC" />
+  <circle cx="104" cy="35" r="3" fill="#DC2626" />
+</svg>

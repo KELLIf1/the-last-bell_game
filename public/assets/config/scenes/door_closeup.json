@@ -1,0 +1,43 @@
+{
+  "sceneId": "door_closeup",
+  "titleAr": "الباب الإلكتروني",
+  "titleEn": "Electronic Door — Close-Up",
+  "purpose": "Door Close-Up: Close framing on the modern wood-and-steel classroom door, frosted slit, crimson keypad lock glow, and Karim's brief tablet-summoned exit.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "door_lock_red_led",
+    "ambientColor": "#111827",
+    "direction": { "fromX": 0.92, "fromY": 0.58, "toX": 0.60, "toY": 0.72, "label": "Crimson keypad LED glow on steel-and-wood door handle + rainy left windows behind" },
+    "weather": "exterior_window_rain"
+  },
+  "camera": {
+    "framing": "closeup_door_and_keypad",
+    "startZoom": 1.0,
+    "endZoom": 1.08,
+    "focusTarget": { "x": 0.68, "y": 0.50 }
+  },
+  "floorLineY": 0.85,
+  "walkableArea": [],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "door_backdrop", "depth": 0 },
+    { "id": "karim_exit_silhouette", "depth": 20 }
+  ],
+  "objects": [
+    { "id": "door_panel", "label": "Modern Wood & Steel Door", "visualMode": "baked", "x": 0.695, "y": 0.540, "w": 0.370, "h": 0.880, "origin": [0.5, 0.5], "depth": 15, "interactive": true, "interactionZone": { "x": 0.510, "y": 0.100, "w": 0.370, "h": 0.880 } },
+    { "id": "electronic_keypad", "label": "Electronic Lock Keypad", "visualMode": "baked", "x": 0.922, "y": 0.578, "w": 0.060, "h": 0.130, "origin": [0.5, 0.5], "depth": 25, "interactive": true, "interactionZone": { "x": 0.892, "y": 0.513, "w": 0.060, "h": 0.130 } }
+  ],
+  "characters": [
+    { "id": "karim", "label": "Karim (Exiting via Brief Unlock)", "pose": "standing", "x": 0.66, "y": 0.94, "normHeight": 0.55, "origin": [0.5, 1.0], "depthMode": "fixed", "depth": 20, "interactive": false, "conditionFlag": "ch1_karim_summoned" }
+  ],
+  "evidence": [],
+  "dialogueTriggers": ["ch1_door_locked_check", "ch1_karim_exit", "ch1_ending_bell"],
+  "transitions": [
+    { "to": "classroom_emergency", "condition": { "flag": "ch1_return_from_door", "equals": true }, "type": "fade", "durationMs": 450 },
+    { "to": "ending", "condition": { "flag": "ch1_bell_rung", "equals": true }, "type": "fade_to_black", "durationMs": 1400 }
+  ]
+}

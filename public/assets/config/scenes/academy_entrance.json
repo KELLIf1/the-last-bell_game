@@ -1,0 +1,56 @@
+{
+  "sceneId": "academy_entrance",
+  "titleAr": "أكاديمية أوريون الدولية — المدخل",
+  "titleEn": "Orion Academy — Main Entrance",
+  "purpose": "Shot 02: Closer establishing view of Orion Academy's glass double entrance doors and wet stone stairs before stepping inside.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "rainy_twilight_entrance",
+    "ambientColor": "#111827",
+    "direction": { "fromX": 0.50, "fromY": 0.42, "toX": 0.50, "toY": 0.90, "label": "Warm interior glass entrance spill over cool rainy stone steps" },
+    "weather": "steady_rain"
+  },
+  "camera": {
+    "framing": "entrance_push",
+    "startZoom": 1.0,
+    "endZoom": 1.08,
+    "focusTarget": { "x": 0.50, "y": 0.52 },
+    "panDurationMs": 2600
+  },
+  "floorLineY": 0.72,
+  "walkableArea": [],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "entrance_backdrop", "depth": 0 },
+    { "id": "rain_particles", "depth": 90 }
+  ],
+  "objects": [
+    {
+      "id": "glass_double_doors",
+      "label": "Academy Glass Entrance",
+      "visualMode": "baked",
+      "x": 0.50,
+      "y": 0.54,
+      "w": 0.16,
+      "h": 0.24,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": false
+    }
+  ],
+  "characters": [],
+  "evidence": [],
+  "dialogueTriggers": [],
+  "transitions": [
+    {
+      "to": "classroom_day",
+      "condition": { "flag": "ch1_entrance_seen", "equals": true },
+      "type": "crossfade",
+      "durationMs": 700
+    }
+  ]
+}

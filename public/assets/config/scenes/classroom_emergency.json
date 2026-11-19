@@ -1,0 +1,182 @@
+{
+  "sceneId": "classroom_emergency",
+  "titleAr": "الفصل 3B — إضاءة الطوارئ",
+  "titleEn": "Classroom 3B — Emergency Lockdown",
+  "purpose": "Shot 04 / Playable Hub: Lockdown exploration with 5 aligned architectural/desk evidence hotspots, 3 rows of 7 depth-sorted desks, and 5 interactive student conversations.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "emergency_lockdown",
+    "ambientColor": "#111827",
+    "direction": { "fromX": 0.12, "fromY": 0.20, "toX": 0.72, "toY": 0.78, "label": "Cold storm window shadows across herringbone floor + crimson door lock glow" },
+    "weather": "dark_rain_windows"
+  },
+  "camera": {
+    "framing": "classroom_wide_master",
+    "startZoom": 1.15,
+    "endZoom": 1.15,
+    "focusTarget": { "x": 0.515, "y": 0.545 }
+  },
+  "floorLineY": 0.61,
+  "walkableArea": [
+    { "x": 0.14, "y": 0.64 },
+    { "x": 0.85, "y": 0.64 },
+    { "x": 0.88, "y": 0.89 },
+    { "x": 0.13, "y": 0.89 }
+  ],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "master_room_backdrop", "depth": 0 },
+    { "id": "entities_by_y", "depthMode": "by_y", "minDepth": 430, "maxDepth": 700 },
+    { "id": "emergency_lighting_fx", "depth": 900 }
+  ],
+  "objects": [
+    {
+      "id": "board",
+      "label": "Whiteboard (4-1-7-2-6-3-5 & Note)",
+      "visualMode": "baked",
+      "x": 0.511,
+      "y": 0.394,
+      "w": 0.206,
+      "h": 0.203,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": true,
+      "interactionZone": { "x": 0.405, "y": 0.290, "w": 0.212, "h": 0.210 },
+      "evidenceId": "ev_board_cipher"
+    },
+    {
+      "id": "wall_clock",
+      "label": "Wall Clock (16:20 — Time remembers)",
+      "visualMode": "baked",
+      "x": 0.667,
+      "y": 0.317,
+      "w": 0.044,
+      "h": 0.072,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": true,
+      "interactionZone": { "x": 0.642, "y": 0.275, "w": 0.052, "h": 0.085 },
+      "evidenceId": "ev_wall_clock"
+    },
+    {
+      "id": "teachers_desk",
+      "label": "Teacher's Desk (Old Seating Chart)",
+      "visualMode": "baked",
+      "x": 0.662,
+      "y": 0.580,
+      "w": 0.175,
+      "h": 0.145,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": true,
+      "interactionZone": { "x": 0.576, "y": 0.495, "w": 0.172, "h": 0.158 },
+      "evidenceId": "ev_seating_chart"
+    },
+    {
+      "id": "attendance_register",
+      "label": "Bookshelf & Damaged Attendance Register",
+      "visualMode": "baked",
+      "x": 0.854,
+      "y": 0.625,
+      "w": 0.105,
+      "h": 0.220,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": true,
+      "interactionZone": { "x": 0.800, "y": 0.510, "w": 0.108, "h": 0.228 },
+      "evidenceId": "ev_attendance_register"
+    },
+    {
+      "id": "door",
+      "label": "Locked Electronic Door",
+      "visualMode": "baked",
+      "x": 0.935,
+      "y": 0.520,
+      "w": 0.085,
+      "h": 0.580,
+      "origin": [0.5, 0.5],
+      "depth": 10,
+      "interactive": true,
+      "interactionZone": { "x": 0.900, "y": 0.230, "w": 0.055, "h": 0.580 }
+    },
+    {
+      "id": "projector",
+      "label": "Projector (Inspect in Finale)",
+      "visualMode": "baked",
+      "x": 0.511,
+      "y": 0.130,
+      "w": 0.08,
+      "h": 0.06,
+      "origin": [0.5, 0.5],
+      "depth": 15,
+      "interactive": true,
+      "interactionZone": { "x": 0.470, "y": 0.102, "w": 0.085, "h": 0.070 },
+      "conditionFlag": "ch1_karim_summoned"
+    },
+
+    { "id": "desk_f1", "label": "Front Desk 1 (Layan)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.305, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_f2", "label": "Front Desk 2 (Yacine)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.515, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+
+    { "id": "desk_m1", "label": "Middle Desk 1 (Seat 7 — Empty)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.268, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_m1", "label": "Empty Chair (Seat 7)", "textureKey": "obj_chair_board", "flipX": true, "shadow": true, "x": 0.244, "y": 0.822, "w": 0, "h": 0.152, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    {
+      "id": "class_photo",
+      "label": "Cut Class Photo (Seat 7 Desk)",
+      "textureKey": "obj_class_photo",
+      "x": 0.268,
+      "y": 0.684,
+      "w": 0.044,
+      "h": 0.036,
+      "origin": [0.5, 0.5],
+      "depth": 582,
+      "interactive": true,
+      "interactionZone": { "x": 0.218, "y": 0.640, "w": 0.100, "h": 0.165 },
+      "evidenceId": "ev_cut_photo"
+    },
+
+    { "id": "desk_m2", "label": "Middle Desk 2 (Samer)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.505, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_m2", "label": "Samer's Chair", "textureKey": "obj_chair_board", "shadow": true, "x": 0.529, "y": 0.822, "w": 0, "h": 0.152, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_m3", "label": "Middle Desk 3 (Mariam)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.706, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+
+    { "id": "desk_r1", "label": "Rear Desk 1 (Empty)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.230, "y": 0.916, "w": 0, "h": 0.186, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_r1", "label": "Empty Rear Chair", "textureKey": "obj_chair_board", "flipX": true, "shadow": true, "x": 0.204, "y": 0.940, "w": 0, "h": 0.172, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_r2", "label": "Rear Desk 2 (Karim)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.772, "y": 0.922, "w": 0, "h": 0.186, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+
+    {
+      "id": "dropped_bottle",
+      "label": "Nour's Dropped Water Bottle",
+      "x": 0.176,
+      "y": 0.830,
+      "w": 0.026,
+      "h": 0.036,
+      "origin": [0.5, 1.0],
+      "depthMode": "by_y",
+      "interactive": false
+    }
+  ],
+  "characters": [
+    { "id": "layan", "label": "Layan", "pose": "seated", "x": 0.284, "y": 0.678, "normHeight": 0.200, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.240, "y": 0.478, "w": 0.090, "h": 0.210 } },
+    { "id": "yacine", "label": "Yacine", "pose": "seated", "x": 0.538, "y": 0.686, "normHeight": 0.234, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "left", "interactive": true, "interactionZone": { "x": 0.493, "y": 0.453, "w": 0.090, "h": 0.240 } },
+    { "id": "samer", "label": "Samer (Player)", "pose": "standing", "x": 0.388, "y": 0.788, "normHeight": 0.312, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "mariam", "label": "Mariam", "pose": "seated", "x": 0.682, "y": 0.786, "normHeight": 0.248, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.638, "y": 0.535, "w": 0.090, "h": 0.255 } },
+    { "id": "nour", "label": "Nour", "pose": "standing", "x": 0.146, "y": 0.818, "normHeight": 0.304, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.102, "y": 0.518, "w": 0.090, "h": 0.305 } },
+    { "id": "karim", "label": "Karim", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.700, "y": 0.629, "w": 0.095, "h": 0.275 }, "hiddenWhenFlag": "ch1_karim_summoned" }
+  ],
+  "evidence": [
+    "ev_board_cipher",
+    "ev_seating_chart",
+    "ev_wall_clock",
+    "ev_cut_photo",
+    "ev_attendance_register"
+  ],
+  "dialogueTriggers": ["conv_layan", "conv_yacine", "conv_nour", "conv_mariam", "conv_karim", "ch1_puzzle_aftermath"],
+  "transitions": [
+    { "to": "puzzle_seating", "condition": { "flag": "puzzle_01_unlocked", "equals": true }, "type": "overlay_modal" },
+    { "to": "door_closeup", "condition": { "flag": "ch1_karim_summoned", "equals": true }, "type": "camera_cut" },
+    { "to": "projector_closeup", "condition": { "flag": "ch1_inspect_final_projector", "equals": true }, "type": "camera_cut" }
+  ]
+}

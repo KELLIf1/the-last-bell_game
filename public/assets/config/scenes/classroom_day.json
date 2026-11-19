@@ -1,0 +1,76 @@
+{
+  "sceneId": "classroom_day",
+  "titleAr": "الفصل 3B — الساعة 16:20",
+  "titleEn": "Classroom 3B — 16:20",
+  "purpose": "Shot 03 / Scene 02a: Pre-blackout classroom at 16:20 with 3 rows of 7 wooden desks, 6 present students in natural seated/standing blocking, and Elena's empty 7th seat.",
+  "baseResolution": { "width": 1280, "height": 720 },
+  "lighting": {
+    "state": "overcast_day_1620",
+    "ambientColor": "#182536",
+    "direction": { "fromX": 0.08, "fromY": 0.22, "toX": 0.72, "toY": 0.68, "label": "Overcast rainy window light from left + warm ceiling fixtures" },
+    "weather": "exterior_window_rain"
+  },
+  "camera": {
+    "framing": "classroom_wide_master",
+    "startZoom": 1.15,
+    "endZoom": 1.15,
+    "focusTarget": { "x": 0.515, "y": 0.545 }
+  },
+  "floorLineY": 0.61,
+  "walkableArea": [
+    { "x": 0.14, "y": 0.64 },
+    { "x": 0.85, "y": 0.64 },
+    { "x": 0.88, "y": 0.89 },
+    { "x": 0.13, "y": 0.89 }
+  ],
+  "uiSafeAreas": {
+    "topLeftHud": { "x": 0.02, "y": 0.03, "w": 0.24, "h": 0.08 },
+    "topRightHud": { "x": 0.70, "y": 0.03, "w": 0.28, "h": 0.08 },
+    "dialogueSafeArea": { "x": 0.10, "y": 0.76, "w": 0.80, "h": 0.21 }
+  },
+  "depthLayers": [
+    { "id": "master_room_backdrop", "depth": 0 },
+    { "id": "entities_by_y", "depthMode": "by_y", "minDepth": 430, "maxDepth": 700 },
+    { "id": "lighting_overlay", "depth": 900 }
+  ],
+  "objects": [
+    { "id": "board", "label": "Smart Whiteboard", "visualMode": "baked", "x": 0.511, "y": 0.394, "w": 0.206, "h": 0.203, "origin": [0.5, 0.5], "depth": 10, "interactive": false },
+    { "id": "wall_clock", "label": "Wall Clock (16:20)", "visualMode": "baked", "x": 0.667, "y": 0.317, "w": 0.044, "h": 0.072, "origin": [0.5, 0.5], "depth": 10, "interactive": false },
+    { "id": "teachers_desk", "label": "Teacher's Desk", "visualMode": "baked", "x": 0.662, "y": 0.580, "w": 0.175, "h": 0.145, "origin": [0.5, 0.5], "depth": 10, "interactive": false },
+    { "id": "attendance_register", "label": "Side Bookshelf", "visualMode": "baked", "x": 0.854, "y": 0.625, "w": 0.105, "h": 0.220, "origin": [0.5, 0.5], "depth": 10, "interactive": false },
+    { "id": "door", "label": "Electronic Door", "visualMode": "baked", "x": 0.942, "y": 0.520, "w": 0.085, "h": 0.580, "origin": [0.5, 0.5], "depth": 10, "interactive": false },
+
+    { "id": "desk_f1", "label": "Front Desk 1 (Layan)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.305, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_f2", "label": "Front Desk 2 (Yacine)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.515, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+
+    { "id": "desk_m1", "label": "Middle Desk 1 (Seat 7 — Empty)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.268, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_m1", "label": "Empty Chair (Seat 7)", "textureKey": "obj_chair_board", "flipX": true, "shadow": true, "x": 0.244, "y": 0.822, "w": 0, "h": 0.152, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "class_photo", "label": "Notebook & Cut Photo on Seat 7", "textureKey": "obj_class_photo", "x": 0.268, "y": 0.684, "w": 0.044, "h": 0.036, "origin": [0.5, 0.5], "depth": 582, "interactive": false },
+
+    { "id": "desk_m2", "label": "Middle Desk 2 (Samer)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.505, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_m2", "label": "Samer's Chair", "textureKey": "obj_chair_board", "shadow": true, "x": 0.529, "y": 0.822, "w": 0, "h": 0.152, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_m3", "label": "Middle Desk 3 (Mariam)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.706, "y": 0.802, "w": 0, "h": 0.164, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+
+    { "id": "desk_r1", "label": "Rear Desk 1 (Empty)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.230, "y": 0.916, "w": 0, "h": 0.186, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "chair_r1", "label": "Empty Rear Chair", "textureKey": "obj_chair_board", "flipX": true, "shadow": true, "x": 0.204, "y": 0.940, "w": 0, "h": 0.172, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },
+    { "id": "desk_r2", "label": "Rear Desk 2 (Karim)", "textureKey": "obj_desk_wooden", "shadow": true, "x": 0.772, "y": 0.922, "w": 0, "h": 0.186, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false }
+  ],
+  "characters": [
+    { "id": "layan", "label": "Layan", "pose": "seated", "x": 0.284, "y": 0.678, "normHeight": 0.200, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "yacine", "label": "Yacine", "pose": "seated", "x": 0.538, "y": 0.686, "normHeight": 0.234, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "left", "interactive": false },
+    { "id": "samer", "label": "Samer (Player)", "pose": "standing", "x": 0.388, "y": 0.788, "normHeight": 0.312, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "mariam", "label": "Mariam", "pose": "seated", "x": 0.682, "y": 0.786, "normHeight": 0.248, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "nour", "label": "Nour", "pose": "standing", "x": 0.146, "y": 0.818, "normHeight": 0.304, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "karim", "label": "Karim", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false }
+  ],
+  "evidence": [],
+  "dialogueTriggers": ["ch1_opening_classroom"],
+  "transitions": [
+    {
+      "to": "classroom_dark",
+      "condition": { "flag": "ch1_opening_dialogue_done", "equals": true },
+      "type": "instant_blackout",
+      "durationMs": 350
+    }
+  ]
+}
