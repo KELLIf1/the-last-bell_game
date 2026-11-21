@@ -1,8 +1,8 @@
 # Environment & UI Specifications — THE LAST BELL (Chapter 01)
 
 Reference Boards:
-- Classroom Lighting: `/src/assets/images/ref_classroom_lighting_1794832130465.jpg`
-- UI & Props Moodboard: `/src/assets/images/ref_ui_evidence_mood_1794832130808.jpg`
+- Classroom Lighting: `/docs/reference-art/ref_classroom_lighting_1794832130465.jpg`
+- UI & Props Moodboard: `/docs/reference-art/ref_ui_evidence_mood_1794832130808.jpg`
 
 ---
 

@@ -10,13 +10,22 @@ export class PuzzleScene extends Phaser.Scene {
   create(): void {
     EventBus.emit('puzzle:open', true);
 
-    const unsubClose = EventBus.on('puzzle:close', () => {
+    const closePuzzle = () => {
       EventBus.emit('puzzle:open', false);
       this.scene.resume('ClassroomScene');
       this.scene.stop();
+    };
+
+    const unsubClose = EventBus.on('puzzle:close', closePuzzle);
+    const unsubExpired = EventBus.on('timer:expired', () => {
+      this.registry.set('pendingTimeoutEnding', true);
+      closePuzzle();
     });
 
-    this.events.once('shutdown', unsubClose);
+    this.events.once('shutdown', () => {
+      unsubClose();
+      unsubExpired();
+    });
   }
 
   update(_time: number, delta: number): void {

@@ -7,6 +7,7 @@ export interface InteractableTarget {
   labelEn: string;
   x: number;
   y: number;
+  maxDistPx?: number;
   zone: Phaser.GameObjects.Zone;
   highlightRect?: Phaser.GameObjects.Rectangle;
   onInteract: () => void;
@@ -26,6 +27,28 @@ export class InteractionSystem {
     this.hoveredId = null;
     this.nearestId = null;
     EventBus.emit('interaction:prompt', null);
+  }
+
+  hasTarget(id: string): boolean {
+    return this.targets.some((t) => t.id === id);
+  }
+
+  remove(id: string): void {
+    const idx = this.targets.findIndex((t) => t.id === id);
+    if (idx === -1) return;
+    const [removed] = this.targets.splice(idx, 1);
+    removed.zone.destroy();
+    removed.highlightRect?.destroy();
+    if (this.hoveredId === id) this.hoveredId = null;
+    if (this.nearestId === id) this.nearestId = null;
+    this.syncVisuals();
+  }
+
+  setMaxDist(id: string, maxDistPx?: number): void {
+    const found = this.targets.find((t) => t.id === id);
+    if (found) {
+      found.maxDistPx = maxDistPx;
+    }
   }
 
   register(target: InteractableTarget): void {
@@ -54,12 +77,13 @@ export class InteractionSystem {
 
   updateProximity(playerX: number, playerY: number, maxDistPx = 155): void {
     let bestId: string | null = null;
-    let bestDist = maxDistPx;
+    let bestDist = Infinity;
 
     for (const t of this.targets) {
       if (!t.zone.active) continue;
+      const limit = t.maxDistPx ?? maxDistPx;
       const d = Phaser.Math.Distance.Between(playerX, playerY, t.x, t.y);
-      if (d < bestDist) {
+      if (d < limit && d < bestDist) {
         bestDist = d;
         bestId = t.id;
       }

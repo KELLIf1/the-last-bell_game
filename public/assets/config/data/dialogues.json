@@ -442,5 +442,134 @@
         "setFlags": { "talked_karim": true }
       }
     }
+  },
+  {
+    "id": "ch1_finale",
+    "titleAr": "الخاتمة — الاستدعاء الأول",
+    "titleEn": "Chapter Finale — First Summons",
+    "entryNodeId": "fin_1",
+    "nodes": {
+      "fin_1": {
+        "id": "fin_1",
+        "speaker": "system",
+        "speakerNameAr": "مكبر المدرسة",
+        "speakerNameEn": "SCHOOL PA",
+        "speaking": true,
+        "cameraShot": "wide_master",
+        "textAr": "ليس كل من يختفي ضائعاً.",
+        "textEn": "NOT EVERYONE WHO DISAPPEARS IS LOST.",
+        "nextNodeId": "fin_2"
+      },
+      "fin_2": {
+        "id": "fin_2",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_karim",
+        "textAr": "توقفوا لحظة... جهازي اللوحي المدرسي استلم رسالة استدعاء الآن! القفل الإلكتروني عند الباب يُفتح...",
+        "textEn": "Hold on... my school tablet just received a summons message! The electronic door lock is releasing...",
+        "setFlags": { "ch1_karim_summoned": true },
+        "nextNodeId": "fin_3"
+      },
+      "fin_3": {
+        "id": "fin_3",
+        "speaker": "narrator",
+        "speakerNameAr": "المشهد",
+        "speakerNameEn": "NARRATION",
+        "speaking": false,
+        "cameraShot": "angle_door_lock",
+        "textAr": "ينفتح الباب المعدني لحظة قصيرة، فيخرج كريم إلى الممر المظلم قبل أن ينغلق القفل خلفه من جديد في صمت ثقيل.",
+        "textEn": "The steel door unlatches briefly. Karim steps out into the dark corridor before the lock clicks shut once more in heavy silence.",
+        "nextNodeId": "fin_4"
+      },
+      "fin_4": {
+        "id": "fin_4",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "angle_board_cipher",
+        "textAr": "أجبتم عن الكذبة الأولى، لكن الليلة ما زالت في بدايتها. انظروا إلى جهاز العرض في السقف قبل أن ينطفئ.",
+        "textEn": "You uncovered the first lie, yet the night has only begun. Look up at the ceiling projector before it fades.",
+        "setFlags": { "ch1_inspect_final_projector": true }
+      }
+    }
+  },
+  {
+    "id": "ch1_projector_teaser",
+    "titleAr": "جهاز العرض — إشارة مخفية",
+    "titleEn": "Ceiling Projector — Hidden Signal",
+    "entryNodeId": "proj_1",
+    "nodes": {
+      "proj_1": {
+        "id": "proj_1",
+        "speaker": "system",
+        "speakerNameAr": "جهاز العرض",
+        "speakerNameEn": "PROJECTOR",
+        "speaking": true,
+        "cameraShot": "angle_board_cipher",
+        "textAr": "ROOM 0 — PROJECT ECHO — ARCHIVE ACCESS DENIED.",
+        "textEn": "ROOM 0 — PROJECT ECHO — ARCHIVE ACCESS DENIED.",
+        "setFlags": { "ch1_room0_teaser_seen": true }
+      }
+    }
+  },
+  {
+    "id": "ch1_timeout",
+    "titleAr": "انتهاء الوقت",
+    "titleEn": "Countdown Expired",
+    "entryNodeId": "to_1",
+    "nodes": {
+      "to_1": {
+        "id": "to_1",
+        "speaker": "system",
+        "speakerNameAr": "مكبر المدرسة",
+        "speakerNameEn": "LOCKDOWN SYSTEM",
+        "speaking": true,
+        "cameraShot": "angle_clock_1620",
+        "textAr": "انتهى الوقت المحدد. لم يكتمل كشف الكذبة الأولى داخل الفصل.",
+        "textEn": "Time has expired. The first lie inside the classroom remains unresolved.",
+        "nextNodeId": "to_2"
+      },
+      "to_2": {
+        "id": "to_2",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "closeup_karim",
+        "textAr": "لا... جهازي اللوحي المدرسي استقبل رسالة استدعاء مبكرة باسمي! القفل الإلكتروني يُفتح الآن...",
+        "textEn": "No... my school tablet just received an early summons with my name! The electronic door is unlocking now...",
+        "setFlags": { "ch1_karim_summoned": true, "puzzle_01_failed_timeout": true },
+        "nextNodeId": "to_3"
+      },
+      "to_3": {
+        "id": "to_3",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "angle_door_lock",
+        "textAr": "انغلق الباب خلف كريم قبل أن نستكمل التحقيق... لقد خسرنا فرصتنا في سماع ما كان يوشك على قوله.",
+        "textEn": "The door sealed behind Karim before we could finish investigating... we lost our chance to hear what he knew.",
+        "nextNodeId": "to_4"
+      },
+      "to_4": {
+        "id": "to_4",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "angry",
+        "speaking": true,
+        "cameraShot": "angle_board_cipher",
+        "textAr": "تأخركم حسم هذه الجولة. احتفظوا بما تبقى لديكم من حقائق... فالجرس التالي لن ينتظر.",
+        "textEn": "Your delay decided this round. Hold onto whatever fragments you gathered... the next bell will not wait."
+      }
+    }
   }
 ]

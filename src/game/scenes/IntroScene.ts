@@ -7,6 +7,7 @@ import { InteractionSystem } from '../../systems/InteractionSystem';
 import { SceneAssembler } from '../../systems/SceneAssembler';
 import { storyManager } from '../../systems/StoryManager';
 import { timerManager } from '../../systems/TimerManager';
+import { uiSettings } from '../../systems/UiSettings';
 import { DialogueLine, SceneLayoutConfig } from '../../types/game';
 
 interface RainStreak {
@@ -26,8 +27,10 @@ export class IntroScene extends Phaser.Scene {
   private rainStreaks: RainStreak[] = [];
   private dustMotes: DustMote[] = [];
   private dialogueUnsub: (() => void) | null = null;
+  private skipUnsub: (() => void) | null = null;
   private cameraDirectorDetach: (() => void) | null = null;
   private isShuttingDown = false;
+  private skippedToBroadcast = false;
 
   constructor() {
     super({ key: 'IntroScene' });
@@ -35,21 +38,60 @@ export class IntroScene extends Phaser.Scene {
 
   create(): void {
     this.isShuttingDown = false;
+    this.skippedToBroadcast = false;
     this.interactionSystem.clear();
     this.clearFx();
+
+    const configs = this.registry.get('sceneConfigs') as Record<string, SceneLayoutConfig>;
+
+    this.skipUnsub?.();
+    this.skipUnsub = EventBus.on('intro:skip_requested', () => {
+      this.skipToAdamBroadcast(configs);
+    });
 
     this.events.once('shutdown', () => {
       this.isShuttingDown = true;
       this.dialogueUnsub?.();
       this.dialogueUnsub = null;
+      this.skipUnsub?.();
+      this.skipUnsub = null;
       this.cameraDirectorDetach?.();
       this.cameraDirectorDetach = null;
       this.clearFx();
       this.interactionSystem.clear();
     });
 
-    const configs = this.registry.get('sceneConfigs') as Record<string, SceneLayoutConfig>;
     this.playExteriorShot(configs);
+  }
+
+  private skipToAdamBroadcast(configs: Record<string, SceneLayoutConfig>): void {
+    if (this.isShuttingDown || this.skippedToBroadcast) return;
+    this.skippedToBroadcast = true;
+
+    this.tweens.killAll();
+    this.cameras.main.off(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE);
+    this.cameras.main.resetFX();
+    this.cameraDirectorDetach?.();
+    this.cameraDirectorDetach = null;
+
+    dialogueSystem.reset();
+
+    storyManager.setFlags({
+      ch1_exterior_pan_done: true,
+      ch1_entrance_seen: true,
+      ch1_opening_dialogue_done: true,
+      ch1_blackout_triggered: true,
+    });
+
+    audioManager.setRainActive(true);
+    audioManager.setAmbienceActive(true);
+    EventBus.emit('screen:mode', 'PLAYING');
+    EventBus.emit('objective:updated', {
+      textAr: 'الاستماع إلى رسالة البث',
+      textEn: 'Listen to the broadcast',
+    });
+
+    this.playAdamBroadcast(configs);
   }
 
   private clearFx(): void {
@@ -260,12 +302,15 @@ export class IntroScene extends Phaser.Scene {
 
   private playAdamBroadcast(configs: Record<string, SceneLayoutConfig>): void {
     if (this.isShuttingDown) return;
+    this.skippedToBroadcast = true;
+    uiSettings.markIntroSeen();
     this.clearFx();
     this.children.removeAll(true);
     this.interactionSystem.clear();
 
     this.cameras.main.setZoom(1.0);
     this.cameras.main.centerOn(640, 360);
+    EventBus.emit('screen:mode', 'PLAYING');
 
     const projLayout = configs?.projector_closeup;
     if (projLayout) {

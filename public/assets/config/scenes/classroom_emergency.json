@@ -36,7 +36,7 @@
   "objects": [
     {
       "id": "board",
-      "label": "Whiteboard (4-1-7-2-6-3-5 & Note)",
+      "label": "Whiteboard (Cipher & Note)",
       "visualMode": "baked",
       "x": 0.511,
       "y": 0.394,
@@ -105,7 +105,7 @@
     },
     {
       "id": "projector",
-      "label": "Projector (Inspect in Finale)",
+      "label": "Overhead Projector",
       "visualMode": "baked",
       "x": 0.511,
       "y": 0.130,
@@ -114,8 +114,7 @@
       "origin": [0.5, 0.5],
       "depth": 15,
       "interactive": true,
-      "interactionZone": { "x": 0.470, "y": 0.102, "w": 0.085, "h": 0.070 },
-      "conditionFlag": "ch1_karim_summoned"
+      "interactionZone": { "x": 0.470, "y": 0.102, "w": 0.085, "h": 0.070 }
     },
 
     { "id": "desk_f1", "label": "Front Desk 1 (Layan)", "textureKey": "obj_desk_wooden", "flipX": true, "shadow": true, "x": 0.305, "y": 0.695, "w": 0, "h": 0.144, "origin": [0.5, 1.0], "depthMode": "by_y", "interactive": false },

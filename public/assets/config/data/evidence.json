@@ -2,16 +2,16 @@
   {
     "id": "ev_board_cipher",
     "type": "evidence",
-    "nameAr": "تسلسل السبورة المشفر (4-1-7-2-6-3-5)",
-    "nameEn": "Board Cipher Sequence (4-1-7-2-6-3-5)",
-    "descriptionAr": "سبعة أرقام مكتوبة على السبورة الذكية: 4-1-7-2-6-3-5، بجانب ملاحظة بخط اليد تشير إلى أن الأرقام تمثل ترتيب أصحاب المقاعد في الصورة القديمة من اليسار إلى اليمين.",
-    "descriptionEn": "Seven numbers on the smart whiteboard: 4-1-7-2-6-3-5, beside a handwritten note stating the numbers correspond to seat holders in the old photograph from left to right.",
+    "nameAr": "تسلسل السبورة المشفر",
+    "nameEn": "Board Cipher Sequence",
+    "descriptionAr": "سبعة مواضع مكتوبة على السبورة الذكية: 4 - 1 - ؟ - 2 - 6 - 3 - 5، حيث كُشط الرقم الثالث عمداً. وبجانبها ملاحظة بخط اليد تشير إلى أن الأرقام تمثل ترتيب أصحاب المقاعد في الصورة القديمة من اليسار إلى اليمين.",
+    "descriptionEn": "Seven positions written on the smart whiteboard: 4 - 1 - ? - 2 - 6 - 3 - 5, with the third number deliberately scraped out. Beside it is a handwritten note indicating the numbers represent seat holders in the old photograph from left to right.",
     "locationAr": "السبورة الذكية — مقدمة الفصل",
     "locationEn": "Smart Whiteboard — Front Wall",
     "icon": "ev_board",
     "relevantCharacters": ["elena", "layan", "adam"],
-    "storyConnectionsAr": "يربط بين جدول الجلوس القديم وترتيب الطلاب في الصورة الجماعية.",
-    "storyConnectionsEn": "Connects the old seating chart to the order of students in the group photograph.",
+    "storyConnectionsAr": "يكشف ستة أرقام من تسلسل الصورة ويترك الرقم الثالث غامضاً للاستنتاج.",
+    "storyConnectionsEn": "Reveals six digits of the photograph sequence while leaving the third slot blank for deduction.",
     "setsFlag": "ev_board_examined"
   },
   {
@@ -19,14 +19,14 @@
     "type": "evidence",
     "nameAr": "جدول الجلوس القديم (قبل 3 سنوات)",
     "nameEn": "Old Seating Chart (3 Years Ago)",
-    "descriptionAr": "ورقة رسمية على مكتب الأستاذ تُظهر أرقام المقاعد السبعة قبل ثلاث سنوات: (1) ياسين، (2) إيلينا، (3) مريم، (4) كريم، (5) نور، (6) ليان، (7) [اسم تالف وغير مقروء]. وعلى الهامش ملاحظة: «المقعد السابع ممسوح من السجل لكنه في الموضع الثالث بالصورة».",
-    "descriptionEn": "Official sheet on the teacher's desk listing the 7 seats from three years ago: (1) Yacine, (2) Elena, (3) Mariam, (4) Karim, (5) Nour, (6) Layan, (7) [Damaged / Illegible]. Margin note: 'Seat 7 was erased from the ledger, yet stands 3rd in the photo.'",
+    "descriptionAr": "ورقة رسمية على مكتب الأستاذ تُظهر أرقام المقاعد السبعة قبل ثلاث سنوات: (1) ياسين، (2) إيلينا، (3) مريم، (4) كريم، (5) نور، (6) ليان، (7) [اسم تالف وغير مقروء].",
+    "descriptionEn": "Official sheet on the teacher's desk listing the 7 seats from three years ago: (1) Yacine, (2) Elena, (3) Mariam, (4) Karim, (5) Nour, (6) Layan, (7) [Damaged / Illegible].",
     "locationAr": "مكتب الأستاذ",
     "locationEn": "Teacher's Desk",
     "icon": "ev_chart",
     "relevantCharacters": ["elena", "yacine", "mariam", "karim", "nour", "layan"],
-    "storyConnectionsAr": "يحدّد هوية كل رقم في تسلسل السبورة 4-1-7-2-6-3-5.",
-    "storyConnectionsEn": "Maps every seat number in the board sequence 4-1-7-2-6-3-5.",
+    "storyConnectionsAr": "يحدّد أصحاب المقاعد الستة المعروفة ويبقي مقعداً واحداً تالف الاسم.",
+    "storyConnectionsEn": "Identifies six known seat holders while one seat remains damaged and illegible.",
     "setsFlag": "ev_desk_examined"
   },
   {
@@ -70,8 +70,8 @@
     "locationEn": "Side Register Table",
     "icon": "ev_register",
     "relevantCharacters": ["layan", "karim"],
-    "storyConnectionsAr": "يتطابق مع الاسم المجهول في المقعد السابع ويثبت أن السجلات الرسمية تم التلاعب بها.",
-    "storyConnectionsEn": "Matches the unknown 7th seat and proves official school records were tampered with.",
+    "storyConnectionsAr": "يثبت أن السجلات الرسمية تعرّضت للتلاعب لمحو اسم أحد طلاب تلك الدفعة.",
+    "storyConnectionsEn": "Proves official school records were tampered with to erase one student from that batch.",
     "setsFlag": "ev_register_examined"
   },
   {

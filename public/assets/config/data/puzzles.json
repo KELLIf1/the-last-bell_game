@@ -2,8 +2,8 @@
   "puzzleId": "puzzle_01_seating",
   "titleAr": "اللغز الأول: ترتيب المقاعد في الصورة القديمة",
   "titleEn": "Puzzle 01: The Seating Order",
-  "instructionsAr": "استخدم جدول الجلوس القديم وتسلسل الأرقام على السبورة (4 - 1 - 7 - 2 - 6 - 3 - 5) لترتيب الأسماء في خانات الصورة الجماعية من اليسار إلى اليمين.",
-  "instructionsEn": "Cross-reference the old seating chart with the board cipher (4 - 1 - 7 - 2 - 6 - 3 - 5) to place each name into the old photograph slots from left to right.",
+  "instructionsAr": "قارن جدول الجلوس القديم بالأرقام المكشوفة على السبورة، واستنتج بالحذف هوية الموضع الثالث المقطوع لترتيب الصورة من اليسار إلى اليمين.",
+  "instructionsEn": "Cross-reference the old seating chart with the revealed board numbers, and deduce by elimination who belongs in the cut 3rd slot from left to right.",
   "unlockCondition": {
     "allOf": [
       { "flag": "ev_board_examined", "equals": true },
@@ -11,7 +11,17 @@
       { "flag": "ev_photo_examined", "equals": true }
     ]
   },
+  "penaltySeconds": 120,
   "boardSequence": [4, 1, 7, 2, 6, 3, 5],
+  "boardSequenceReveal": [
+    { "position": 1, "seatNumber": 4, "requiredFlags": ["ev_board_examined"] },
+    { "position": 2, "seatNumber": 1, "requiredFlags": ["ev_board_examined"] },
+    { "position": 3, "seatNumber": null, "requiredFlags": [] },
+    { "position": 4, "seatNumber": 2, "requiredFlags": ["ev_board_examined"] },
+    { "position": 5, "seatNumber": 6, "requiredFlags": ["ev_board_examined", "ev_desk_examined"] },
+    { "position": 6, "seatNumber": 3, "requiredFlags": ["ev_board_examined"] },
+    { "position": 7, "seatNumber": 5, "requiredFlags": ["ev_board_examined", "ev_photo_examined"] }
+  ],
   "seatingChart": [
     { "seatNumber": 1, "studentNameAr": "ياسين", "studentNameEn": "Yacine" },
     { "seatNumber": 2, "studentNameAr": "إيلينا", "studentNameEn": "Elena" },
@@ -34,18 +44,18 @@
   "hints": [
     {
       "attemptThreshold": 1,
-      "textAr": "تلميح 1: الرقم الأول على السبورة هو 4. ابحث في جدول الجلوس عمن كان يجلس في المقعد رقم 4.",
-      "textEn": "Hint 1: The first board number is 4. Check who sat at Seat #4 in the old chart."
+      "textAr": "تلميح 1: قارن الأرقام الظاهرة في تسلسل السبورة بأرقام المقاعد في جدول الجلوس القديم لوضع الأسماء المعروفة من اليسار إلى اليمين.",
+      "textEn": "Hint 1: Compare the visible board sequence numbers against the seat numbers in the old seating chart from left to right."
     },
     {
       "attemptThreshold": 2,
-      "textAr": "تلميح 2: الموضع الثالث في الصورة هو الذي قُصّ بالمقص، ويقابله الرقم الثالث على السبورة (7 — الاسم التالف/المجهول).",
-      "textEn": "Hint 2: The 3rd photo slot corresponds to the cut-out figure and board number 7 (Damaged / Unknown)."
+      "textAr": "تلميح 2: الخانة المقطوعة في الصورة تقابل العلامة المجهولة (؟) في التسلسل؛ راجع جدول الجلوس وحدّد من لم يظهر رقمه على السبورة.",
+      "textEn": "Hint 2: The cut photo slot aligns with the missing mark (?) in the sequence; check the chart for whichever entry never appeared."
     },
     {
       "attemptThreshold": 3,
-      "textAr": "تلميح 3: طابق كل رقم من 4-1-7-2-6-3-5 مباشرة مع أرقام جدول الجلوس: كريم، ياسين، مجهول، إيلينا، ليان، مريم، نور.",
-      "textEn": "Hint 3: Map 4-1-7-2-6-3-5 directly to Seats: Karim, Yacine, Unknown, Elena, Layan, Mariam, Nour."
+      "textAr": "تلميح 3: اعتمد على الاستبعاد: ستة مقاعد ظهرت أرقامها بوضوح، والمقعد الوحيد الغائب عن التسلسل هو صاحب الموضع المقصوص.",
+      "textEn": "Hint 3: Use elimination: six seats appear explicitly in the cipher; the lone unmentioned entry belongs in the cut-out slot."
     }
   ],
   "successRevealAr": "لم تكن إيلينا وحدها في ذلك اليوم.",

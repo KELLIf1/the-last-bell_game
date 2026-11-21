@@ -2,7 +2,7 @@
   "sceneId": "puzzle_seating",
   "titleAr": "اللغز الأول — ترتيب المقاعد",
   "titleEn": "Puzzle 01 — The Seating Order",
-  "purpose": "Scene 04: Interactive deduction interface matching the 7 old seating chart entries with the board sequence 4-1-7-2-6-3-5 into the 7 left-to-right photo slots.",
+  "purpose": "Scene 04: Interactive deduction interface matching the 7 old seating chart entries with the revealed board sequence into the 7 left-to-right photo slots.",
   "baseResolution": { "width": 1280, "height": 720 },
   "lighting": {
     "state": "focused_desk_lamp",
@@ -30,7 +30,7 @@
     { "id": "draggable_labels", "depth": 30 }
   ],
   "objects": [
-    { "id": "reference_chart_panel", "label": "Old Seating Chart + Cipher (4-1-7-2-6-3-5)", "x": 0.18, "y": 0.44, "w": 0.26, "h": 0.56, "origin": [0.5, 0.5], "depth": 20, "interactive": false },
+    { "id": "reference_chart_panel", "label": "Old Seating Chart + Board Cipher", "x": 0.18, "y": 0.44, "w": 0.26, "h": 0.56, "origin": [0.5, 0.5], "depth": 20, "interactive": false },
     { "id": "photo_slots_row", "label": "7 Photo Slots (Left -> Right)", "x": 0.61, "y": 0.31, "w": 0.54, "h": 0.24, "origin": [0.5, 0.5], "depth": 20, "interactive": true, "interactionZone": { "x": 0.34, "y": 0.19, "w": 0.54, "h": 0.24 } },
     { "id": "name_labels_tray", "label": "7 Draggable / Clickable Name Labels", "x": 0.61, "y": 0.56, "w": 0.54, "h": 0.16, "origin": [0.5, 0.5], "depth": 30, "interactive": true, "interactionZone": { "x": 0.34, "y": 0.48, "w": 0.54, "h": 0.16 } },
     { "id": "confirm_controls", "label": "Confirm / Reset / Hint Controls", "x": 0.61, "y": 0.70, "w": 0.54, "h": 0.08, "origin": [0.5, 0.5], "depth": 30, "interactive": true, "interactionZone": { "x": 0.34, "y": 0.66, "w": 0.54, "h": 0.08 } }

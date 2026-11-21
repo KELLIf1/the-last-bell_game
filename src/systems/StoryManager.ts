@@ -3,10 +3,13 @@ import { EventBus } from './EventBus';
 
 const DEFAULT_FLAGS: Record<string, StoryFlagValue> = {
   ch1_exterior_pan_done: false,
+  ch1_entrance_seen: false,
   ch1_opening_dialogue_done: false,
   ch1_intro_completed: false,
   ch1_blackout_triggered: false,
   ch1_adam_broadcast_seen: false,
+  ch1_controls_hint_seen: false,
+  ch1_return_from_door: false,
   ev_board_examined: false,
   ev_desk_examined: false,
   ev_clock_examined: false,
@@ -28,6 +31,7 @@ const DEFAULT_FLAGS: Record<string, StoryFlagValue> = {
   clue_elena_personality: false,
   clue_adam_elena_bond: false,
   clue_project_echo: false,
+  ch1_finale_started: false,
   ch1_karim_summoned: false,
   ch1_inspect_final_projector: false,
   ch1_room0_teaser_seen: false,

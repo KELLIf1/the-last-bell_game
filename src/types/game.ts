@@ -233,6 +233,12 @@ export interface SeatingChartEntry {
   damaged?: boolean;
 }
 
+export interface BoardSequenceRevealSlot {
+  position: number; // 1..7 left-to-right
+  seatNumber: number | null; // null if scraped/unknown (deduced by elimination)
+  requiredFlags: string[];
+}
+
 export interface PuzzleSeatingConfig {
   puzzleId: string;
   titleAr: string;
@@ -240,7 +246,9 @@ export interface PuzzleSeatingConfig {
   instructionsAr: string;
   instructionsEn: string;
   unlockCondition: FlagCondition;
+  penaltySeconds: number;
   boardSequence: number[];
+  boardSequenceReveal: BoardSequenceRevealSlot[];
   seatingChart: SeatingChartEntry[];
   photoSlotsOrder: string[]; // expected student ids or 'unknown' left-to-right
   labels: Array<{ id: string; textAr: string; textEn: string }>;
@@ -256,6 +264,10 @@ export interface AudioSettings {
   musicVolume: number;
   sfxVolume: number;
   muted: boolean;
+}
+
+export interface UiSettings {
+  showEnglish: boolean;
 }
 
 export interface SaveData {

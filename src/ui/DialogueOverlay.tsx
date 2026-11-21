@@ -6,6 +6,7 @@ import { CharacterId, DialogueChoice, DialogueLine } from '../types/game';
 interface DialogueOverlayProps {
   line: DialogueLine;
   choices: DialogueChoice[];
+  showEnglish: boolean;
   onAdvance: () => void;
   onSelectChoice: (choiceId: string) => void;
 }
@@ -26,20 +27,21 @@ const PORTRAIT_ACCENTS: Record<CharacterId | 'narrator' | 'system', string> = {
 function resolvePortraitSrc(line: DialogueLine): string | null {
   if (line.speaker === 'narrator' || line.speaker === 'system') return null;
   if (line.speaker === 'elena') {
-    return '/assets/characters/portraits/elena/archival.png';
+    return '/assets/characters/portraits/elena/archival.webp';
   }
   if (line.speaker === 'adam') {
     const state = line.expression === 'angry' || line.expression === 'worried' ? 'intense' : 'neutral';
-    return `/assets/characters/portraits/adam/${state}.png`;
+    return `/assets/characters/portraits/adam/${state}.webp`;
   }
   const expr = line.expression ?? 'neutral';
   const fileState = line.speaking && expr === 'neutral' ? 'speaking' : expr;
-  return `/assets/characters/portraits/${line.speaker}/${fileState}.png`;
+  return `/assets/characters/portraits/${line.speaker}/${fileState}.webp`;
 }
 
 export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
   line,
   choices,
+  showEnglish,
   onAdvance,
   onSelectChoice,
 }) => {
@@ -66,7 +68,7 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
     setTypedEn('');
 
     const textAr = line.textAr ?? '';
-    const textEn = line.textEn ?? '';
+    const textEn = showEnglish ? (line.textEn ?? '') : '';
     if (textAr.length === 0 && textEn.length === 0) {
       setIsFullyTyped(true);
       return;
@@ -103,19 +105,19 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
     return () => {
       stopTypingTimer();
     };
-  }, [line, stopTypingTimer]);
+  }, [line, showEnglish, stopTypingTimer]);
 
   const handleBoxClick = useCallback(() => {
     if (choices.length > 0) return;
     if (!isFullyTyped) {
       stopTypingTimer();
       setTypedAr(line.textAr ?? '');
-      setTypedEn(line.textEn ?? '');
+      setTypedEn(showEnglish ? (line.textEn ?? '') : '');
       setIsFullyTyped(true);
       return;
     }
     onAdvance();
-  }, [choices.length, isFullyTyped, line.textAr, line.textEn, onAdvance, stopTypingTimer]);
+  }, [choices.length, isFullyTyped, line.textAr, line.textEn, onAdvance, showEnglish, stopTypingTimer]);
 
   // Ensure global Space/Enter in App finishes typewriter first before advancing
   useEffect(() => {
@@ -137,9 +139,11 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
               className="min-h-[44px] w-full rounded border border-slate-600/80 bg-[#0B1220]/96 px-4 py-2.5 text-right transition-colors hover:border-slate-400 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white"
             >
               <div className="font-ar text-sm font-semibold text-slate-100">{choice.textAr}</div>
-              <div dir="ltr" className="font-sans-en mt-0.5 text-left text-xs text-slate-400">
-                {choice.textEn}
-              </div>
+              {showEnglish && (
+                <div dir="ltr" className="font-sans-en mt-0.5 text-left text-xs text-slate-400">
+                  {choice.textEn}
+                </div>
+              )}
             </button>
           ))}
         </div>
@@ -172,16 +176,18 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
             {!imgFailed ? (
               <img
                 src={portraitSrc}
-                alt={line.speakerNameEn}
+                alt={line.speakerNameAr}
                 onError={() => setImgFailed(true)}
                 className="h-full w-full object-cover object-top"
               />
             ) : (
               <div className="flex flex-col items-center justify-center p-2 text-center">
                 <span className="font-ar text-lg font-bold text-slate-100">{line.speakerNameAr}</span>
-                <span className="font-sans-en mt-1 text-[11px] text-slate-400">
-                  {line.expression ?? 'neutral'}
-                </span>
+                {showEnglish && (
+                  <span className="font-sans-en mt-1 text-[11px] text-slate-400">
+                    {line.expression ?? 'neutral'}
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -191,12 +197,20 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
           <div className="flex items-baseline justify-between gap-3 border-b border-slate-800 pb-1.5">
             <div className="flex items-baseline gap-2">
               <span className="font-ar text-base font-bold text-white">{line.speakerNameAr}</span>
-              <span className="text-slate-600">·</span>
-              <span className="font-sans-en text-xs text-slate-400">{line.speakerNameEn}</span>
+              {showEnglish && (
+                <>
+                  <span className="text-slate-600">·</span>
+                  <span className="font-sans-en text-xs text-slate-400">{line.speakerNameEn}</span>
+                </>
+              )}
             </div>
             {choices.length === 0 && (
-              <span className="font-mono-num text-[11px] text-sky-300/80">
-                {isFullyTyped ? 'انقر أو Space للمتابعة ↵' : 'KEYBOARD INPUT...'}
+              <span className="font-ar text-[11px] text-sky-300/80">
+                {isFullyTyped
+                  ? 'انقر أو Space للمتابعة ↵'
+                  : showEnglish
+                    ? 'KEYBOARD INPUT...'
+                    : 'جاري الكتابة...'}
               </span>
             )}
           </div>
@@ -207,12 +221,14 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
               <span className="mr-1 inline-block h-[1.05em] w-[7px] animate-pulse bg-sky-400 align-middle" />
             )}
           </p>
-          <p dir="ltr" className="font-sans-en text-left text-xs leading-snug text-slate-400">
-            {typedEn}
-            {!isFullyTyped && (
-              <span className="ml-1 inline-block h-[1em] w-[5px] animate-pulse bg-slate-400 align-middle" />
-            )}
-          </p>
+          {showEnglish && (
+            <p dir="ltr" className="font-sans-en text-left text-xs leading-snug text-slate-400">
+              {typedEn}
+              {!isFullyTyped && (
+                <span className="ml-1 inline-block h-[1em] w-[5px] animate-pulse bg-slate-400 align-middle" />
+              )}
+            </p>
+          )}
         </div>
       </div>
     </div>

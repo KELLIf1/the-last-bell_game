@@ -1,6 +1,6 @@
 # Character Visual Specifications — THE LAST BELL (Chapter 01)
 
-Reference Lineup Sheet: `/src/assets/images/ref_characters_lineup_1794832133584.jpg`
+Reference Lineup Sheet: `/docs/reference-art/ref_characters_lineup_1794832133584.jpg`
 
 All six students wear **Orion Academy** autumn/winter uniform pieces (dark navy blazer `#162238` with subtle academy crest on left chest, crisp off-white dress shirt `#E2E8F0`, striped burgundy/slate tie `#7F1D1D`/`#475569`, charcoal trousers or pleated skirt `#334155`), personalized cleanly to telegraph personality and silhouette immediately.
 

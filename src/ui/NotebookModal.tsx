@@ -6,6 +6,7 @@ interface NotebookModalProps {
   evidence: EvidenceItem[];
   clues: EvidenceItem[];
   history: DialogueHistoryEntry[];
+  showEnglish: boolean;
   onClose: () => void;
 }
 
@@ -15,6 +16,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
   evidence,
   clues,
   history,
+  showEnglish,
   onClose,
 }) => {
   const [tab, setTab] = useState<NotebookTab>('evidence');
@@ -36,7 +38,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
         <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3.5">
           <div>
             <h2 className="font-ar text-lg font-bold text-slate-100">
-              دفتر التحقيق · Investigation Notebook
+              {showEnglish ? 'دفتر التحقيق · Investigation Notebook' : 'دفتر التحقيق'}
             </h2>
             <p className="font-ar text-xs text-slate-400">
               الأدلة المجمعة ({evidence.length}) · الاستنتاجات ({clues.length}) · سجل الحوارات ({history.length})
@@ -46,7 +48,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
             type="button"
             onClick={onClose}
             className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded border border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
-            aria-label="Close Notebook"
+            aria-label="إغلاق دفتر التحقيق"
           >
             <X className="h-4 w-4" />
           </button>
@@ -105,14 +107,18 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
                 <div key={`${entry.conversationId}-${i}`} className="border-b border-slate-800/80 pb-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <span className="font-ar font-semibold text-slate-200">
-                      {entry.speakerNameAr} · {entry.speakerNameEn}
+                      {showEnglish
+                        ? `${entry.speakerNameAr} · ${entry.speakerNameEn}`
+                        : entry.speakerNameAr}
                     </span>
                     <span className="font-mono-num">{entry.timestamp}</span>
                   </div>
                   <p className="font-ar mt-1 text-sm text-slate-100">{entry.textAr}</p>
-                  <p dir="ltr" className="font-sans-en mt-0.5 text-left text-xs text-slate-400">
-                    {entry.textEn}
-                  </p>
+                  {showEnglish && (
+                    <p dir="ltr" className="font-sans-en mt-0.5 text-left text-xs text-slate-400">
+                      {entry.textEn}
+                    </p>
+                  )}
                 </div>
               ))
             )}
@@ -147,7 +153,11 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
                         />
                         <div className="min-w-0 flex-1">
                           <div className="font-ar truncate text-sm font-semibold">{item.nameAr}</div>
-                          <div className="font-sans-en truncate text-xs text-slate-400">{item.nameEn}</div>
+                          {showEnglish && (
+                            <div className="font-sans-en truncate text-xs text-slate-400">
+                              {item.nameEn}
+                            </div>
+                          )}
                         </div>
                       </button>
                     );
@@ -163,17 +173,23 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
                   <div className="flex items-start gap-3.5">
                     <img
                       src={`/assets/ui/icons/${selectedItem.icon}.svg`}
-                      alt={selectedItem.nameEn}
+                      alt={selectedItem.nameAr}
                       className="h-14 w-14 shrink-0 rounded border border-slate-700 bg-slate-950 p-1.5"
                     />
                     <div className="min-w-0">
                       <div className="font-ar text-xs text-slate-400">
-                        {selectedItem.locationAr} · {selectedItem.locationEn}
+                        {showEnglish
+                          ? `${selectedItem.locationAr} · ${selectedItem.locationEn}`
+                          : selectedItem.locationAr}
                       </div>
                       <h3 className="font-ar mt-1 text-xl font-bold text-white">
                         {selectedItem.nameAr}
                       </h3>
-                      <div className="font-sans-en text-sm text-slate-400">{selectedItem.nameEn}</div>
+                      {showEnglish && (
+                        <div className="font-sans-en text-sm text-slate-400">
+                          {selectedItem.nameEn}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -181,9 +197,11 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
                     <p className="font-ar text-sm leading-relaxed text-slate-100">
                       {selectedItem.descriptionAr}
                     </p>
-                    <p dir="ltr" className="font-sans-en mt-2 text-left text-xs leading-relaxed text-slate-400">
-                      {selectedItem.descriptionEn}
-                    </p>
+                    {showEnglish && (
+                      <p dir="ltr" className="font-sans-en mt-2 text-left text-xs leading-relaxed text-slate-400">
+                        {selectedItem.descriptionEn}
+                      </p>
+                    )}
                   </div>
 
                   <div className="border-t border-slate-800 pt-3">
@@ -193,9 +211,11 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
                     <p className="font-ar mt-1 text-sm text-slate-200">
                       {selectedItem.storyConnectionsAr}
                     </p>
-                    <p dir="ltr" className="font-sans-en mt-1 text-left text-xs text-slate-400">
-                      {selectedItem.storyConnectionsEn}
-                    </p>
+                    {showEnglish && (
+                      <p dir="ltr" className="font-sans-en mt-1 text-left text-xs text-slate-400">
+                        {selectedItem.storyConnectionsEn}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (

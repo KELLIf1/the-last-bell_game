@@ -3,9 +3,9 @@
 **Style Classification:** Atmospheric 2.5D Cel-Noir Mystery Thriller  
 **Base Resolution:** `1280 × 720` (16:9 widescreen, responsive scale-fit)  
 **Visual Reference Boards (Milestone 1):**
-- Classroom Lighting States: `/src/assets/images/ref_classroom_lighting_1794832130465.jpg`
-- Student Character Lineup: `/src/assets/images/ref_characters_lineup_1794832133584.jpg`
-- Props & UI Language Moodboard: `/src/assets/images/ref_ui_evidence_mood_1794832130808.jpg`
+- Classroom Lighting States: `/docs/reference-art/ref_classroom_lighting_1794832130465.jpg`
+- Student Character Lineup: `/docs/reference-art/ref_characters_lineup_1794832133584.jpg`
+- Props & UI Language Moodboard: `/docs/reference-art/ref_ui_evidence_mood_1794832130808.jpg`
 
 ---
 

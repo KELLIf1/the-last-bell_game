@@ -1,17 +1,22 @@
 import { TimerWarningLevel } from '../types/game';
+import { audioManager } from './AudioManager';
 import { EventBus } from './EventBus';
 import { storyManager } from './StoryManager';
 
 /**
- * Fictional 60-minute (3600s) countdown with configurable acceleration.
- * Default paceFactor = 3.0 (1 real second = 3 fictional seconds => 20 min real playthrough cap).
+ * سرعة تقدّم العداد الوهمي (59:59 = 3599 ثانية).
+ * القيمة 4.3 تعني أن كل ثانية حقيقية = 4.3 ثانية في القصة (~13.95 دقيقة حقيقية إجمالاً).
+ * عدّل هذا الثابت هنا فقط لتغيير مدة الفصل الزمنية.
  */
+export const DEFAULT_TIMER_PACE_FACTOR = 4.3;
+
 export class TimerManager {
   private readonly initialSeconds = 59 * 60 + 59; // 59:59
   private remainingSeconds = 59 * 60 + 59;
-  private paceFactor = 3.0;
+  private paceFactor = DEFAULT_TIMER_PACE_FACTOR;
   private running = false;
   private started = false;
+  private expiredEmitted = false;
   private lastWarningLevel: TimerWarningLevel = 'normal';
   private tickAccumulator = 0;
 
@@ -19,6 +24,7 @@ export class TimerManager {
     this.remainingSeconds = this.initialSeconds;
     this.running = false;
     this.started = false;
+    this.expiredEmitted = false;
     this.lastWarningLevel = 'normal';
     this.tickAccumulator = 0;
     this.emitUpdate();
@@ -35,7 +41,7 @@ export class TimerManager {
   }
 
   resume(): void {
-    if (this.started && this.remainingSeconds > 0) {
+    if (this.started && this.remainingSeconds > 0 && !this.expiredEmitted) {
       this.running = true;
     }
   }
@@ -59,6 +65,9 @@ export class TimerManager {
       if (level !== this.lastWarningLevel) {
         this.lastWarningLevel = level;
         EventBus.emit('timer:warning_changed', level);
+        audioManager.playTimerWarningCue(level);
+      } else if (level === 'critical' && this.remainingSeconds > 0 && this.remainingSeconds % 8 === 0) {
+        audioManager.playClockTick();
       }
 
       if (this.remainingSeconds <= 0) {
@@ -69,13 +78,42 @@ export class TimerManager {
     }
   }
 
-  private handleTimeout(): void {
-    if (storyManager.getFlag('puzzle_01_solved') !== true) {
-      storyManager.setFlag('puzzle_01_failed_timeout', true);
-      EventBus.emit('timer:expired', {
-        consequence: 'timeout_before_puzzle',
-      });
+  penalize(seconds: number): number {
+    if (!this.started || this.remainingSeconds <= 0 || this.expiredEmitted) {
+      return 0;
     }
+
+    const deducted = Math.min(this.remainingSeconds, Math.max(0, Math.floor(seconds)));
+    if (deducted <= 0) return 0;
+
+    this.remainingSeconds = Math.max(0, this.remainingSeconds - deducted);
+
+    const level = this.getWarningLevel();
+    if (level !== this.lastWarningLevel) {
+      this.lastWarningLevel = level;
+      EventBus.emit('timer:warning_changed', level);
+      audioManager.playTimerWarningCue(level);
+    }
+
+    if (this.remainingSeconds <= 0) {
+      this.running = false;
+      this.handleTimeout();
+    }
+    this.emitUpdate();
+    return deducted;
+  }
+
+  private handleTimeout(): void {
+    if (this.expiredEmitted) return;
+    if (storyManager.getFlag('ch1_finale_started') === true) return;
+    this.expiredEmitted = true;
+    storyManager.setFlag('puzzle_01_failed_timeout', true);
+    EventBus.emit('timer:expired', {
+      consequence:
+        storyManager.getFlag('puzzle_01_solved') === true
+          ? 'timeout_before_conversations'
+          : 'timeout_before_puzzle',
+    });
   }
 
   getWarningLevel(): TimerWarningLevel {
@@ -103,6 +141,7 @@ export class TimerManager {
     this.remainingSeconds = Math.max(0, Math.min(this.initialSeconds, remainingSeconds));
     this.started = started;
     this.running = false;
+    this.expiredEmitted = started && this.remainingSeconds <= 0;
     this.lastWarningLevel = this.getWarningLevel();
     this.emitUpdate();
   }

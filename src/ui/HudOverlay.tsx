@@ -8,6 +8,7 @@ interface HudOverlayProps {
   warningLevel: TimerWarningLevel;
   objectiveAr: string;
   objectiveEn: string;
+  showEnglish: boolean;
   evidenceCount: number;
   totalEvidence: number;
   puzzleUnlocked: boolean;
@@ -26,6 +27,7 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
   warningLevel,
   objectiveAr,
   objectiveEn,
+  showEnglish,
   evidenceCount,
   totalEvidence,
   puzzleUnlocked,
@@ -39,9 +41,9 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
 }) => {
   const timerColorClass =
     warningLevel === 'critical' || warningLevel === 'expired'
-      ? 'border-red-500/80 text-red-400'
+      ? 'border-red-500/80 text-red-300 shadow-[0_0_12px_rgba(239,68,68,0.28)]'
       : warningLevel === 'warning'
-        ? 'border-amber-500/70 text-amber-300'
+        ? 'border-amber-500/75 text-amber-200 shadow-[0_0_10px_rgba(245,158,11,0.18)]'
         : 'border-slate-700/80 text-slate-100';
 
   const statusText =
@@ -54,16 +56,16 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
           : 'الوقت المتبقي';
 
   return (
-    <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4">
+    <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-3 sm:p-4">
       {/* Top Perimeter Bar */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-2 sm:gap-4">
         {/* Top-Left: Timer & System Controls */}
         <div className="pointer-events-auto flex items-center gap-2">
           <button
             type="button"
             onClick={onPause}
             className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded border border-slate-700/80 bg-[#0B1220]/92 px-3 text-slate-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white"
-            aria-label="Pause"
+            aria-label="إيقاف مؤقت"
           >
             <Pause className="h-4 w-4" />
           </button>
@@ -72,33 +74,45 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
             type="button"
             onClick={onToggleMute}
             className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded border border-slate-700/80 bg-[#0B1220]/92 px-3 text-slate-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white"
-            aria-label="Toggle Mute"
+            aria-label={audioSettings.muted ? 'تشغيل الصوت' : 'كتم الصوت'}
           >
             {audioSettings.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           </button>
 
           {timerStarted && (
             <div
-              className={`flex items-center gap-3 rounded border bg-[#0B1220]/92 px-3.5 py-1.5 ${timerColorClass}`}
+              className={`flex items-center gap-2 rounded border bg-[#0B1220]/92 px-3 py-1.5 transition-colors duration-300 sm:gap-2.5 sm:px-3.5 ${timerColorClass}`}
             >
-              <span className="font-mono-num text-lg font-bold tracking-wider">{timerFormatted}</span>
-              <span className="font-ar text-xs text-slate-300">{statusText}</span>
+              {(warningLevel === 'warning' || warningLevel === 'critical') && (
+                <span
+                  aria-hidden="true"
+                  className={`h-2 w-2 rounded-full motion-safe:animate-pulse ${
+                    warningLevel === 'critical' ? 'bg-red-500' : 'bg-amber-400'
+                  }`}
+                />
+              )}
+              <span className="font-mono-num text-base font-bold tracking-wider sm:text-lg">
+                {timerFormatted}
+              </span>
+              <span className="font-ar text-[11px] text-slate-300 sm:text-xs">{statusText}</span>
             </div>
           )}
         </div>
 
-        {/* Top-Right: Objective + Notebook + Puzzle Shortcut */}
-        <div dir="rtl" className="pointer-events-auto flex items-center gap-2">
-          <div className="hidden rounded border border-slate-700/80 bg-[#0B1220]/92 px-3.5 py-2 sm:block">
+        {/* Top-Right: Persistent Objective + Notebook + Puzzle Shortcut */}
+        <div dir="rtl" className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
+          <div className="max-w-[240px] rounded border border-slate-700/80 bg-[#0B1220]/92 px-3 py-1.5 sm:max-w-md sm:px-3.5 sm:py-2">
             <div className="font-ar text-xs font-semibold text-slate-100">{objectiveAr}</div>
-            <div className="font-sans-en text-[11px] text-slate-400">{objectiveEn}</div>
+            {showEnglish && (
+              <div className="font-sans-en text-[11px] text-slate-400">{objectiveEn}</div>
+            )}
           </div>
 
           {puzzleUnlocked && !puzzleSolved && (
             <button
               type="button"
               onClick={onOpenPuzzle}
-              className="inline-flex min-h-[40px] items-center gap-2 rounded border border-amber-500/70 bg-amber-950/90 px-3.5 py-2 font-ar text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-900"
+              className="inline-flex min-h-[40px] items-center gap-2 rounded border border-amber-500/70 bg-amber-950/90 px-3 py-1.5 font-ar text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-900 sm:px-3.5 sm:py-2"
             >
               <Puzzle className="h-4 w-4" />
               <span className="whitespace-nowrap">اللغز الأول</span>
@@ -108,7 +122,7 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
           <button
             type="button"
             onClick={onOpenNotebook}
-            className="inline-flex min-h-[40px] items-center gap-2 rounded border border-slate-700/80 bg-[#0B1220]/92 px-3.5 py-2 font-ar text-xs font-semibold text-slate-100 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white"
+            className="inline-flex min-h-[40px] items-center gap-2 rounded border border-slate-700/80 bg-[#0B1220]/92 px-3 py-1.5 font-ar text-xs font-semibold text-slate-100 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white sm:px-3.5 sm:py-2"
           >
             <BookOpen className="h-4 w-4 text-slate-300" />
             <span className="whitespace-nowrap">دفتر التحقيق</span>
@@ -121,12 +135,21 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
 
       {/* Bottom Interaction Indicator (when no dialogue is open) */}
       {interactionPrompt && (
-        <div dir="rtl" className="mb-3 self-center rounded border border-slate-500/70 bg-[#080E1A]/94 px-4 py-2 text-center">
+        <div
+          dir="rtl"
+          className="mb-3 self-center rounded border border-slate-500/70 bg-[#080E1A]/94 px-4 py-2 text-center"
+        >
           <span className="font-ar text-sm font-semibold text-slate-100">
             [E] {interactionPrompt.labelAr}
           </span>
-          <span className="mx-2 text-slate-500">·</span>
-          <span className="font-sans-en text-xs text-slate-400">{interactionPrompt.labelEn}</span>
+          {showEnglish && (
+            <>
+              <span className="mx-2 text-slate-500">·</span>
+              <span className="font-sans-en text-xs text-slate-400">
+                {interactionPrompt.labelEn}
+              </span>
+            </>
+          )}
         </div>
       )}
     </div>

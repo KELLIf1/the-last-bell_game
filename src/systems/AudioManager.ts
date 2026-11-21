@@ -1,4 +1,4 @@
-import { AudioSettings } from '../types/game';
+import { AudioSettings, TimerWarningLevel } from '../types/game';
 import { EventBus } from './EventBus';
 
 const AUDIO_SETTINGS_KEY = 'the_last_bell_audio_v1';
@@ -160,6 +160,28 @@ export class AudioManager {
     gain.connect(this.sfxGain);
     osc.start(now);
     osc.stop(now + 0.035);
+  }
+
+  playTimerWarningCue(level: TimerWarningLevel): void {
+    if (level !== 'warning' && level !== 'critical') return;
+    this.unlock();
+    if (!this.ctx || !this.sfxGain || this.settings.muted) return;
+    const now = this.ctx.currentTime;
+    const notes = level === 'critical' ? [293.66, 220, 196] : [392, 311.13];
+    notes.forEach((freq, idx) => {
+      if (!this.ctx || !this.sfxGain) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = level === 'critical' ? 'triangle' : 'sine';
+      const t = now + idx * 0.14;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(level === 'critical' ? 0.11 : 0.08, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t);
+      osc.stop(t + 0.3);
+    });
   }
 
   playDoorLock(unlocked = false): void {

@@ -7,6 +7,8 @@ import { timerManager } from './TimerManager';
 export interface PuzzleValidationResult {
   solved: boolean;
   attempts: number;
+  penaltyApplied?: number;
+  blockedReason?: 'locked';
   hintAr?: string;
   hintEn?: string;
   revealAr?: string;
@@ -30,6 +32,23 @@ export class PuzzleManager {
     return storyManager.evaluateCondition(this.config.unlockCondition);
   }
 
+  getRevealedBoardSequence(): Array<number | null> {
+    if (!this.config) return Array(7).fill(null);
+    const revealSlots = this.config.boardSequenceReveal;
+    if (!revealSlots || revealSlots.length === 0) {
+      return Array(this.config.boardSequence.length).fill(null);
+    }
+    return [...revealSlots]
+      .sort((a, b) => a.position - b.position)
+      .map((slot) => {
+        if (slot.seatNumber === null) return null;
+        const hasAllFlags = slot.requiredFlags.every(
+          (flag) => storyManager.getFlag(flag) === true
+        );
+        return hasAllFlags ? slot.seatNumber : null;
+      });
+  }
+
   reset(): void {
     this.attempts = 0;
     storyManager.setFlag('puzzle_01_attempts', 0);
@@ -47,6 +66,10 @@ export class PuzzleManager {
   submitSolution(placedSlotIds: Array<string | null>): PuzzleValidationResult {
     if (!this.config) {
       return { solved: false, attempts: this.attempts };
+    }
+
+    if (!this.isUnlocked()) {
+      return { solved: false, attempts: this.attempts, blockedReason: 'locked' };
     }
 
     const expected = this.config.photoSlotsOrder;
@@ -79,6 +102,16 @@ export class PuzzleManager {
     storyManager.setFlag('puzzle_01_attempts', this.attempts);
     audioManager.playDoorLock(false);
 
+    const configuredPenalty = Math.max(0, this.config.penaltySeconds ?? 120);
+    const penaltyApplied = timerManager.penalize(configuredPenalty);
+    if (penaltyApplied > 0) {
+      EventBus.emit('toast:show', {
+        titleAr: `ترتيب خاطئ — خُصم ${penaltyApplied} ثانية من الوقت`,
+        titleEn: `Incorrect order — -${penaltyApplied}s penalty`,
+        tone: 'warning',
+      });
+    }
+
     // Progressive hint matching threshold
     const applicableHints = this.config.hints.filter(
       (h) => this.attempts >= h.attemptThreshold
@@ -88,6 +121,7 @@ export class PuzzleManager {
     return {
       solved: false,
       attempts: this.attempts,
+      penaltyApplied,
       hintAr: activeHint?.textAr,
       hintEn: activeHint?.textEn,
     };

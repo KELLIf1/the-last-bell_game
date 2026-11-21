@@ -52,18 +52,18 @@ export class PreloadScene extends Phaser.Scene {
     // Master 1280x720 backgrounds
     SCENE_IDS.filter((id) => id !== 'puzzle_seating').forEach((id) => {
       const fileMap: Record<string, string> = {
-        projector_closeup: 'classroom_projector_closeup.png',
-        door_closeup: 'classroom_door_closeup.png',
-        desk7_closeup: 'classroom_desk7_closeup.png',
+        projector_closeup: 'classroom_projector_closeup.webp',
+        door_closeup: 'classroom_door_closeup.webp',
+        desk7_closeup: 'classroom_desk7_closeup.webp',
       };
-      const file = fileMap[id] ?? `${id}.png`;
+      const file = fileMap[id] ?? `${id}.webp`;
       this.load.image(`bg_${id}`, `/assets/backgrounds/${file}`);
     });
 
-    // Furniture & prop PNGs (extracted RGBA)
-    this.load.image('obj_desk_wooden', '/assets/objects/desk_wooden.png');
-    this.load.image('obj_chair_wooden', '/assets/objects/chair_wooden.png');
-    this.load.image('obj_chair_board', '/assets/objects/chair_board.png');
+    // Furniture & prop WebP assets (extracted RGBA)
+    this.load.image('obj_desk_wooden', '/assets/objects/desk_wooden.webp');
+    this.load.image('obj_chair_wooden', '/assets/objects/chair_wooden.webp');
+    this.load.image('obj_chair_board', '/assets/objects/chair_board.webp');
 
     const objectAssets: Array<[string, string]> = [
       ['obj_board', '/assets/objects/board.svg'],
@@ -84,18 +84,18 @@ export class PreloadScene extends Phaser.Scene {
       this.load.svg(key, url);
     });
 
-    // Standing + seated character world sprites (transparent PNG32)
+    // Standing + seated character world sprites (alpha-transparent WebP)
     const worldCharIds = ['samer', 'layan', 'yacine', 'nour', 'karim', 'mariam'] as const;
     worldCharIds.forEach((cid) => {
-      this.load.image(`char_${cid}_body`, `/assets/characters/world/${cid}_world.png`);
+      this.load.image(`char_${cid}_body`, `/assets/characters/world/${cid}_world.webp`);
     });
     const seatedCharIds = ['layan', 'yacine', 'karim', 'mariam'] as const;
     seatedCharIds.forEach((cid) => {
-      this.load.image(`char_${cid}_seated`, `/assets/characters/world/${cid}_seated.png`);
+      this.load.image(`char_${cid}_seated`, `/assets/characters/world/${cid}_seated.webp`);
     });
-    this.load.image('portrait_adam_neutral', '/assets/characters/portraits/adam/neutral.png');
-    this.load.image('portrait_adam_intense', '/assets/characters/portraits/adam/intense.png');
-    this.load.image('portrait_elena_archival', '/assets/characters/portraits/elena/archival.png');
+    this.load.image('portrait_adam_neutral', '/assets/characters/portraits/adam/neutral.webp');
+    this.load.image('portrait_adam_intense', '/assets/characters/portraits/adam/intense.webp');
+    this.load.image('portrait_elena_archival', '/assets/characters/portraits/elena/archival.webp');
     this.load.svg('ui_interact_prompt', '/assets/ui/interact_prompt.svg');
   }
 

@@ -45,6 +45,7 @@ export class GameEngine {
   startNewGame(): void {
     if (!this.game) return;
     audioManager.unlock();
+    saveManager.clear();
     storyManager.reset();
     evidenceSystem.reset();
     dialogueSystem.reset();

@@ -30,7 +30,7 @@ const CHARACTER_COLORS: Record<CharacterId, number> = {
   elena: 0xe2e8f0,
 };
 
-const OBJECT_LABELS_AR: Record<string, string> = {
+export const OBJECT_LABELS_AR: Record<string, string> = {
   board: 'السبورة الذكية والأرقام المشفرة',
   wall_clock: 'ساعة الحائط (16:20)',
   teachers_desk: 'مكتب الأستاذ وجدول الجلوس',
@@ -42,6 +42,10 @@ const OBJECT_LABELS_AR: Record<string, string> = {
   door_panel: 'الباب الفولاذي',
   electronic_keypad: 'لوحة القفل الإلكتروني',
 };
+
+export function getObjectLabelAr(objectId: string, fallback?: string): string {
+  return OBJECT_LABELS_AR[objectId] ?? fallback ?? 'عنصر الفصل';
+}
 
 const CHARACTER_LABELS_AR: Record<CharacterId, string> = {
   samer: 'سامر',
@@ -183,10 +187,14 @@ export class SceneAssembler {
 
         interactionSystem.register({
           id: obj.id,
-          labelAr: OBJECT_LABELS_AR[obj.id] ?? obj.label,
+          labelAr: getObjectLabelAr(obj.id, obj.label),
           labelEn: obj.label,
           x: zx,
           y: zy,
+          maxDistPx:
+            obj.id === 'projector' && storyManager.getFlag('ch1_karim_summoned') === true
+              ? 620
+              : undefined,
           zone,
           highlightRect: highlight,
           onInteract: () => callbacks.onObjectInteract(obj),
