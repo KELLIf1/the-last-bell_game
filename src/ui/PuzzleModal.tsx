@@ -5,25 +5,46 @@ import { PuzzleSeatingConfig } from '../types/game';
 
 interface PuzzleModalProps {
   config: PuzzleSeatingConfig;
-  showEnglish: boolean;
   onClose: () => void;
   onSolved: () => void;
 }
 
+function shuffleLabels(
+  labels: PuzzleSeatingConfig['labels'],
+  solutionOrder: string[]
+): PuzzleSeatingConfig['labels'] {
+  const arr = [...labels];
+  if (arr.length <= 1) return arr;
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  // Guarantee the displayed card order never equals the solution order
+  const matchesSolution =
+    arr.length === solutionOrder.length &&
+    arr.every((item, idx) => item.id === solutionOrder[idx]);
+  if (matchesSolution) {
+    [arr[0], arr[1]] = [arr[1], arr[0]];
+  }
+  return arr;
+}
+
 export const PuzzleModal: React.FC<PuzzleModalProps> = ({
   config,
-  showEnglish,
   onClose,
   onSolved,
 }) => {
+  const [shuffledLabels, setShuffledLabels] = useState<PuzzleSeatingConfig['labels']>(() =>
+    shuffleLabels(config.labels, config.photoSlotsOrder)
+  );
   const [slots, setSlots] = useState<Array<string | null>>(Array(7).fill(null));
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{
     type: 'error' | 'success';
     textAr: string;
-    textEn: string;
     hintAr?: string;
-    hintEn?: string;
   } | null>(null);
 
   const placedIds = new Set(slots.filter((s): s is string => Boolean(s)));
@@ -55,7 +76,6 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
       setFeedback({
         type: 'error',
         textAr: 'يرجى ملء جميع الخانات السبع قبل التأكيد.',
-        textEn: 'Please fill all seven slots before confirming.',
       });
       return;
     }
@@ -65,7 +85,6 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
       setFeedback({
         type: 'success',
         textAr: res.revealAr ?? config.successRevealAr,
-        textEn: res.revealEn ?? config.successRevealEn,
       });
       window.setTimeout(() => {
         onSolved();
@@ -74,23 +93,16 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
       setFeedback({
         type: 'error',
         textAr: 'لا تزال بعض الشواهد الأساسية ناقصة لفتح الاستنتاج.',
-        textEn: 'Required classroom clues are still missing to verify this deduction.',
       });
     } else {
       const penaltyAr =
         res.penaltyApplied && res.penaltyApplied > 0
           ? ` · خُصم ${res.penaltyApplied} ثانية`
           : '';
-      const penaltyEn =
-        res.penaltyApplied && res.penaltyApplied > 0
-          ? ` · -${res.penaltyApplied}s penalty`
-          : '';
       setFeedback({
         type: 'error',
         textAr: `الترتيب غير مطابق للشواهد (محاولة #${res.attempts}${penaltyAr}).`,
-        textEn: `Order does not match the clues (Attempt #${res.attempts}${penaltyEn}).`,
         hintAr: res.hintAr,
-        hintEn: res.hintEn,
       });
     }
   };
@@ -103,12 +115,7 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
       <div className="flex max-h-[92vh] w-full max-w-[1080px] flex-col overflow-hidden rounded border border-slate-700 bg-[#080E1A]">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3.5">
-          <div>
-            <h2 className="font-ar text-lg font-bold text-white">{config.titleAr}</h2>
-            {showEnglish && (
-              <p className="font-sans-en text-xs text-slate-400">{config.titleEn}</p>
-            )}
-          </div>
+          <h2 className="font-ar text-lg font-bold text-white">{config.titleAr}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -141,7 +148,7 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                 ))}
               </div>
               <p className="font-ar mt-1.5 text-[11px] leading-relaxed text-slate-400">
-                استنتج صاحب الموضع المجهول (؟) بمقارنة الأرقام الظاهرة مع جدول الجلوس.
+                قارن الأرقام الظاهرة مع جدول الجلوس لتحديد أصحاب الخانات.
               </p>
             </div>
 
@@ -161,11 +168,6 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                   >
                     <span className="font-mono-num text-xs text-slate-400">#{row.seatNumber}</span>
                     <span className="font-ar font-semibold">{row.studentNameAr}</span>
-                    {showEnglish && (
-                      <span className="font-sans-en text-xs text-slate-400">
-                        {row.studentNameEn}
-                      </span>
-                    )}
                   </div>
                 ))}
               </div>
@@ -174,22 +176,12 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
 
           {/* Interactive Photo Slots + Name Labels */}
           <div className="flex flex-col justify-between gap-5 lg:col-span-8">
-            <div className="space-y-2">
-              <p className="font-ar text-sm text-slate-200">{config.instructionsAr}</p>
-              {showEnglish && (
-                <p dir="ltr" className="font-sans-en text-left text-xs text-slate-400">
-                  {config.instructionsEn}
-                </p>
-              )}
-            </div>
+            <p className="font-ar text-sm text-slate-200">{config.instructionsAr}</p>
 
             {/* 7 Photo Slots Left -> Right */}
             <div>
               <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
                 <span className="font-ar">خانات الصورة القديمة (يسار → يمين)</span>
-                {showEnglish && (
-                  <span className="font-sans-en">Left → Right Photo Order</span>
-                )}
               </div>
 
               <div dir="ltr" className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 md:grid-cols-7">
@@ -221,17 +213,10 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                             : 'border-dashed border-slate-600 bg-slate-900/70 text-slate-300 hover:border-slate-400'
                       }`}
                     >
-                      <span className="font-ar text-[11px] text-slate-400">
-                        {showEnglish ? `موضع ${idx + 1} · Pos ${idx + 1}` : `موضع ${idx + 1}`}
-                      </span>
+                      <span className="font-ar text-[11px] text-slate-400">موضع {idx + 1}</span>
                       {label ? (
                         <div className="my-auto">
                           <div className="font-ar text-sm font-bold">{label.textAr}</div>
-                          {showEnglish && (
-                            <div className="font-sans-en text-[11px] text-slate-400">
-                              {label.textEn}
-                            </div>
-                          )}
                         </div>
                       ) : (
                         <span className="font-ar my-auto text-xs text-slate-500">
@@ -239,13 +224,7 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                         </span>
                       )}
                       <span className="font-ar text-[10px] text-slate-500">
-                        {placedId
-                          ? showEnglish
-                            ? 'Click to clear'
-                            : 'انقر للإفراغ'
-                          : showEnglish
-                            ? 'Drop here'
-                            : 'أفلت هنا'}
+                        {placedId ? 'انقر للإفراغ' : 'أفلت هنا'}
                       </span>
                     </button>
                   );
@@ -259,7 +238,7 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                 بطاقات الأسماء (اسحب للخانة أو انقر البطاقة ثم انقر الخانة):
               </div>
               <div className="flex flex-wrap gap-2">
-                {config.labels.map((label) => {
+                {shuffledLabels.map((label) => {
                   const used = placedIds.has(label.id);
                   const selected = selectedLabelId === label.id;
                   return (
@@ -278,11 +257,6 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                       }`}
                     >
                       <span className="font-ar text-sm font-semibold">{label.textAr}</span>
-                      {showEnglish && (
-                        <span className="font-sans-en mr-2 text-xs text-slate-400">
-                          {label.textEn}
-                        </span>
-                      )}
                     </button>
                   );
                 })}
@@ -299,19 +273,9 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                 }`}
               >
                 <div className="font-ar text-sm font-bold">{feedback.textAr}</div>
-                {showEnglish && (
-                  <div dir="ltr" className="font-sans-en mt-0.5 text-left text-xs opacity-90">
-                    {feedback.textEn}
-                  </div>
-                )}
                 {feedback.hintAr && (
-                  <div className="mt-2 border-t border-red-800/60 pt-2 text-xs text-amber-200">
-                    <div className="font-ar">{feedback.hintAr}</div>
-                    {showEnglish && feedback.hintEn && (
-                      <div dir="ltr" className="font-sans-en mt-0.5 text-left opacity-80">
-                        {feedback.hintEn}
-                      </div>
-                    )}
+                  <div className="mt-2 border-t border-red-800/60 pt-2 font-ar text-xs text-amber-200">
+                    {feedback.hintAr}
                   </div>
                 )}
               </div>
@@ -325,6 +289,7 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                   setSlots(Array(7).fill(null));
                   setSelectedLabelId(null);
                   setFeedback(null);
+                  setShuffledLabels(shuffleLabels(config.labels, config.photoSlotsOrder));
                 }}
                 className="inline-flex min-h-[44px] items-center gap-2 rounded border border-slate-700 bg-slate-900 px-4 py-2 font-ar text-sm text-slate-200 hover:bg-slate-800"
               >
@@ -337,7 +302,7 @@ export const PuzzleModal: React.FC<PuzzleModalProps> = ({
                 onClick={handleConfirm}
                 className="min-h-[44px] rounded border border-red-500/70 bg-red-700 px-6 py-2 font-ar text-sm font-bold text-white transition-colors hover:bg-red-600"
               >
-                {showEnglish ? 'تأكيد الترتيب · Confirm Order' : 'تأكيد الترتيب'}
+                تأكيد الترتيب
               </button>
             </div>
           </div>

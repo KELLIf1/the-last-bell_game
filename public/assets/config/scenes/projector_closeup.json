@@ -34,9 +34,8 @@
   ],
   "characters": [],
   "evidence": [],
-  "dialogueTriggers": ["ch1_adam_broadcast", "ch1_room0_teaser"],
+  "dialogueTriggers": ["ch1_adam_broadcast"],
   "transitions": [
-    { "to": "classroom_emergency", "condition": { "flag": "ch1_adam_broadcast_seen", "equals": true }, "type": "zoom_out", "durationMs": 600 },
-    { "to": "door_closeup", "condition": { "flag": "ch1_room0_teaser_seen", "equals": true }, "type": "pan_to_door", "durationMs": 1200 }
+    { "to": "classroom_emergency", "condition": { "flag": "ch1_adam_broadcast_seen", "equals": true }, "type": "zoom_out", "durationMs": 600 }
   ]
 }

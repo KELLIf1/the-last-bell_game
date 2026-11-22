@@ -28,17 +28,21 @@ const CAMERA_SHOT_PRESETS: Record<
   Exclude<CameraAngleId, 'wide_master' | 'closeup_samer' | 'two_shot_conversation'>,
   CameraPreset
 > = {
-  angle_clock_1620: { zoom: 2.35, x: 0.655, y: 0.340, durationMs: 650 },
-  angle_window_rain: { zoom: 2.05, x: 0.244, y: 0.560, durationMs: 650 },
-  angle_seat7_empty: { zoom: 2.25, x: 0.270, y: 0.680, durationMs: 650 },
+  board: { zoom: 2.05, x: 0.511, y: 0.425, durationMs: 620 },
+  teacher_desk: { zoom: 2.15, x: 0.662, y: 0.535, durationMs: 620 },
+  wall_photos: { zoom: 2.25, x: 0.27, y: 0.68, durationMs: 620 },
+  door: { zoom: 2.15, x: 0.767, y: 0.515, durationMs: 650 },
+  angle_clock_1620: { zoom: 2.35, x: 0.655, y: 0.34, durationMs: 650 },
+  angle_window_rain: { zoom: 2.05, x: 0.244, y: 0.56, durationMs: 650 },
+  angle_seat7_empty: { zoom: 2.25, x: 0.27, y: 0.68, durationMs: 650 },
   angle_board_cipher: { zoom: 2.05, x: 0.511, y: 0.425, durationMs: 620 },
   angle_door_lock: { zoom: 2.15, x: 0.767, y: 0.515, durationMs: 650 },
   angle_teachers_desk: { zoom: 2.15, x: 0.662, y: 0.535, durationMs: 620 },
-  closeup_layan: { zoom: 2.30, x: 0.285, y: 0.605, durationMs: 560 },
+  closeup_layan: { zoom: 2.3, x: 0.285, y: 0.605, durationMs: 560 },
   closeup_yacine: { zoom: 2.25, x: 0.538, y: 0.595, durationMs: 560 },
   closeup_nour: { zoom: 2.15, x: 0.233, y: 0.695, durationMs: 560 },
-  closeup_mariam: { zoom: 2.20, x: 0.688, y: 0.690, durationMs: 560 },
-  closeup_karim: { zoom: 2.20, x: 0.746, y: 0.765, durationMs: 560 },
+  closeup_mariam: { zoom: 2.2, x: 0.688, y: 0.69, durationMs: 560 },
+  closeup_karim: { zoom: 2.2, x: 0.746, y: 0.765, durationMs: 560 },
 };
 
 const SPEAKER_FALLBACK_SHOTS: Partial<Record<CharacterId, CameraAngleId>> = {
@@ -50,7 +54,13 @@ const SPEAKER_FALLBACK_SHOTS: Partial<Record<CharacterId, CameraAngleId>> = {
   samer: 'closeup_samer',
 };
 
-function clampCenter(cx: number, cy: number, zoom: number, width: number, height: number): { x: number; y: number } {
+function clampCenter(
+  cx: number,
+  cy: number,
+  zoom: number,
+  width: number,
+  height: number
+): { x: number; y: number } {
   const halfW = width / (2 * Math.max(zoom, 1));
   const halfH = height / (2 * Math.max(zoom, 1));
   const clampedX = halfW >= width / 2 ? width / 2 : Phaser.Math.Clamp(cx, halfW, width - halfW);
@@ -71,6 +81,7 @@ export class CameraDirector {
 
     let activeTween: Phaser.Tweens.Tween | null = null;
     let lastPartnerId: CharacterId | null = null;
+    let forcedCameraCutId: CameraAngleId | null = null;
     let disposed = false;
 
     const tweenToPreset = (preset: CameraPreset) => {
@@ -114,32 +125,36 @@ export class CameraDirector {
       }
 
       if (shotId === 'closeup_samer') {
-        const player = options.getPlayer?.();
-        const px = player ? player.x : 0.388 * W;
-        const py = player ? player.y : 0.788 * H;
+        const samerContainer = options.getCharacterContainers?.()?.get('samer');
+        const sx = samerContainer ? samerContainer.x : 0.388 * W;
+        const sy = samerContainer ? samerContainer.y : 0.788 * H;
         return {
           zoom: 2.05,
-          x: px / W,
-          y: (py - 90) / H,
+          x: sx / W,
+          y: (sy - 90) / H,
           durationMs: 540,
         };
       }
 
       if (shotId === 'two_shot_conversation') {
-        const player = options.getPlayer?.();
         const containers = options.getCharacterContainers?.();
+        const samer = containers?.get('samer');
         const partner = lastPartnerId ? containers?.get(lastPartnerId) : undefined;
-        if (player && partner) {
+        if (samer && partner) {
           return {
             zoom: 1.72,
-            x: ((player.x + partner.x) * 0.5) / W,
-            y: (((player.y - 84) + (partner.y - 68)) * 0.5) / H,
+            x: ((samer.x + partner.x) * 0.5) / W,
+            y: ((samer.y - 84 + (partner.y - 68)) * 0.5) / H,
             durationMs: 600,
           };
         }
         if (lastPartnerId && SPEAKER_FALLBACK_SHOTS[lastPartnerId]) {
           const fallback = SPEAKER_FALLBACK_SHOTS[lastPartnerId]!;
-          if (fallback !== 'wide_master' && fallback !== 'closeup_samer' && fallback !== 'two_shot_conversation') {
+          if (
+            fallback !== 'wide_master' &&
+            fallback !== 'closeup_samer' &&
+            fallback !== 'two_shot_conversation'
+          ) {
             return { ...CAMERA_SHOT_PRESETS[fallback], zoom: 1.72 };
           }
         }
@@ -154,7 +169,7 @@ export class CameraDirector {
       line: DialogueLine | null;
       choices?: DialogueChoice[];
     }>('dialogue:state', (state) => {
-      if (disposed) return;
+      if (disposed || forcedCameraCutId) return;
 
       if (!state.active || !state.line) {
         lastPartnerId = null;
@@ -175,9 +190,7 @@ export class CameraDirector {
 
       let chosenShot: CameraAngleId | undefined = line.cameraShot;
       if (!chosenShot) {
-        if ((state.choices && state.choices.length > 0) || line.speaker === 'samer') {
-          chosenShot = 'closeup_samer';
-        } else if (line.speaker !== 'narrator' && line.speaker !== 'system') {
+        if (line.speaker !== 'narrator' && line.speaker !== 'system') {
           chosenShot = SPEAKER_FALLBACK_SHOTS[line.speaker] ?? 'wide_master';
         } else {
           chosenShot = 'wide_master';
@@ -187,10 +200,36 @@ export class CameraDirector {
       tweenToPreset(resolveDynamicPreset(chosenShot));
     });
 
+    const unsubFocusShot = EventBus.on<{ cameraShot: CameraAngleId }>(
+      'camera:focus_shot',
+      (payload) => {
+        if (disposed || forcedCameraCutId) return;
+        tweenToPreset(resolveDynamicPreset(payload.cameraShot));
+      }
+    );
+
+    const unsubCameraCut = EventBus.on<{ cameraId: CameraAngleId; seconds: number }>(
+      'penalty:camera_cut',
+      (payload) => {
+        if (disposed) return;
+        forcedCameraCutId = payload.cameraId;
+        tweenToPreset({ ...resolveDynamicPreset(payload.cameraId), durationMs: 280 });
+      }
+    );
+
+    const unsubCameraCutCleared = EventBus.on('penalty:camera_cut_cleared', () => {
+      if (disposed) return;
+      forcedCameraCutId = null;
+      tweenToPreset(masterShot);
+    });
+
     const detach = () => {
       if (disposed) return;
       disposed = true;
       unsubDialogue();
+      unsubFocusShot();
+      unsubCameraCut();
+      unsubCameraCutCleared();
       if (activeTween) {
         activeTween.stop();
         activeTween = null;

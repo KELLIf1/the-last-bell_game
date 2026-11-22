@@ -9,6 +9,8 @@ import { puzzleManager } from '../../systems/PuzzleManager';
 import { saveManager } from '../../systems/SaveManager';
 import { AssembledScene, getObjectLabelAr, SceneAssembler } from '../../systems/SceneAssembler';
 import { storyManager } from '../../systems/StoryManager';
+import { taskDataLoader } from '../../systems/TaskDataLoader';
+import { taskEngine } from '../../systems/TaskEngine';
 import { timerManager } from '../../systems/TimerManager';
 import { uiSettings } from '../../systems/UiSettings';
 import {
@@ -21,30 +23,22 @@ import {
 
 interface ClassroomSceneData {
   sceneId?: SceneId;
-  playerPosition?: { x: number; y: number };
 }
 
 export class ClassroomScene extends Phaser.Scene {
   private currentSceneId: SceneId = 'classroom_emergency';
   private assembled: AssembledScene | null = null;
   private interactionSystem = new InteractionSystem();
-  private moveTarget: { x: number; y: number } | null = null;
-  private keys: {
-    up?: Phaser.Input.Keyboard.Key;
-    down?: Phaser.Input.Keyboard.Key;
-    left?: Phaser.Input.Keyboard.Key;
-    right?: Phaser.Input.Keyboard.Key;
-    w?: Phaser.Input.Keyboard.Key;
-    a?: Phaser.Input.Keyboard.Key;
-    s?: Phaser.Input.Keyboard.Key;
-    d?: Phaser.Input.Keyboard.Key;
-    e?: Phaser.Input.Keyboard.Key;
-  } = {};
+  private keyE?: Phaser.Input.Keyboard.Key;
   private pausedModal = false;
-  private finaleTriggered = false;
-  private projectorActivated = false;
-  private projectorBeacon: Phaser.GameObjects.Arc | null = null;
+  private timeoutTriggered = false;
   private endingTransitioned = false;
+
+  // Visual penalty layers
+  private lightsOutOverlay: Phaser.GameObjects.Rectangle | null = null;
+  private lightsOutTween: Phaser.Tweens.Tween | null = null;
+  private cameraCutOverlay: Phaser.GameObjects.Rectangle | null = null;
+  private cameraCutTween: Phaser.Tweens.Tween | null = null;
 
   constructor() {
     super({ key: 'ClassroomScene' });
@@ -52,17 +46,13 @@ export class ClassroomScene extends Phaser.Scene {
 
   init(data?: ClassroomSceneData): void {
     this.currentSceneId = data?.sceneId ?? 'classroom_emergency';
-    this.moveTarget = null;
     this.pausedModal = false;
-    this.finaleTriggered = false;
-    this.projectorActivated = false;
-    this.projectorBeacon = null;
+    this.timeoutTriggered = false;
     this.endingTransitioned = false;
-    if (data?.playerPosition) {
-      this.registry.set('restorePlayerPos', data.playerPosition);
-    } else {
-      this.registry.remove('restorePlayerPos');
-    }
+    this.lightsOutOverlay = null;
+    this.lightsOutTween = null;
+    this.cameraCutOverlay = null;
+    this.cameraCutTween = null;
   }
 
   create(): void {
@@ -81,57 +71,24 @@ export class ClassroomScene extends Phaser.Scene {
 
     CameraDirector.attach(this, {
       layout,
-      getPlayer: () => this.assembled?.playerSprite,
       getCharacterContainers: () => this.assembled?.characterContainers,
     });
 
-    const restorePos = this.registry.get('restorePlayerPos') as { x: number; y: number } | undefined;
-    if (restorePos && this.assembled.playerSprite) {
-      const clamped = this.assembled.clampToWalkable(restorePos.x, restorePos.y);
-      this.assembled.playerSprite.setPosition(clamped.x, clamped.y);
-      this.assembled.updateDepthsByY();
-      this.registry.remove('restorePlayerPos');
-    }
-
-    // Point-and-click walk on floor area
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, currentlyOver: Phaser.GameObjects.GameObject[]) => {
-      if (this.pausedModal || dialogueSystem.isActive()) return;
-      if (currentlyOver.length > 0) return; // Clicked an interactive hotspot
-      if (!this.assembled?.playerSprite) return;
-      const clamped = this.assembled.clampToWalkable(pointer.worldX, pointer.worldY);
-      this.moveTarget = clamped;
-    });
-
-    // Keyboard setup + blur safety
     if (this.input.keyboard) {
-      this.keys = {
-        up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-        down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-        left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-        right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
-        w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-        a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-        s: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-        d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-        e: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
-      };
+      this.keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     }
 
     const onBlur = () => {
-      this.moveTarget = null;
       this.input.keyboard?.resetKeys();
     };
     window.addEventListener('blur', onBlur);
-    this.events.once('shutdown', () => {
-      window.removeEventListener('blur', onBlur);
-      this.interactionSystem.clear();
-    });
 
     const unsubPause = EventBus.on<boolean>('game:modal_open', (isOpen) => {
       this.pausedModal = isOpen;
+      this.interactionSystem.setBlocked(isOpen || dialogueSystem.isActive());
       if (isOpen) {
         timerManager.pause();
-      } else {
+      } else if (!this.timeoutTriggered && !this.endingTransitioned) {
         timerManager.resume();
       }
     });
@@ -145,22 +102,84 @@ export class ClassroomScene extends Phaser.Scene {
     const unsubTimerExpired = EventBus.on('timer:expired', () => {
       this.handleTimeoutConsequence();
     });
-    const unsubDialogueBeat = EventBus.on<{ active: boolean; line: DialogueLine | null }>(
-      'dialogue:state',
-      (state) => {
-        if (!state.active || !state.line) return;
-        const id = state.line.id;
-        if (id === 'fin_1' || id === 'to_1') {
+
+    // TaskEngine waiting target highlight & completion sync
+    const unsubWaitingObject = EventBus.on<{ taskId: string; objectId: string } | null>(
+      'task:waiting_object',
+      (payload) => {
+        this.interactionSystem.setGoalHighlight(payload?.objectId ?? null);
+      }
+    );
+    const unsubTaskAllCompleted = EventBus.on('task:all_completed', () => {
+      this.syncObjectiveText();
+      this.autoSave();
+      this.transitionToEnding();
+    });
+    const unsubOnClickFx = EventBus.on<{ taskId: string; fx: string }>(
+      'task:on_click_fx',
+      (payload) => {
+        if (payload.fx === 'school_bell_flicker') {
+          audioManager.playSchoolBell();
           this.triggerSubtleLightFlicker();
-        } else if (id === 'fin_2' || id === 'to_2') {
-          audioManager.playDoorLock(true);
-          this.hideKarimAfterSummons();
-        } else if (id === 'fin_4') {
-          this.activateFinaleProjector(true);
+        } else if (payload.fx === 'faint_bell_double_flicker') {
+          audioManager.playFaintSchoolBell();
+          this.triggerDoubleLightFlicker();
         }
       }
     );
+
+    // Penalty visuals
+    const unsubLightsOut = EventBus.on<{ seconds: number }>('penalty:lights_out', () => {
+      this.activateLightsOutVisual();
+    });
+    const unsubLightsOutCleared = EventBus.on('penalty:lights_out_cleared', () => {
+      this.clearLightsOutVisual();
+    });
+    const unsubCameraCut = EventBus.on<{ cameraId: string; seconds: number }>(
+      'penalty:camera_cut',
+      () => {
+        this.activateCameraCutVisual();
+      }
+    );
+    const unsubCameraCutCleared = EventBus.on('penalty:camera_cut_cleared', () => {
+      this.clearCameraCutVisual();
+    });
+    const unsubDoorDelay = EventBus.on<{ seconds: number }>('penalty:door_delay', (p) => {
+      this.interactionSystem.setDisabledReason('door', `مقفل ${p.seconds} ث`);
+    });
+    const unsubDoorDelayTick = EventBus.on<{ remainingSec: number }>(
+      'penalty:door_delay_tick',
+      (p) => {
+        if (p.remainingSec > 0) {
+          this.interactionSystem.setDisabledReason('door', `مقفل ${p.remainingSec} ث`);
+        }
+      }
+    );
+    const unsubDoorDelayCleared = EventBus.on('penalty:door_delay_cleared', () => {
+      this.interactionSystem.setDisabledReason('door', undefined);
+    });
+    const unsubTimeLoss = EventBus.on('penalty:time_loss', () => {
+      this.cameras.main.shake(220, 0.004);
+      this.triggerCrimsonPulse();
+    });
+    const unsubExposeSecret = EventBus.on('penalty:expose_secret', () => {
+      this.triggerCrimsonPulse();
+    });
+    const unsubClearedAll = EventBus.on('penalty:cleared_all', () => {
+      this.clearLightsOutVisual();
+      this.clearCameraCutVisual();
+      this.interactionSystem.setDisabledReason('door', undefined);
+    });
+
+    const unsubDialogueBeat = EventBus.on<{ active: boolean; line: DialogueLine | null }>(
+      'dialogue:state',
+      (state) => {
+        this.interactionSystem.setBlocked(state.active || this.pausedModal);
+      }
+    );
+
     const onSceneResume = () => {
+      this.interactionSystem.clearHover();
       if (this.registry.get('pendingTimeoutEnding')) {
         this.registry.remove('pendingTimeoutEnding');
         this.handleTimeoutConsequence();
@@ -168,19 +187,40 @@ export class ClassroomScene extends Phaser.Scene {
       }
       this.syncObjectiveText();
       this.autoSave();
-      this.checkChapterEnd();
+      if (
+        storyManager.getTaskProgress().taskPhase === 'completed' &&
+        storyManager.getEndingId()
+      ) {
+        this.transitionToEnding();
+      }
     };
     this.events.on('resume', onSceneResume);
+
     this.events.once('shutdown', () => {
+      window.removeEventListener('blur', onBlur);
+      this.interactionSystem.clear();
       unsubPause();
       unsubControlsDismiss();
       unsubPuzzleSolved();
       unsubTimerExpired();
+      unsubWaitingObject();
+      unsubTaskAllCompleted();
+      unsubOnClickFx();
+      unsubLightsOut();
+      unsubLightsOutCleared();
+      unsubCameraCut();
+      unsubCameraCutCleared();
+      unsubDoorDelay();
+      unsubDoorDelayTick();
+      unsubDoorDelayCleared();
+      unsubTimeLoss();
+      unsubExposeSecret();
+      unsubClearedAll();
       unsubDialogueBeat();
+      this.clearLightsOutVisual();
+      this.clearCameraCutVisual();
       EventBus.emit('controls_hint:show', false);
       EventBus.emit('closeup:desk7', false);
-      this.projectorBeacon?.destroy();
-      this.projectorBeacon = null;
       this.events.off('resume', onSceneResume);
     });
 
@@ -192,25 +232,14 @@ export class ClassroomScene extends Phaser.Scene {
 
     uiSettings.markIntroSeen();
 
-    if (storyManager.getFlag('ch1_finale_started') === true) {
-      this.finaleTriggered = true;
-    }
-    if (
-      storyManager.getFlag('ch1_karim_summoned') === true &&
-      storyManager.getFlag('ch1_room0_teaser_seen') !== true &&
-      storyManager.getFlag('puzzle_01_failed_timeout') !== true
-    ) {
-      this.activateFinaleProjector(false);
-    }
-
     this.syncObjectiveText();
     if (storyManager.getFlag('ch1_first_exploration_toast') !== true) {
       storyManager.setFlag('ch1_first_exploration_toast', true);
       EventBus.emit('toast:show', {
-        titleAr: 'تم إغلاق الفصل 3B — تفقّد الأدلة الخمسة وتحدّث مع زملائك',
-        titleEn: 'Classroom 3B locked — Inspect all 5 clues and question your classmates',
+        titleAr: 'تم إغلاق الفصل 3ب — استمع للحوارات وانقر على عناصر الفصل',
+        titleEn: '',
         tone: 'warning',
-        durationMs: 7500,
+        durationMs: 6500,
       });
     }
     if (
@@ -224,9 +253,106 @@ export class ClassroomScene extends Phaser.Scene {
     if (this.registry.get('pendingTimeoutEnding')) {
       this.registry.remove('pendingTimeoutEnding');
       this.handleTimeoutConsequence();
-    } else {
-      this.checkChapterEnd();
+      return;
     }
+
+    if (taskEngine.isDoorBlocked()) {
+      this.interactionSystem.setDisabledReason(
+        'door',
+        `مقفل ${taskEngine.getDoorDelayRemainingSec()} ث`
+      );
+    }
+
+    const taskProgress = storyManager.getTaskProgress();
+    if (taskProgress.taskPhase === 'completed' && storyManager.getEndingId()) {
+      this.transitionToEnding();
+      return;
+    }
+
+    if (
+      storyManager.getFlag('ch1_opening_reactions_done') !== true &&
+      !taskProgress.currentTaskId
+    ) {
+      EventBus.emit('camera:focus_shot', { cameraShot: 'board' });
+      dialogueSystem.startConversation('ch1_opening_reactions', () => {
+        this.autoSave();
+        taskEngine.startOrResume();
+      });
+    } else {
+      // Start or resume TaskEngine loop from current state/phase
+      taskEngine.startOrResume();
+    }
+  }
+
+  private activateLightsOutVisual(): void {
+    this.clearLightsOutVisual();
+    const overlay = this.add
+      .rectangle(640, 360, 1280, 720, 0x2b0509, 0.72)
+      .setDepth(975)
+      .setScrollFactor(0);
+    this.lightsOutOverlay = overlay;
+    this.lightsOutTween = this.tweens.add({
+      targets: overlay,
+      alpha: { from: 0.56, to: 0.84 },
+      duration: 240,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  private clearLightsOutVisual(): void {
+    if (this.lightsOutTween) {
+      this.lightsOutTween.stop();
+      this.lightsOutTween = null;
+    }
+    if (this.lightsOutOverlay) {
+      this.lightsOutOverlay.destroy();
+      this.lightsOutOverlay = null;
+    }
+  }
+
+  private activateCameraCutVisual(): void {
+    this.clearCameraCutVisual();
+    const overlay = this.add
+      .rectangle(640, 360, 1280, 720, 0x020617, 0.34)
+      .setDepth(974)
+      .setScrollFactor(0);
+    this.cameraCutOverlay = overlay;
+    this.cameraCutTween = this.tweens.add({
+      targets: overlay,
+      alpha: { from: 0.22, to: 0.48 },
+      duration: 130,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Stepped',
+    });
+  }
+
+  private clearCameraCutVisual(): void {
+    if (this.cameraCutTween) {
+      this.cameraCutTween.stop();
+      this.cameraCutTween = null;
+    }
+    if (this.cameraCutOverlay) {
+      this.cameraCutOverlay.destroy();
+      this.cameraCutOverlay = null;
+    }
+  }
+
+  private triggerCrimsonPulse(): void {
+    const pulse = this.add
+      .rectangle(640, 360, 1280, 720, 0x7f1d1d, 0)
+      .setDepth(972)
+      .setScrollFactor(0);
+    this.tweens.add({
+      targets: pulse,
+      alpha: 0.36,
+      duration: 160,
+      yoyo: true,
+      repeat: 1,
+      onComplete: () => pulse.destroy(),
+    });
   }
 
   private dismissControlsHint(): void {
@@ -238,43 +364,30 @@ export class ClassroomScene extends Phaser.Scene {
   }
 
   private syncObjectiveText(): void {
-    const solved = storyManager.getFlag('puzzle_01_solved') === true;
-    const karimSummoned = storyManager.getFlag('ch1_karim_summoned') === true;
-    const room0Seen = storyManager.getFlag('ch1_room0_teaser_seen') === true;
-    const failedTimeout = storyManager.getFlag('puzzle_01_failed_timeout') === true;
+    const taskProg = storyManager.getTaskProgress();
+    if (taskProg.taskPhase === 'completed') {
+      EventBus.emit('objective:updated', {
+        textAr: 'النهاية تقترب — انتظر المشهد الأخير',
+        textEn: '',
+      });
+      return;
+    }
 
-    if (!solved && puzzleManager.isUnlocked()) {
-      if (storyManager.getFlag('puzzle_01_unlocked') !== true) {
-        storyManager.setFlag('puzzle_01_unlocked', true);
-        EventBus.emit('toast:show', {
-          titleAr: 'تم فتح اللغز الأول: اضغط على السبورة أو زر «اللغز الأول» أعلى الشاشة',
-          titleEn: 'Puzzle 01 unlocked: Click the Whiteboard or Puzzle button',
-          tone: 'evidence',
+    if (taskProg.currentTaskId) {
+      const task = taskDataLoader.getTaskById(taskProg.currentTaskId);
+      if (task?.titleAr) {
+        EventBus.emit('objective:updated', {
+          textAr: task.titleAr,
+          textEn: '',
         });
+        return;
       }
     }
 
-    if (karimSummoned && !room0Seen && !failedTimeout) {
-      EventBus.emit('objective:updated', {
-        textAr: 'افحص جهاز العرض المضاء في السقف',
-        textEn: 'Inspect the glowing ceiling projector',
-      });
-    } else if (solved) {
-      EventBus.emit('objective:updated', {
-        textAr: 'تم حل اللغز — تحدّث مع الطلاب المتبقين وتابع التحقيق',
-        textEn: 'Puzzle solved — Question the remaining students',
-      });
-    } else if (puzzleManager.isUnlocked()) {
-      EventBus.emit('objective:updated', {
-        textAr: 'حل لغز ترتيب المقاعد (اضغط على السبورة أو زر اللغز)',
-        textEn: 'Solve Puzzle 01: The Seating Order',
-      });
-    } else {
-      EventBus.emit('objective:updated', {
-        textAr: 'تفقّد الفصل واجمع الأدلة الخمسة',
-        textEn: 'Investigate the classroom and collect 5 evidence items',
-      });
-    }
+    EventBus.emit('objective:updated', {
+      textAr: 'تفقّد عناصر الفصل واستمع إلى الطلاب',
+      textEn: '',
+    });
   }
 
   private triggerSubtleLightFlicker(): void {
@@ -290,129 +403,52 @@ export class ClassroomScene extends Phaser.Scene {
     });
   }
 
-  private hideKarimAfterSummons(): void {
-    const karimContainer = this.assembled?.characterContainers.get('karim');
-    if (karimContainer && karimContainer.visible) {
-      this.tweens.add({
-        targets: karimContainer,
-        alpha: 0,
-        duration: 380,
-        onComplete: () => {
-          karimContainer.setVisible(false);
-        },
-      });
-    }
-    this.interactionSystem.remove('char_karim');
-  }
-
-  private activateFinaleProjector(showHighlightFlash: boolean): void {
-    if (this.projectorActivated) return;
-    this.projectorActivated = true;
-
-    const layout = this.assembled?.layout;
-    const W = layout?.baseResolution.width ?? 1280;
-    const H = layout?.baseResolution.height ?? 720;
-    const projObj = layout?.objects.find((o) => o.id === 'projector');
-    const iz = projObj?.interactionZone ?? { x: 0.47, y: 0.102, w: 0.085, h: 0.07 };
-    const zx = (iz.x + iz.w / 2) * W;
-    const zy = (iz.y + iz.h / 2) * H;
-
-    if (this.interactionSystem.hasTarget('projector')) {
-      this.interactionSystem.setMaxDist('projector', 620);
-    } else if (projObj) {
-      const zw = Math.max(iz.w * W, 118);
-      const zh = Math.max(iz.h * H, 68);
-      const zone = this.add.zone(zx, zy, zw, zh).setDepth(950);
-      const highlight = this.add
-        .rectangle(zx, zy, zw, zh)
-        .setStrokeStyle(2, 0xd6a65d, 0.9)
-        .setFillStyle(0x38bdf8, 0.1)
-        .setVisible(false)
-        .setDepth(940);
-
-      this.interactionSystem.register({
-        id: 'projector',
-        labelAr: getObjectLabelAr('projector', projObj.label),
-        labelEn: projObj.label,
-        x: zx,
-        y: zy,
-        maxDistPx: 620,
-        zone,
-        highlightRect: highlight,
-        onInteract: () => this.handleObjectInteract(projObj),
-      });
-    }
-
-    if (!this.projectorBeacon) {
-      const beacon = this.add.circle(zx, zy, 22, 0x38bdf8, 0.18).setStrokeStyle(2, 0xd6a65d, 0.85).setDepth(920);
-      this.tweens.add({
-        targets: beacon,
-        scale: 1.24,
-        alpha: 0.42,
-        duration: 900,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut',
-      });
-      this.projectorBeacon = beacon;
-    }
-
-    if (showHighlightFlash) {
-      audioManager.playClockTick();
-    }
-  }
-
-  private checkChapterEnd(): void {
-    if (this.finaleTriggered || storyManager.getFlag('ch1_finale_started') === true) return;
-    if (storyManager.getFlag('puzzle_01_failed_timeout') === true) return;
-    if (this.pausedModal || dialogueSystem.isActive() || !this.scene.isActive('ClassroomScene')) return;
-
-    const allTalked =
-      storyManager.getFlag('talked_layan') === true &&
-      storyManager.getFlag('talked_yacine') === true &&
-      storyManager.getFlag('talked_nour') === true &&
-      storyManager.getFlag('talked_mariam') === true &&
-      storyManager.getFlag('talked_karim') === true;
-
-    if (storyManager.getFlag('puzzle_01_solved') !== true || !allTalked) {
-      return;
-    }
-
-    this.finaleTriggered = true;
-    this.moveTarget = null;
-    timerManager.pause();
-    storyManager.setFlag('ch1_finale_started', true);
-    this.autoSave();
-
-    dialogueSystem.startConversation('ch1_finale', () => {
-      this.activateFinaleProjector(true);
-      this.syncObjectiveText();
-      this.autoSave();
-      EventBus.emit('toast:show', {
-        titleAr: 'انظر إلى السقف: اضغط على جهاز العرض المضاء أو اضغط E',
-        titleEn: 'Look up: Click the glowing ceiling projector or press E',
-        tone: 'warning',
-      });
+  private triggerDoubleLightFlicker(): void {
+    this.triggerSubtleLightFlicker();
+    this.time.delayedCall(280, () => {
+      if (this.scene.isActive('ClassroomScene')) {
+        this.triggerSubtleLightFlicker();
+      }
     });
   }
 
   private handleTimeoutConsequence(): void {
-    if (this.finaleTriggered || storyManager.getFlag('ch1_finale_started') === true) return;
+    if (this.timeoutTriggered || this.endingTransitioned) return;
     if (!this.scene.isActive('ClassroomScene')) return;
 
-    this.finaleTriggered = true;
-    this.moveTarget = null;
+    this.timeoutTriggered = true;
     this.pausedModal = false;
     timerManager.pause();
+
+    // Clear active execution & force-close any open DOM modals so Adam's timeout line is visible
+    EventBus.emit('task:execution_cleared', {});
+    EventBus.emit('task:waiting_object', null);
+    EventBus.emit('game:force_close_modals', {});
+
     storyManager.setFlags({
       puzzle_01_failed_timeout: true,
-      ch1_finale_started: true,
     });
 
-    this.triggerSubtleLightFlicker();
+    this.triggerDoubleLightFlicker();
     audioManager.playDoorLock(false);
+    EventBus.emit('camera:focus_shot', { cameraShot: 'door' });
 
-    dialogueSystem.startConversation('ch1_timeout', () => {
+    const timeoutLine: DialogueLine = {
+      id: 'timeout_adam_1',
+      speaker: 'adam',
+      speakerNameAr: dialogueSystem.getSpeakerNameAr('adam'),
+      speakerNameEn: '',
+      expression: 'neutral',
+      speaking: true,
+      cameraShot: 'door',
+      textAr: 'انتهى الوقت. لكن الباب لم يكن يومًا مرتبطًا بالوقت.',
+      textEn: '',
+    };
+
+    dialogueSystem.playScriptedSequence('timeout_adam_sequence', [timeoutLine], () => {
+      // Understanding remains capped at its exact current value
+      taskEngine.resolveAndStoreEnding();
+      this.autoSave();
       this.transitionToEnding();
     });
   }
@@ -421,6 +457,9 @@ export class ClassroomScene extends Phaser.Scene {
     if (this.endingTransitioned) return;
     this.endingTransitioned = true;
     timerManager.pause();
+    if (!storyManager.getEndingId()) {
+      taskEngine.resolveAndStoreEnding();
+    }
     this.cameras.main.fadeOut(450, 4, 7, 13);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start('EndingScene');
@@ -461,49 +500,74 @@ export class ClassroomScene extends Phaser.Scene {
   private handleObjectInteract(obj: SceneObjectConfig): void {
     if (this.pausedModal || dialogueSystem.isActive()) return;
     this.dismissControlsHint();
+
+    const isTaskDoorTarget =
+      taskEngine.getWaitingObjectId() === 'door' ||
+      taskEngine.getActiveExecution()?.taskId === 'task_05';
+
+    // Enforce door_delay penalty on ambient exploration, never blocking task_05 progression
+    if (obj.id === 'door' && taskEngine.isDoorBlocked() && !isTaskDoorTarget) {
+      audioManager.playDoorLock(false);
+      EventBus.emit('toast:show', {
+        titleAr: `الباب معطّل بسبب القفل المؤقت (${taskEngine.getDoorDelayRemainingSec()} ثانية متبقية)`,
+        titleEn: '',
+        tone: 'warning',
+      });
+      return;
+    }
+
+    // Record raw object inspection in listener's log ("ما وجدته")
+    const timestamp = timerManager.getState().started ? timerManager.getFormatted() : '16:20';
+    const evCatalogItem = obj.evidenceId
+      ? evidenceSystem.getCatalogItem(obj.evidenceId)
+      : undefined;
+    storyManager.recordFoundObject({
+      objectId: obj.id,
+      evidenceId: obj.evidenceId,
+      titleAr: evCatalogItem?.nameAr ?? getObjectLabelAr(obj.id, obj.label),
+      rawTextAr: evCatalogItem?.descriptionAr ?? getObjectLabelAr(obj.id, obj.label),
+      timestamp,
+    });
+
+    // Let TaskEngine handle target object click if waiting_for_click or reopening execution
+    if (taskEngine.handleObjectClick(obj.id)) {
+      if (obj.evidenceId) {
+        evidenceSystem.collect(obj.evidenceId);
+      }
+      return;
+    }
+
     audioManager.playClick();
 
     if (obj.evidenceId) {
       const newlyCollected = evidenceSystem.collect(obj.evidenceId);
       if (obj.id === 'class_photo') {
         this.showDesk7Closeup();
-      } else if (!newlyCollected && !(obj.id === 'board' && puzzleManager.isUnlocked() && storyManager.getFlag('puzzle_01_solved') !== true)) {
+      } else if (
+        !newlyCollected &&
+        !(
+          obj.id === 'board' &&
+          puzzleManager.isUnlocked() &&
+          storyManager.getFlag('puzzle_01_solved') !== true
+        )
+      ) {
         const labelAr = getObjectLabelAr(obj.id, obj.label);
         EventBus.emit('toast:show', {
           titleAr: `تم فحص: ${labelAr}`,
-          titleEn: `Already inspected: ${obj.label} (view in Notebook)`,
+          titleEn: '',
           tone: 'info',
         });
       }
       this.syncObjectiveText();
-      if (obj.id === 'board' && puzzleManager.isUnlocked() && storyManager.getFlag('puzzle_01_solved') !== true) {
-        this.scene.launch('PuzzleScene');
-        this.scene.pause();
-      }
       this.autoSave();
       return;
     }
 
     if (obj.id === 'projector') {
-      if (storyManager.getFlag('ch1_karim_summoned') !== true) {
-        EventBus.emit('toast:show', {
-          titleAr: 'الشاشة معطلة الآن... لعلها تعمل لاحقاً',
-          titleEn: 'The projector screen is inactive right now... maybe later.',
-          tone: 'info',
-        });
-        return;
-      }
-      if (storyManager.getFlag('ch1_room0_teaser_seen') === true) {
-        EventBus.emit('toast:show', {
-          titleAr: 'تم فحص البث الأخير لجهاز العرض',
-          titleEn: 'The final projector broadcast has already been inspected.',
-          tone: 'info',
-        });
-        return;
-      }
-      dialogueSystem.startConversation('ch1_projector_teaser', () => {
-        this.autoSave();
-        this.transitionToEnding();
+      EventBus.emit('toast:show', {
+        titleAr: 'جهاز العرض صامت الآن والعدسة باردة.',
+        titleEn: '',
+        tone: 'info',
       });
       return;
     }
@@ -512,7 +576,7 @@ export class ClassroomScene extends Phaser.Scene {
       audioManager.playDoorLock(false);
       EventBus.emit('toast:show', {
         titleAr: 'الباب الإلكتروني مقفل بإحكام — ضوء التحذير الأحمر مضاء',
-        titleEn: 'Electronic door is locked from outside.',
+        titleEn: '',
         tone: 'warning',
       });
     }
@@ -526,63 +590,27 @@ export class ClassroomScene extends Phaser.Scene {
     dialogueSystem.startConversation(convId, () => {
       this.syncObjectiveText();
       this.autoSave();
-      this.checkChapterEnd();
     });
   }
 
   private autoSave(): void {
-    const px = this.assembled?.playerSprite?.x ?? 471;
-    const py = this.assembled?.playerSprite?.y ?? 588;
-    this.registry.set('lastPlayerPos', { x: px, y: py });
-    saveManager.save(this.currentSceneId, { x: px, y: py });
+    saveManager.save(
+      this.currentSceneId,
+      { x: 0, y: 0 },
+      taskEngine.getDoorDelayRemainingSec()
+    );
   }
 
   update(_time: number, delta: number): void {
     if (this.pausedModal) return;
 
     timerManager.update(delta);
+    taskEngine.update(delta);
 
-    if (dialogueSystem.isActive() || !this.assembled?.playerSprite) return;
+    if (dialogueSystem.isActive()) return;
 
-    if (this.keys.e && Phaser.Input.Keyboard.JustDown(this.keys.e)) {
+    if (this.keyE && Phaser.Input.Keyboard.JustDown(this.keyE)) {
       this.interactionSystem.triggerActive();
     }
-
-    const dtSec = Math.min(delta / 1000, 0.05);
-    const speed = 220;
-    const player = this.assembled.playerSprite;
-
-    let vx = 0;
-    let vy = 0;
-    if (this.keys.left?.isDown || this.keys.a?.isDown) vx -= 1;
-    if (this.keys.right?.isDown || this.keys.d?.isDown) vx += 1;
-    if (this.keys.up?.isDown || this.keys.w?.isDown) vy -= 1;
-    if (this.keys.down?.isDown || this.keys.s?.isDown) vy += 1;
-
-    if (vx !== 0 || vy !== 0) {
-      this.moveTarget = null;
-      const len = Math.hypot(vx, vy);
-      const next = this.assembled.clampToWalkable(
-        player.x + (vx / len) * speed * dtSec,
-        player.y + (vy / len) * speed * dtSec
-      );
-      player.setPosition(next.x, next.y);
-      this.assembled.updateDepthsByY();
-    } else if (this.moveTarget) {
-      const dist = Phaser.Math.Distance.Between(player.x, player.y, this.moveTarget.x, this.moveTarget.y);
-      if (dist < 6) {
-        this.moveTarget = null;
-      } else {
-        const angle = Phaser.Math.Angle.Between(player.x, player.y, this.moveTarget.x, this.moveTarget.y);
-        const next = this.assembled.clampToWalkable(
-          player.x + Math.cos(angle) * speed * dtSec,
-          player.y + Math.sin(angle) * speed * dtSec
-        );
-        player.setPosition(next.x, next.y);
-        this.assembled.updateDepthsByY();
-      }
-    }
-
-    this.interactionSystem.updateProximity(player.x, player.y);
   }
 }

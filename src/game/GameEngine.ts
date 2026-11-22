@@ -5,6 +5,7 @@ import { evidenceSystem } from '../systems/EvidenceSystem';
 import { puzzleManager } from '../systems/PuzzleManager';
 import { saveManager } from '../systems/SaveManager';
 import { storyManager } from '../systems/StoryManager';
+import { taskEngine } from '../systems/TaskEngine';
 import { timerManager } from '../systems/TimerManager';
 import { BootScene } from './scenes/BootScene';
 import { ClassroomScene } from './scenes/ClassroomScene';
@@ -51,6 +52,7 @@ export class GameEngine {
     dialogueSystem.reset();
     timerManager.reset();
     puzzleManager.reset();
+    taskEngine.reset();
 
     this.stopActiveGameplayScenes();
     this.game.scene.start('IntroScene');
@@ -62,15 +64,19 @@ export class GameEngine {
     if (!saved) return false;
 
     audioManager.unlock();
+    taskEngine.reset();
     saveManager.applySave(saved);
+    taskEngine.loadPenaltyTimers(saved.doorDelayRemainingSec ?? 0);
     this.stopActiveGameplayScenes();
 
     if (saved.currentSceneId === 'ending') {
       this.game.scene.start('EndingScene');
     } else {
       this.game.scene.start('ClassroomScene', {
-        sceneId: saved.currentSceneId === 'academy_exterior' ? 'classroom_emergency' : saved.currentSceneId,
-        playerPosition: saved.playerPosition,
+        sceneId:
+          saved.currentSceneId === 'academy_exterior'
+            ? 'classroom_emergency'
+            : saved.currentSceneId,
       });
     }
     return true;
@@ -90,14 +96,18 @@ export class GameEngine {
     timerManager.pause();
     audioManager.stopAllLoops();
     dialogueSystem.reset();
+    taskEngine.reset();
     this.stopActiveGameplayScenes();
     this.game.scene.start('MainMenuScene');
   }
 
   saveCurrentProgress(): boolean {
     if (!this.game) return false;
-    const lastPos = this.game.registry.get('lastPlayerPos') as { x: number; y: number } | undefined;
-    return saveManager.save('classroom_emergency', lastPos ?? { x: 471, y: 588 });
+    return saveManager.save(
+      'classroom_emergency',
+      { x: 0, y: 0 },
+      taskEngine.getDoorDelayRemainingSec()
+    );
   }
 
   private stopActiveGameplayScenes(): void {

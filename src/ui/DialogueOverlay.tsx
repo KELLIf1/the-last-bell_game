@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { audioManager } from '../systems/AudioManager';
 import { EventBus } from '../systems/EventBus';
-import { CharacterId, DialogueChoice, DialogueLine } from '../types/game';
+import { CharacterId, DialogueChoice, DialogueLine, StudentId } from '../types/game';
 
 interface DialogueOverlayProps {
   line: DialogueLine;
   choices: DialogueChoice[];
-  showEnglish: boolean;
   onAdvance: () => void;
   onSelectChoice: (choiceId: string) => void;
 }
@@ -30,7 +29,8 @@ function resolvePortraitSrc(line: DialogueLine): string | null {
     return '/assets/characters/portraits/elena/archival.webp';
   }
   if (line.speaker === 'adam') {
-    const state = line.expression === 'angry' || line.expression === 'worried' ? 'intense' : 'neutral';
+    const state =
+      line.expression === 'angry' || line.expression === 'worried' ? 'intense' : 'neutral';
     return `/assets/characters/portraits/adam/${state}.webp`;
   }
   const expr = line.expression ?? 'neutral';
@@ -38,10 +38,13 @@ function resolvePortraitSrc(line: DialogueLine): string | null {
   return `/assets/characters/portraits/${line.speaker}/${fileState}.webp`;
 }
 
+function resolveStudentPortraitSrc(studentId: StudentId): string {
+  return `/assets/characters/portraits/${studentId}/neutral.webp`;
+}
+
 export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
   line,
   choices,
-  showEnglish,
   onAdvance,
   onSelectChoice,
 }) => {
@@ -50,7 +53,6 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
   const [imgFailed, setImgFailed] = useState(false);
 
   const [typedAr, setTypedAr] = useState('');
-  const [typedEn, setTypedEn] = useState('');
   const [isFullyTyped, setIsFullyTyped] = useState(false);
   const timerRef = useRef<number | null>(null);
 
@@ -65,19 +67,15 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
     stopTypingTimer();
     setImgFailed(false);
     setTypedAr('');
-    setTypedEn('');
 
     const textAr = line.textAr ?? '';
-    const textEn = showEnglish ? (line.textEn ?? '') : '';
-    if (textAr.length === 0 && textEn.length === 0) {
+    if (textAr.length === 0) {
       setIsFullyTyped(true);
       return;
     }
 
     setIsFullyTyped(false);
     let idxAr = 0;
-    let enProgress = 0;
-    const enStep = textAr.length > 0 ? Math.max(1, textEn.length / textAr.length) : 1.5;
 
     timerRef.current = window.setInterval(() => {
       if (idxAr < textAr.length) {
@@ -89,14 +87,8 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
         }
       }
 
-      if (enProgress < textEn.length) {
-        enProgress = Math.min(textEn.length, enProgress + enStep);
-        setTypedEn(textEn.slice(0, Math.floor(enProgress)));
-      }
-
-      if (idxAr >= textAr.length && enProgress >= textEn.length) {
+      if (idxAr >= textAr.length) {
         setTypedAr(textAr);
-        setTypedEn(textEn);
         setIsFullyTyped(true);
         stopTypingTimer();
       }
@@ -105,21 +97,19 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
     return () => {
       stopTypingTimer();
     };
-  }, [line, showEnglish, stopTypingTimer]);
+  }, [line, stopTypingTimer]);
 
   const handleBoxClick = useCallback(() => {
     if (choices.length > 0) return;
     if (!isFullyTyped) {
       stopTypingTimer();
       setTypedAr(line.textAr ?? '');
-      setTypedEn(showEnglish ? (line.textEn ?? '') : '');
       setIsFullyTyped(true);
       return;
     }
     onAdvance();
-  }, [choices.length, isFullyTyped, line.textAr, line.textEn, onAdvance, showEnglish, stopTypingTimer]);
+  }, [choices.length, isFullyTyped, line.textAr, onAdvance, stopTypingTimer]);
 
-  // Ensure global Space/Enter in App finishes typewriter first before advancing
   useEffect(() => {
     return EventBus.on('dialogue:advance_or_reveal', () => {
       handleBoxClick();
@@ -127,25 +117,48 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
   }, [handleBoxClick]);
 
   return (
-    <div dir="rtl" className="pointer-events-auto absolute inset-x-0 bottom-4 mx-auto w-[calc(100%-2rem)] max-w-[960px]">
-      {/* Choices list above dialogue box if present */}
+    <div
+      dir="rtl"
+      className="pointer-events-auto absolute inset-x-0 bottom-4 mx-auto w-[calc(100%-2rem)] max-w-[960px]"
+    >
+      {/* Student-proposed choices (voiced by proposing student, never player speaking) */}
       {choices.length > 0 && (
         <div className="mb-2.5 flex flex-col gap-2">
-          {choices.map((choice) => (
-            <button
-              key={choice.id}
-              type="button"
-              onClick={() => onSelectChoice(choice.id)}
-              className="min-h-[44px] w-full rounded border border-slate-600/80 bg-[#0B1220]/96 px-4 py-2.5 text-right transition-colors hover:border-slate-400 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white"
-            >
-              <div className="font-ar text-sm font-semibold text-slate-100">{choice.textAr}</div>
-              {showEnglish && (
-                <div dir="ltr" className="font-sans-en mt-0.5 text-left text-xs text-slate-400">
-                  {choice.textEn}
+          {choices.map((choice) => {
+            const proposer = choice.proposedBy;
+            const proposerAccent = proposer ? PORTRAIT_ACCENTS[proposer] : '#64748B';
+            return (
+              <button
+                key={choice.id}
+                type="button"
+                onClick={() => onSelectChoice(choice.id)}
+                className="flex min-h-[54px] w-full items-center gap-3 rounded border border-slate-600/85 bg-[#0B1220]/96 px-3.5 py-2 text-right transition-colors hover:border-amber-400/80 hover:bg-slate-800/95 focus-visible:outline-2 focus-visible:outline-white"
+              >
+                {proposer && (
+                  <div
+                    className="h-11 w-11 shrink-0 overflow-hidden rounded border bg-[#0F172A]"
+                    style={{ borderColor: proposerAccent }}
+                  >
+                    <img
+                      src={resolveStudentPortraitSrc(proposer)}
+                      alt={choice.proposedByNameAr ?? proposer}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  {proposer && choice.proposedByNameAr && (
+                    <div className="font-ar mb-0.5 text-xs font-bold text-amber-300">
+                      {choice.proposedByNameAr}
+                    </div>
+                  )}
+                  <div className="font-ar text-sm font-semibold text-slate-100">
+                    {choice.textAr}
+                  </div>
                 </div>
-              )}
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -182,12 +195,9 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
               />
             ) : (
               <div className="flex flex-col items-center justify-center p-2 text-center">
-                <span className="font-ar text-lg font-bold text-slate-100">{line.speakerNameAr}</span>
-                {showEnglish && (
-                  <span className="font-sans-en mt-1 text-[11px] text-slate-400">
-                    {line.expression ?? 'neutral'}
-                  </span>
-                )}
+                <span className="font-ar text-lg font-bold text-slate-100">
+                  {line.speakerNameAr}
+                </span>
               </div>
             )}
           </div>
@@ -195,22 +205,10 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
 
         <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
           <div className="flex items-baseline justify-between gap-3 border-b border-slate-800 pb-1.5">
-            <div className="flex items-baseline gap-2">
-              <span className="font-ar text-base font-bold text-white">{line.speakerNameAr}</span>
-              {showEnglish && (
-                <>
-                  <span className="text-slate-600">·</span>
-                  <span className="font-sans-en text-xs text-slate-400">{line.speakerNameEn}</span>
-                </>
-              )}
-            </div>
+            <span className="font-ar text-base font-bold text-white">{line.speakerNameAr}</span>
             {choices.length === 0 && (
               <span className="font-ar text-[11px] text-sky-300/80">
-                {isFullyTyped
-                  ? 'انقر أو Space للمتابعة ↵'
-                  : showEnglish
-                    ? 'KEYBOARD INPUT...'
-                    : 'جاري الكتابة...'}
+                {isFullyTyped ? 'انقر أو مسافة للمتابعة ↵' : 'جاري العرض...'}
               </span>
             )}
           </div>
@@ -221,14 +219,6 @@ export const DialogueOverlay: React.FC<DialogueOverlayProps> = ({
               <span className="mr-1 inline-block h-[1.05em] w-[7px] animate-pulse bg-sky-400 align-middle" />
             )}
           </p>
-          {showEnglish && (
-            <p dir="ltr" className="font-sans-en text-left text-xs leading-snug text-slate-400">
-              {typedEn}
-              {!isFullyTyped && (
-                <span className="ml-1 inline-block h-[1em] w-[5px] animate-pulse bg-slate-400 align-middle" />
-              )}
-            </p>
-          )}
         </div>
       </div>
     </div>

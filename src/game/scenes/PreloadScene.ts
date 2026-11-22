@@ -3,6 +3,7 @@ import { dialogueSystem } from '../../systems/DialogueSystem';
 import { EventBus } from '../../systems/EventBus';
 import { evidenceSystem } from '../../systems/EvidenceSystem';
 import { puzzleManager } from '../../systems/PuzzleManager';
+import { taskDataLoader } from '../../systems/TaskDataLoader';
 import {
   DialogueConversation,
   EvidenceItem,
@@ -48,6 +49,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.json('data_evidence', '/assets/config/data/evidence.json');
     this.load.json('data_dialogues', '/assets/config/data/dialogues.json');
     this.load.json('data_puzzles', '/assets/config/data/puzzles.json');
+    this.load.json('data_tasks', '/assets/config/data/tasks.json');
+    this.load.json('data_clues', '/assets/config/data/clues.json');
+    this.load.json('data_endings', '/assets/config/data/endings.json');
 
     // Master 1280x720 backgrounds
     SCENE_IDS.filter((id) => id !== 'puzzle_seating').forEach((id) => {
@@ -121,6 +125,11 @@ export class PreloadScene extends Phaser.Scene {
 
     const puzzle = this.cache.json.get('data_puzzles') as PuzzleSeatingConfig | undefined;
     if (puzzle) puzzleManager.loadConfig(puzzle);
+
+    const tasks = this.cache.json.get('data_tasks');
+    const clues = this.cache.json.get('data_clues');
+    const endings = this.cache.json.get('data_endings');
+    taskDataLoader.loadFromData(tasks, clues, endings);
 
     if (this.missingAssets.length > 0) {
       EventBus.emit('warning:assets_missing', this.missingAssets);

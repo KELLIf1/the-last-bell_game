@@ -191,10 +191,6 @@ export class SceneAssembler {
           labelEn: obj.label,
           x: zx,
           y: zy,
-          maxDistPx:
-            obj.id === 'projector' && storyManager.getFlag('ch1_karim_summoned') === true
-              ? 620
-              : undefined,
           zone,
           highlightRect: highlight,
           onInteract: () => callbacks.onObjectInteract(obj),

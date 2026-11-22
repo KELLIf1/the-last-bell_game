@@ -1,0 +1,57 @@
+{
+  "clueFragments": [
+    {
+      "id": "clue_t1",
+      "titleAr": "جدول الجلوس القديم",
+      "sourceObjectId": "board",
+      "textAr": "جدول الجلوس القديم: المقعد 2 إيلينا، المقعد 7 اسم تالف لا يُقرأ.",
+      "answersQuestions": ["bq_who_cut_seat7"]
+    },
+    {
+      "id": "clue_t2",
+      "titleAr": "الساعة 16:20 والجرس الأخير",
+      "sourceObjectId": "wall_clock",
+      "textAr": "الجرس الأخير رنّ عند 16:20 والباب مغلق من الخارج، وكلمة «لعبة» ظهرت على لسان الجميع.",
+      "answersQuestions": ["bq_what_happened_1620"]
+    },
+    {
+      "id": "clue_t3",
+      "titleAr": "صفحة سجل الحضور",
+      "sourceObjectId": "attendance_register",
+      "textAr": "سجل الحضور: إيلينا مسجّلة «غائبة» بخط مريم، لكنها كانت داخل المبنى (ليان رأتها).",
+      "answersQuestions": ["bq_who_altered_register"]
+    },
+    {
+      "id": "clue_t4",
+      "titleAr": "ظهر صورة الصف",
+      "sourceObjectId": "class_photo",
+      "textAr": "خلف الصورة تاريخ اليوم الأخير ومعه سطر بخط مرتجف: «الباب لم يُفتح لأنني قلت إنني لن أخبر أحداً». المقعد الثالث كان لسامر.",
+      "answersQuestions": ["bq_who_cut_seat7"]
+    },
+    {
+      "id": "clue_t5",
+      "titleAr": "ما حدث قبل ثلاث سنوات",
+      "sourceObjectId": "classroom_door",
+      "textAr": "ما حدث لإيلينا قبل ثلاث سنوات كان فعلاً جماعياً صغيراً في لحظة ظنّ فيها كل واحد أنه لا يهم، وآدم لا يريد عقاباً بقدر ما يريد أن يُسمَع.",
+      "answersQuestions": ["bq_what_happened_elena"]
+    }
+  ],
+  "bigQuestions": [
+    {
+      "id": "bq_who_cut_seat7",
+      "textAr": "من كان يجلس في المقعد السابع ولماذا حُذف اسمه؟"
+    },
+    {
+      "id": "bq_what_happened_1620",
+      "textAr": "ماذا حدث عند الساعة 16:20 حين رنّ الجرس الأخير والباب مغلق؟"
+    },
+    {
+      "id": "bq_who_altered_register",
+      "textAr": "من غيّر سجل الحضور ليجعل إيلينا غائبة؟"
+    },
+    {
+      "id": "bq_what_happened_elena",
+      "textAr": "ما الذي حدث لإيلينا خلف الباب قبل ثلاث سنوات؟"
+    }
+  ]
+}

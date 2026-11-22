@@ -100,19 +100,31 @@ export class TimerManager {
       this.handleTimeout();
     }
     this.emitUpdate();
+    EventBus.emit('timer:penalized', { seconds: deducted });
     return deducted;
+  }
+
+  addSeconds(seconds: number): number {
+    if (!this.started || this.expiredEmitted || seconds <= 0) return 0;
+    const prev = this.remainingSeconds;
+    this.remainingSeconds = Math.min(this.initialSeconds, this.remainingSeconds + Math.floor(seconds));
+    const added = this.remainingSeconds - prev;
+    const level = this.getWarningLevel();
+    if (level !== this.lastWarningLevel) {
+      this.lastWarningLevel = level;
+      EventBus.emit('timer:warning_changed', level);
+    }
+    this.emitUpdate();
+    return added;
   }
 
   private handleTimeout(): void {
     if (this.expiredEmitted) return;
-    if (storyManager.getFlag('ch1_finale_started') === true) return;
+    if (storyManager.getFlag('ch1_completed') === true) return;
     this.expiredEmitted = true;
     storyManager.setFlag('puzzle_01_failed_timeout', true);
     EventBus.emit('timer:expired', {
-      consequence:
-        storyManager.getFlag('puzzle_01_solved') === true
-          ? 'timeout_before_conversations'
-          : 'timeout_before_puzzle',
+      understanding: storyManager.getUnderstanding(),
     });
   }
 

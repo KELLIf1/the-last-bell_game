@@ -124,8 +124,8 @@
         "speakerNameEn": "Adam Mourad",
         "expression": "neutral",
         "speaking": true,
-        "textAr": "مساء الخير. أعرف أنكم تتساءلون لماذا أنتم هنا. أمامكم ليلة واحدة فقط لتعرفوا لماذا اجتمعتم في هذا المكان. تذكروا شيئًا واحدًا: الوقت لا ينتظر أحدًا.",
-        "textEn": "Good evening. I know you are wondering why you are here. You have one night to learn why you were gathered in this room. Remember one thing: time waits for no one.",
+        "textAr": "مساء الخير يا طلاب الصف الثالث ب.",
+        "textEn": "",
         "nextNodeId": "adam_2"
       },
       "adam_2": {
@@ -135,8 +135,8 @@
         "speakerNameEn": "Adam Mourad",
         "expression": "neutral",
         "speaking": true,
-        "textAr": "قبل ثلاث سنوات، كانت هناك فتاة تجلس في أحد مقاعد هذا الفصل. كانت تضحك معكم، وتدرس معكم، ثم اختفت. أنتم تعرفون اسمها... إيلينا مراد.",
-        "textEn": "Three years ago, a girl sat at one of these desks. She laughed with you, studied with you, and then she was gone. You know her name... Elena Mourad.",
+        "textAr": "لا تتعبوا مع الباب. أُغلق من الخارج عند الساعة 16:20، تماماً كما أُغلق ذات يوم.",
+        "textEn": "",
         "nextNodeId": "adam_3"
       },
       "adam_3": {
@@ -144,11 +144,113 @@
         "speaker": "adam",
         "speakerNameAr": "آدم مراد",
         "speakerNameEn": "Adam Mourad",
+        "expression": "neutral",
+        "speaking": true,
+        "textAr": "لدي لعبة صغيرة. مهام وقرارات. أخطئوا فسأُذكّركم، وأصيبوا فسأُعيد لكم بعض ما فقدتم.",
+        "textEn": "",
+        "nextNodeId": "adam_4"
+      },
+      "adam_4": {
+        "id": "adam_4",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "neutral",
+        "speaking": true,
+        "textAr": "الوقت على هذه الشاشة يبدو ساعة كاملة. لا تثقوا به كثيراً.",
+        "textEn": "",
+        "nextNodeId": "adam_5"
+      },
+      "adam_5": {
+        "id": "adam_5",
+        "speaker": "adam",
+        "speakerNameAr": "آدم مراد",
+        "speakerNameEn": "Adam Mourad",
+        "expression": "neutral",
+        "speaking": true,
+        "textAr": "أنا أراكم، كما كنتم ترون من كان ضعيفاً. لنبدأ.",
+        "textEn": "",
+        "setFlags": { "ch1_adam_broadcast_seen": true, "ch1_intro_completed": true }
+      }
+    }
+  },
+  {
+    "id": "ch1_opening_reactions",
+    "titleAr": "ردود فعل الطلاب بعد البث",
+    "titleEn": "Students Opening Reactions",
+    "entryNodeId": "react_1",
+    "nodes": {
+      "react_1": {
+        "id": "react_1",
+        "speaker": "yacine",
+        "speakerNameAr": "ياسين",
+        "speakerNameEn": "Yacine",
         "expression": "angry",
         "speaking": true,
-        "textAr": "كل مهمة لها وقت محدد. إذا انتهى الوقت دون حلها، فسوف يخسر أحدكم حقه في البقاء. سبعة طلاب، سبعة مقاعد... ابحثوا عن أول كذبة قيلت في هذا الفصل.",
-        "textEn": "Every task has a timer. If time expires, one of you forfeits their right to stay. Seven students, seven seats... find the first lie told in this room.",
-        "setFlags": { "ch1_adam_broadcast_seen": true, "ch1_intro_completed": true }
+        "cameraShot": "board",
+        "textAr": "أستاذ آدم؟ هذا مزاح سمج، افتح هذا الباب الآن!",
+        "textEn": "",
+        "nextNodeId": "react_2"
+      },
+      "react_2": {
+        "id": "react_2",
+        "speaker": "nour",
+        "speakerNameAr": "نور",
+        "speakerNameEn": "Nour",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "board",
+        "textAr": "أنا خائفة... لا أريد أن تنطفئ الأضواء.",
+        "textEn": "",
+        "nextNodeId": "react_3"
+      },
+      "react_3": {
+        "id": "react_3",
+        "speaker": "layan",
+        "speakerNameAr": "ليان",
+        "speakerNameEn": "Layan",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "board",
+        "textAr": "هذا الصوت... أعرف من يتكلم ولا أعرف لماذا أشعر بالبرد.",
+        "textEn": "",
+        "nextNodeId": "react_4"
+      },
+      "react_4": {
+        "id": "react_4",
+        "speaker": "karim",
+        "speakerNameAr": "كريم",
+        "speakerNameEn": "Karim",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "board",
+        "textAr": "أحدهم يمزح معنا. هذا كل ما في الأمر.",
+        "textEn": "",
+        "nextNodeId": "react_5"
+      },
+      "react_5": {
+        "id": "react_5",
+        "speaker": "mariam",
+        "speakerNameAr": "مريم",
+        "speakerNameEn": "Mariam",
+        "expression": "worried",
+        "speaking": true,
+        "cameraShot": "board",
+        "textAr": "الباب مقفل فعلاً. جرّبته مرتين.",
+        "textEn": "",
+        "nextNodeId": "react_6"
+      },
+      "react_6": {
+        "id": "react_6",
+        "speaker": "samer",
+        "speakerNameAr": "سامر",
+        "speakerNameEn": "Samer",
+        "expression": "neutral",
+        "speaking": true,
+        "cameraShot": "board",
+        "textAr": "اهدأوا جميعاً. دعونا نفكّر بهدوء قبل أن نخرب كل شيء.",
+        "textEn": "",
+        "setFlags": { "ch1_opening_reactions_done": true }
       }
     }
   },
@@ -440,135 +542,6 @@
         "textAr": "إذا رنّ هذا الجهاز اللوحي باستدعاء، لا تثقوا بأي رسالة تأتي باسم الإدارة. هناك تسجيلات قديمة حاولوا حذفها.",
         "textEn": "If this tablet pings again, don't trust anything sent under administration's name. There are old recordings they tried to scrub.",
         "setFlags": { "talked_karim": true }
-      }
-    }
-  },
-  {
-    "id": "ch1_finale",
-    "titleAr": "الخاتمة — الاستدعاء الأول",
-    "titleEn": "Chapter Finale — First Summons",
-    "entryNodeId": "fin_1",
-    "nodes": {
-      "fin_1": {
-        "id": "fin_1",
-        "speaker": "system",
-        "speakerNameAr": "مكبر المدرسة",
-        "speakerNameEn": "SCHOOL PA",
-        "speaking": true,
-        "cameraShot": "wide_master",
-        "textAr": "ليس كل من يختفي ضائعاً.",
-        "textEn": "NOT EVERYONE WHO DISAPPEARS IS LOST.",
-        "nextNodeId": "fin_2"
-      },
-      "fin_2": {
-        "id": "fin_2",
-        "speaker": "karim",
-        "speakerNameAr": "كريم",
-        "speakerNameEn": "Karim",
-        "expression": "worried",
-        "speaking": true,
-        "cameraShot": "closeup_karim",
-        "textAr": "توقفوا لحظة... جهازي اللوحي المدرسي استلم رسالة استدعاء الآن! القفل الإلكتروني عند الباب يُفتح...",
-        "textEn": "Hold on... my school tablet just received a summons message! The electronic door lock is releasing...",
-        "setFlags": { "ch1_karim_summoned": true },
-        "nextNodeId": "fin_3"
-      },
-      "fin_3": {
-        "id": "fin_3",
-        "speaker": "narrator",
-        "speakerNameAr": "المشهد",
-        "speakerNameEn": "NARRATION",
-        "speaking": false,
-        "cameraShot": "angle_door_lock",
-        "textAr": "ينفتح الباب المعدني لحظة قصيرة، فيخرج كريم إلى الممر المظلم قبل أن ينغلق القفل خلفه من جديد في صمت ثقيل.",
-        "textEn": "The steel door unlatches briefly. Karim steps out into the dark corridor before the lock clicks shut once more in heavy silence.",
-        "nextNodeId": "fin_4"
-      },
-      "fin_4": {
-        "id": "fin_4",
-        "speaker": "adam",
-        "speakerNameAr": "آدم مراد",
-        "speakerNameEn": "Adam Mourad",
-        "expression": "neutral",
-        "speaking": true,
-        "cameraShot": "angle_board_cipher",
-        "textAr": "أجبتم عن الكذبة الأولى، لكن الليلة ما زالت في بدايتها. انظروا إلى جهاز العرض في السقف قبل أن ينطفئ.",
-        "textEn": "You uncovered the first lie, yet the night has only begun. Look up at the ceiling projector before it fades.",
-        "setFlags": { "ch1_inspect_final_projector": true }
-      }
-    }
-  },
-  {
-    "id": "ch1_projector_teaser",
-    "titleAr": "جهاز العرض — إشارة مخفية",
-    "titleEn": "Ceiling Projector — Hidden Signal",
-    "entryNodeId": "proj_1",
-    "nodes": {
-      "proj_1": {
-        "id": "proj_1",
-        "speaker": "system",
-        "speakerNameAr": "جهاز العرض",
-        "speakerNameEn": "PROJECTOR",
-        "speaking": true,
-        "cameraShot": "angle_board_cipher",
-        "textAr": "ROOM 0 — PROJECT ECHO — ARCHIVE ACCESS DENIED.",
-        "textEn": "ROOM 0 — PROJECT ECHO — ARCHIVE ACCESS DENIED.",
-        "setFlags": { "ch1_room0_teaser_seen": true }
-      }
-    }
-  },
-  {
-    "id": "ch1_timeout",
-    "titleAr": "انتهاء الوقت",
-    "titleEn": "Countdown Expired",
-    "entryNodeId": "to_1",
-    "nodes": {
-      "to_1": {
-        "id": "to_1",
-        "speaker": "system",
-        "speakerNameAr": "مكبر المدرسة",
-        "speakerNameEn": "LOCKDOWN SYSTEM",
-        "speaking": true,
-        "cameraShot": "angle_clock_1620",
-        "textAr": "انتهى الوقت المحدد. لم يكتمل كشف الكذبة الأولى داخل الفصل.",
-        "textEn": "Time has expired. The first lie inside the classroom remains unresolved.",
-        "nextNodeId": "to_2"
-      },
-      "to_2": {
-        "id": "to_2",
-        "speaker": "karim",
-        "speakerNameAr": "كريم",
-        "speakerNameEn": "Karim",
-        "expression": "worried",
-        "speaking": true,
-        "cameraShot": "closeup_karim",
-        "textAr": "لا... جهازي اللوحي المدرسي استقبل رسالة استدعاء مبكرة باسمي! القفل الإلكتروني يُفتح الآن...",
-        "textEn": "No... my school tablet just received an early summons with my name! The electronic door is unlocking now...",
-        "setFlags": { "ch1_karim_summoned": true, "puzzle_01_failed_timeout": true },
-        "nextNodeId": "to_3"
-      },
-      "to_3": {
-        "id": "to_3",
-        "speaker": "layan",
-        "speakerNameAr": "ليان",
-        "speakerNameEn": "Layan",
-        "expression": "worried",
-        "speaking": true,
-        "cameraShot": "angle_door_lock",
-        "textAr": "انغلق الباب خلف كريم قبل أن نستكمل التحقيق... لقد خسرنا فرصتنا في سماع ما كان يوشك على قوله.",
-        "textEn": "The door sealed behind Karim before we could finish investigating... we lost our chance to hear what he knew.",
-        "nextNodeId": "to_4"
-      },
-      "to_4": {
-        "id": "to_4",
-        "speaker": "adam",
-        "speakerNameAr": "آدم مراد",
-        "speakerNameEn": "Adam Mourad",
-        "expression": "angry",
-        "speaking": true,
-        "cameraShot": "angle_board_cipher",
-        "textAr": "تأخركم حسم هذه الجولة. احتفظوا بما تبقى لديكم من حقائق... فالجرس التالي لن ينتظر.",
-        "textEn": "Your delay decided this round. Hold onto whatever fragments you gathered... the next bell will not wait."
       }
     }
   }

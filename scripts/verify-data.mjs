@@ -296,6 +296,94 @@ for (const file of sceneFiles) {
   }
 }
 
+// 7. Validate clues.json, tasks.json, endings.json (Batch 2)
+const cluesConfig = readJson(path.join(DATA_DIR, 'clues.json'));
+const tasksList = readJson(path.join(DATA_DIR, 'tasks.json')) ?? [];
+const endingsList = readJson(path.join(DATA_DIR, 'endings.json')) ?? [];
+
+const validStudents = new Set(['samer', 'layan', 'yacine', 'nour', 'karim', 'mariam']);
+const bigQuestionIds = new Set();
+const clueFragmentIds = new Set();
+
+if (cluesConfig) {
+  for (const q of cluesConfig.bigQuestions ?? []) {
+    if (!q?.id || !q?.textAr) {
+      fail('[clues.json] bigQuestion missing id or textAr');
+      continue;
+    }
+    bigQuestionIds.add(q.id);
+  }
+  for (const frag of cluesConfig.clueFragments ?? []) {
+    if (!frag?.id || !frag?.textAr) {
+      fail('[clues.json] clueFragment missing id or textAr');
+      continue;
+    }
+    clueFragmentIds.add(frag.id);
+    for (const qId of frag.answersQuestions ?? []) {
+      if (!bigQuestionIds.has(qId)) {
+        fail(`[clues.json] fragment "${frag.id}" answers unknown bigQuestion "${qId}"`);
+      }
+    }
+  }
+}
+
+const validExecutions = new Set(['seating_puzzle', 'register_inspection', 'photo_inspection', 'door_choice']);
+const validEndingFlags = new Set(['confession', 'force', 'apology']);
+const taskIds = new Set(tasksList.map((t) => t?.id).filter(Boolean));
+for (const task of tasksList) {
+  if (!task?.id) {
+    fail('[tasks.json] Task entry missing id');
+    continue;
+  }
+  if (task.clueFragmentId && !clueFragmentIds.has(task.clueFragmentId)) {
+    fail(`[tasks.json] task "${task.id}" references unknown clueFragmentId "${task.clueFragmentId}"`);
+  }
+  if (task.nextTaskId && !taskIds.has(task.nextTaskId)) {
+    fail(`[tasks.json] task "${task.id}" references unknown nextTaskId "${task.nextTaskId}"`);
+  }
+  if (task.execution && !validExecutions.has(task.execution)) {
+    fail(`[tasks.json] task "${task.id}" invalid execution type "${task.execution}"`);
+  }
+  for (const beat of task.studentDialogue ?? []) {
+    if (!validStudents.has(beat.speaker)) {
+      fail(`[tasks.json] task "${task.id}" studentDialogue invalid speaker "${beat.speaker}"`);
+    }
+  }
+  for (const beat of task.afterClueDialogue ?? []) {
+    if (!validStudents.has(beat.speaker)) {
+      fail(`[tasks.json] task "${task.id}" afterClueDialogue invalid speaker "${beat.speaker}"`);
+    }
+  }
+  for (const choice of task.choices ?? []) {
+    if (!validStudents.has(choice.proposedBy)) {
+      fail(`[tasks.json] task "${task.id}" choice "${choice.id}" invalid proposedBy "${choice.proposedBy}"`);
+    }
+    if (choice.endingFlag && !validEndingFlags.has(choice.endingFlag)) {
+      fail(`[tasks.json] task "${task.id}" choice "${choice.id}" invalid endingFlag "${choice.endingFlag}"`);
+    }
+    for (const flagKey of Object.keys(choice.effects?.flags ?? {})) {
+      if (!declaredFlags.has(flagKey)) {
+        fail(`[Flags] tasks.json "${task.id}.${choice.id}" flag "${flagKey}" not in StoryManager DEFAULT_FLAGS`);
+      }
+    }
+  }
+}
+
+for (const ending of endingsList) {
+  if (!ending?.id || !ending?.titleAr || !Array.isArray(ending?.textAr)) {
+    fail(`[endings.json] Invalid ending entry: ${JSON.stringify(ending?.id)}`);
+    continue;
+  }
+  for (const ef of ending.conditions?.endingFlags ?? []) {
+    if (!validEndingFlags.has(ef)) {
+      fail(`[endings.json] ending "${ending.id}" invalid endingFlag "${ef}"`);
+    }
+  }
+  if (ending.conditions?.flagCondition) {
+    checkConditionFlags(ending.conditions.flagCondition, `endings.json:${ending.id}.conditions`);
+  }
+}
+
 if (errors.length > 0) {
   console.error(`\n[verify-data] FAILED with ${errors.length} error(s):\n`);
   for (const err of errors) {
@@ -305,5 +393,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `[verify-data] OK — verified ${sceneFiles.length} scenes, ${dialoguesList.length} conversations, ${evidenceList.length} evidence/clue entries, 1 puzzle config, and ${declaredFlags.size} declared StoryManager flags.`
+  `[verify-data] OK — verified ${sceneFiles.length} scenes, ${dialoguesList.length} conversations, ${evidenceList.length} evidence/clue entries, ${tasksList.length} tasks, ${clueFragmentIds.size} clue fragments, ${endingsList.length} endings, 1 puzzle config, and ${declaredFlags.size} declared StoryManager flags.`
 );

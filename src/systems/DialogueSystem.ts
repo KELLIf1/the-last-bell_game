@@ -1,4 +1,5 @@
 import {
+  CharacterId,
   DialogueChoice,
   DialogueConversation,
   DialogueHistoryEntry,
@@ -12,14 +13,29 @@ import { timerManager } from './TimerManager';
 
 export class DialogueSystem {
   private conversations: Map<string, DialogueConversation> = new Map();
+  private speakerNamesAr: Map<string, string> = new Map();
   private activeConversation: DialogueConversation | null = null;
   private activeNode: DialogueLine | null = null;
   private history: DialogueHistoryEntry[] = [];
   private onCompleteCallback: (() => void) | null = null;
+  private customChoiceHandler: ((choiceId: string) => void) | null = null;
+  private recordCurrentNodeInHistory = true;
 
   loadConversations(list: DialogueConversation[]): void {
     this.conversations.clear();
-    list.forEach((c) => this.conversations.set(c.id, c));
+    this.speakerNamesAr.clear();
+    list.forEach((c) => {
+      this.conversations.set(c.id, c);
+      Object.values(c.nodes ?? {}).forEach((node) => {
+        if (node.speaker && node.speakerNameAr) {
+          this.speakerNamesAr.set(node.speaker, node.speakerNameAr);
+        }
+      });
+    });
+  }
+
+  getSpeakerNameAr(speakerId: CharacterId | 'narrator' | 'system'): string {
+    return this.speakerNamesAr.get(speakerId) ?? speakerId;
   }
 
   reset(): void {
@@ -27,7 +43,10 @@ export class DialogueSystem {
     this.activeNode = null;
     this.history = [];
     this.onCompleteCallback = null;
+    this.customChoiceHandler = null;
+    this.recordCurrentNodeInHistory = true;
     EventBus.emit('dialogue:state', { active: false, line: null, choices: [] });
+    EventBus.emit('dialogue:history_updated', []);
   }
 
   isActive(): boolean {
@@ -42,10 +61,86 @@ export class DialogueSystem {
       return false;
     }
 
+    this.customChoiceHandler = null;
+    this.recordCurrentNodeInHistory = true;
     this.activeConversation = conv;
     this.onCompleteCallback = onComplete ?? null;
     this.goToNode(conv.entryNodeId);
     return true;
+  }
+
+  /**
+   * Plays an ordered list of dialogue lines supplied dynamically by TaskEngine.
+   */
+  playScriptedSequence(
+    sequenceId: string,
+    lines: DialogueLine[],
+    onComplete?: () => void
+  ): boolean {
+    if (lines.length === 0) {
+      onComplete?.();
+      return false;
+    }
+
+    const nodes: Record<string, DialogueLine> = {};
+    lines.forEach((line, idx) => {
+      const next = lines[idx + 1];
+      nodes[line.id] = {
+        ...line,
+        nextNodeId: next ? next.id : undefined,
+      };
+    });
+
+    const dynamicConv: DialogueConversation = {
+      id: sequenceId,
+      titleAr: sequenceId,
+      titleEn: '',
+      entryNodeId: lines[0].id,
+      nodes,
+    };
+
+    this.customChoiceHandler = null;
+    this.recordCurrentNodeInHistory = true;
+    this.activeConversation = dynamicConv;
+    this.onCompleteCallback = onComplete ?? null;
+    this.goToNode(dynamicConv.entryNodeId);
+    return true;
+  }
+
+  /**
+   * Presents student-proposed choices without treating the unseen player as a speaker.
+   */
+  presentChoicePrompt(
+    promptId: string,
+    promptLine: DialogueLine,
+    choices: DialogueChoice[],
+    onSelectChoice: (choiceId: string) => void
+  ): void {
+    const promptConv: DialogueConversation = {
+      id: promptId,
+      titleAr: promptId,
+      titleEn: '',
+      entryNodeId: promptLine.id,
+      nodes: {
+        [promptLine.id]: {
+          ...promptLine,
+          choices,
+        },
+      },
+    };
+
+    this.activeConversation = promptConv;
+    this.activeNode = promptConv.nodes[promptLine.id];
+    this.onCompleteCallback = null;
+    this.customChoiceHandler = onSelectChoice;
+    this.recordCurrentNodeInHistory = false;
+
+    const visibleChoices = choices.filter((ch) => storyManager.evaluateCondition(ch.condition));
+    EventBus.emit('dialogue:state', {
+      active: true,
+      line: this.activeNode,
+      choices: visibleChoices,
+    });
   }
 
   private resolveNextValidNode(startNodeId?: string): DialogueLine | null {
@@ -83,14 +178,18 @@ export class DialogueSystem {
       node.unlockClueIds.forEach((clueId) => evidenceSystem.collect(clueId));
     }
 
-    this.history.push({
-      conversationId: this.activeConversation.id,
-      speakerNameAr: node.speakerNameAr,
-      speakerNameEn: node.speakerNameEn,
-      textAr: node.textAr,
-      textEn: node.textEn,
-      timestamp: timerManager.getState().started ? timerManager.getFormatted() : '16:20',
-    });
+    if (this.recordCurrentNodeInHistory && node.textAr.trim().length > 0) {
+      this.history.push({
+        conversationId: this.activeConversation.id,
+        speakerId: node.speaker,
+        speakerNameAr: node.speakerNameAr,
+        speakerNameEn: node.speakerNameEn,
+        textAr: node.textAr,
+        textEn: node.textEn,
+        timestamp: timerManager.getState().started ? timerManager.getFormatted() : '16:20',
+      });
+      EventBus.emit('dialogue:history_updated', this.getHistory());
+    }
 
     const visibleChoices = (node.choices ?? []).filter((ch) =>
       storyManager.evaluateCondition(ch.condition)
@@ -101,7 +200,6 @@ export class DialogueSystem {
       line: node,
       choices: visibleChoices,
     });
-    EventBus.emit('dialogue:history_updated', this.getHistory());
   }
 
   advance(): void {
@@ -125,6 +223,17 @@ export class DialogueSystem {
 
     audioManager.playClick();
 
+    if (this.customChoiceHandler) {
+      const handler = this.customChoiceHandler;
+      this.customChoiceHandler = null;
+      this.activeConversation = null;
+      this.activeNode = null;
+      this.recordCurrentNodeInHistory = true;
+      EventBus.emit('dialogue:state', { active: false, line: null, choices: [] });
+      handler(choiceId);
+      return;
+    }
+
     if (choice.setFlags) {
       storyManager.setFlags(choice.setFlags);
     }
@@ -145,6 +254,8 @@ export class DialogueSystem {
   private endConversation(): void {
     this.activeConversation = null;
     this.activeNode = null;
+    this.customChoiceHandler = null;
+    this.recordCurrentNodeInHistory = true;
     const cb = this.onCompleteCallback;
     this.onCompleteCallback = null;
     EventBus.emit('dialogue:state', { active: false, line: null, choices: [] });

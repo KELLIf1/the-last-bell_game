@@ -1,32 +1,66 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { DialogueHistoryEntry, EvidenceItem } from '../types/game';
+import { taskDataLoader } from '../systems/TaskDataLoader';
+import {
+  DialogueHistoryEntry,
+  EvidenceItem,
+  FoundObjectRecord,
+  TaskDecisionRecord,
+} from '../types/game';
 
 interface NotebookModalProps {
-  evidence: EvidenceItem[];
-  clues: EvidenceItem[];
   history: DialogueHistoryEntry[];
-  showEnglish: boolean;
+  foundObjects: FoundObjectRecord[];
+  evidence: EvidenceItem[];
+  cluesFound: string[];
+  decisions: TaskDecisionRecord[];
   onClose: () => void;
 }
 
-type NotebookTab = 'evidence' | 'clues' | 'history';
+type NotebookTab = 'heard' | 'found' | 'decisions';
 
 export const NotebookModal: React.FC<NotebookModalProps> = ({
-  evidence,
-  clues,
   history,
-  showEnglish,
+  foundObjects,
+  evidence,
+  cluesFound,
+  decisions,
   onClose,
 }) => {
-  const [tab, setTab] = useState<NotebookTab>('evidence');
-  const [selectedId, setSelectedId] = useState<string | null>(
-    evidence[0]?.id ?? clues[0]?.id ?? null
-  );
+  const [tab, setTab] = useState<NotebookTab>('heard');
 
-  const activeList = tab === 'evidence' ? evidence : clues;
-  const selectedItem =
-    activeList.find((item) => item.id === selectedId) ?? activeList[0] ?? null;
+  const resolvedFragments = cluesFound
+    .map((id) => taskDataLoader.getClueFragmentById(id))
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+  // Merge clicked room objects and raw collected evidence items without adding interpretation
+  const objectEntries: Array<{ id: string; titleAr: string; rawTextAr: string; timestamp?: string }> = [];
+  const seenObjectIds = new Set<string>();
+
+  for (const obj of foundObjects) {
+    seenObjectIds.add(obj.objectId);
+    if (obj.evidenceId) {
+      seenObjectIds.add(obj.evidenceId);
+    }
+    objectEntries.push({
+      id: obj.objectId,
+      titleAr: obj.titleAr,
+      rawTextAr: obj.rawTextAr,
+      timestamp: obj.timestamp,
+    });
+  }
+  for (const ev of evidence) {
+    if (!seenObjectIds.has(ev.id)) {
+      seenObjectIds.add(ev.id);
+      objectEntries.push({
+        id: ev.id,
+        titleAr: ev.nameAr,
+        rawTextAr: ev.descriptionAr,
+      });
+    }
+  }
+
+  const foundCount = objectEntries.length + resolvedFragments.length;
 
   return (
     <div
@@ -37,193 +71,166 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3.5">
           <div>
-            <h2 className="font-ar text-lg font-bold text-slate-100">
-              {showEnglish ? 'دفتر التحقيق · Investigation Notebook' : 'دفتر التحقيق'}
-            </h2>
+            <h2 className="font-ar text-lg font-bold text-slate-100">سجل الملاحظات</h2>
             <p className="font-ar text-xs text-slate-400">
-              الأدلة المجمعة ({evidence.length}) · الاستنتاجات ({clues.length}) · سجل الحوارات ({history.length})
+              ما سمعته ({history.length}) · ما وجدته ({foundCount}) · قراراتي ({decisions.length})
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded border border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
-            aria-label="إغلاق دفتر التحقيق"
+            aria-label="إغلاق الدفتر"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Tabs */}
+        {/* Three Pure Arabic Tabs */}
         <div className="flex gap-2 border-b border-slate-800 px-5 py-2.5">
           <button
             type="button"
-            onClick={() => {
-              setTab('evidence');
-              setSelectedId(evidence[0]?.id ?? null);
-            }}
+            onClick={() => setTab('heard')}
             className={`min-h-[40px] rounded px-4 py-1.5 font-ar text-sm font-semibold transition-colors ${
-              tab === 'evidence'
+              tab === 'heard'
                 ? 'bg-slate-800 text-white'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            الأدلة المادية ({evidence.length})
+            ما سمعته ({history.length})
           </button>
           <button
             type="button"
-            onClick={() => {
-              setTab('clues');
-              setSelectedId(clues[0]?.id ?? null);
-            }}
+            onClick={() => setTab('found')}
             className={`min-h-[40px] rounded px-4 py-1.5 font-ar text-sm font-semibold transition-colors ${
-              tab === 'clues'
+              tab === 'found'
                 ? 'bg-slate-800 text-white'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            الاستنتاجات ({clues.length})
+            ما وجدته ({foundCount})
           </button>
           <button
             type="button"
-            onClick={() => setTab('history')}
+            onClick={() => setTab('decisions')}
             className={`min-h-[40px] rounded px-4 py-1.5 font-ar text-sm font-semibold transition-colors ${
-              tab === 'history'
+              tab === 'decisions'
                 ? 'bg-slate-800 text-white'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            سجل الحوارات ({history.length})
+            قراراتي ({decisions.length})
           </button>
         </div>
 
         {/* Body */}
-        {tab === 'history' ? (
-          <div className="tlb-scroll flex-1 space-y-3 overflow-y-auto p-5">
-            {history.length === 0 ? (
-              <p className="font-ar text-sm text-slate-400">لا توجد حوارات مسجلة بعد.</p>
-            ) : (
-              history.map((entry, i) => (
-                <div key={`${entry.conversationId}-${i}`} className="border-b border-slate-800/80 pb-3">
-                  <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-ar font-semibold text-slate-200">
-                      {showEnglish
-                        ? `${entry.speakerNameAr} · ${entry.speakerNameEn}`
-                        : entry.speakerNameAr}
-                    </span>
-                    <span className="font-mono-num">{entry.timestamp}</span>
-                  </div>
-                  <p className="font-ar mt-1 text-sm text-slate-100">{entry.textAr}</p>
-                  {showEnglish && (
-                    <p dir="ltr" className="font-sans-en mt-0.5 text-left text-xs text-slate-400">
-                      {entry.textEn}
+        <div className="tlb-scroll flex-1 space-y-3 overflow-y-auto p-5">
+          {tab === 'heard' && (
+            <>
+              {history.length === 0 ? (
+                <p className="font-ar text-sm text-slate-400">لم تُسجّل أقوال بعد.</p>
+              ) : (
+                history.map((entry, i) => (
+                  <div
+                    key={`${entry.conversationId}-${i}`}
+                    className="rounded border border-slate-800/80 bg-[#0B1220]/70 p-3.5"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span className="font-ar font-bold text-slate-200">
+                        {entry.speakerNameAr}
+                      </span>
+                      <span className="font-mono-num">{entry.timestamp}</span>
+                    </div>
+                    <p className="font-ar mt-1.5 text-sm leading-relaxed text-slate-100">
+                      {entry.textAr}
                     </p>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        ) : (
-          <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-12">
-            {/* List Column */}
-            <div className="tlb-scroll overflow-y-auto border-b border-slate-800 p-3 md:col-span-5 md:border-b-0 md:border-l">
-              {activeList.length === 0 ? (
-                <p className="p-3 font-ar text-sm text-slate-400">
-                  لم يُجمع أي عنصر في هذا القسم بعد. تفقّد عناصر الفصل وتحدّث مع زملائك.
+                  </div>
+                ))
+              )}
+            </>
+          )}
+
+          {tab === 'found' && (
+            <>
+              {foundCount === 0 ? (
+                <p className="font-ar text-sm text-slate-400">
+                  لم يُسجّل أي عنصر أو نص بعد.
                 </p>
               ) : (
-                <div className="flex flex-col gap-1.5">
-                  {activeList.map((item) => {
-                    const active = selectedItem?.id === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setSelectedId(item.id)}
-                        className={`flex min-h-[44px] w-full items-center gap-3 rounded border px-3.5 py-2.5 text-right transition-colors ${
-                          active
-                            ? 'border-slate-500 bg-slate-800 text-white'
-                            : 'border-transparent bg-slate-900/50 text-slate-300 hover:bg-slate-900'
-                        }`}
-                      >
-                        <img
-                          src={`/assets/ui/icons/${item.icon}.svg`}
-                          alt=""
-                          className="h-9 w-9 shrink-0 rounded border border-slate-700/70 bg-slate-950/80 p-1"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <div className="font-ar truncate text-sm font-semibold">{item.nameAr}</div>
-                          {showEnglish && (
-                            <div className="font-sans-en truncate text-xs text-slate-400">
-                              {item.nameEn}
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Detail Column */}
-            <div className="tlb-scroll overflow-y-auto p-5 md:col-span-7">
-              {selectedItem ? (
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3.5">
-                    <img
-                      src={`/assets/ui/icons/${selectedItem.icon}.svg`}
-                      alt={selectedItem.nameAr}
-                      className="h-14 w-14 shrink-0 rounded border border-slate-700 bg-slate-950 p-1.5"
-                    />
-                    <div className="min-w-0">
-                      <div className="font-ar text-xs text-slate-400">
-                        {showEnglish
-                          ? `${selectedItem.locationAr} · ${selectedItem.locationEn}`
-                          : selectedItem.locationAr}
-                      </div>
-                      <h3 className="font-ar mt-1 text-xl font-bold text-white">
-                        {selectedItem.nameAr}
-                      </h3>
-                      {showEnglish && (
-                        <div className="font-sans-en text-sm text-slate-400">
-                          {selectedItem.nameEn}
+                <div className="space-y-3">
+                  {resolvedFragments.map((frag) => (
+                    <div
+                      key={frag.id}
+                      className="rounded border border-slate-700/80 bg-[#0B1220]/80 p-3.5"
+                    >
+                      {frag.titleAr && (
+                        <div className="font-ar text-xs font-bold text-slate-300">
+                          {frag.titleAr}
                         </div>
                       )}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-slate-800 pt-3">
-                    <p className="font-ar text-sm leading-relaxed text-slate-100">
-                      {selectedItem.descriptionAr}
-                    </p>
-                    {showEnglish && (
-                      <p dir="ltr" className="font-sans-en mt-2 text-left text-xs leading-relaxed text-slate-400">
-                        {selectedItem.descriptionEn}
+                      <p className="font-ar mt-1 text-sm leading-relaxed text-slate-100">
+                        {frag.textAr}
                       </p>
-                    )}
-                  </div>
-
-                  <div className="border-t border-slate-800 pt-3">
-                    <div className="font-ar text-xs font-semibold text-amber-300">
-                      الرابط التحقيقي
                     </div>
-                    <p className="font-ar mt-1 text-sm text-slate-200">
-                      {selectedItem.storyConnectionsAr}
-                    </p>
-                    {showEnglish && (
-                      <p dir="ltr" className="font-sans-en mt-1 text-left text-xs text-slate-400">
-                        {selectedItem.storyConnectionsEn}
+                  ))}
+                  {objectEntries.map((obj) => (
+                    <div
+                      key={obj.id}
+                      className="rounded border border-slate-800/80 bg-[#0B1220]/60 p-3.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="font-ar text-xs font-bold text-slate-300">
+                          {obj.titleAr}
+                        </div>
+                        {obj.timestamp && (
+                          <span className="font-mono-num text-[11px] text-slate-500">
+                            {obj.timestamp}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-ar mt-1 text-sm leading-relaxed text-slate-100">
+                        {obj.rawTextAr}
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <p className="font-ar text-sm text-slate-400">اختر عنصرًا لعرض تفاصيله.</p>
               )}
-            </div>
-          </div>
-        )}
+            </>
+          )}
+
+          {tab === 'decisions' && (
+            <>
+              {decisions.length === 0 ? (
+                <p className="font-ar text-sm text-slate-400">لم يُتخذ أي قرار بعد.</p>
+              ) : (
+                decisions.map((dec, i) => (
+                  <div
+                    key={`${dec.taskId}-${dec.choiceId}-${i}`}
+                    className="flex items-start gap-3 rounded border border-slate-800/90 bg-[#0B1220]/80 p-3.5"
+                  >
+                    <img
+                      src={`/assets/characters/portraits/${dec.proposedBy}/neutral.webp`}
+                      alt={dec.proposedByNameAr}
+                      className="h-11 w-11 shrink-0 rounded border border-slate-700 object-cover object-top"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2 text-xs text-slate-400">
+                        <span className="font-ar font-bold text-amber-300">
+                          {dec.proposedByNameAr}
+                          {dec.taskTitleAr ? ` · ${dec.taskTitleAr}` : ''}
+                        </span>
+                        <span className="font-mono-num">{dec.timestamp}</span>
+                      </div>
+                      <p className="font-ar mt-1.5 text-sm leading-relaxed text-slate-100">
+                        {dec.choiceTextAr}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

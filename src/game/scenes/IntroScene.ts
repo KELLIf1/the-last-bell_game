@@ -88,7 +88,7 @@ export class IntroScene extends Phaser.Scene {
     EventBus.emit('screen:mode', 'PLAYING');
     EventBus.emit('objective:updated', {
       textAr: 'الاستماع إلى رسالة البث',
-      textEn: 'Listen to the broadcast',
+      textEn: '',
     });
 
     this.playAdamBroadcast(configs);
@@ -227,7 +227,7 @@ export class IntroScene extends Phaser.Scene {
     EventBus.emit('scene:changed', 'classroom_day');
     EventBus.emit('objective:updated', {
       textAr: 'الاستماع إلى المجموعة (الساعة 16:20)',
-      textEn: 'Listen to the group (16:20)',
+      textEn: '',
     });
 
     dialogueSystem.startConversation('ch1_opening_classroom', () => {
@@ -332,13 +332,6 @@ export class IntroScene extends Phaser.Scene {
       .setStrokeStyle(1.5, 0x334155, 0.45);
 
     const headerBg = this.add.rectangle(0, -130, 600, 26, 0x0f172a, 0.72);
-    const headerLabel = this.add
-      .text(-286, -138, 'PROJECTOR FEED // ORION 3B', {
-        fontFamily: 'Inter, monospace',
-        fontSize: '12px',
-        color: '#93C5FD',
-      })
-      .setOrigin(0, 0);
 
     const recDot = this.add.circle(268, -130, 5, 0xc64b50, 0.95);
     this.tweens.add({
@@ -361,24 +354,6 @@ export class IntroScene extends Phaser.Scene {
       ? this.add.image(-160, 14, feedPortraitKey).setDisplaySize(196, 196)
       : null;
 
-    const portraitCaption = this.add
-      .text(-160, 114, 'ADAM MOURAD', {
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '11px',
-        color: '#CBD5E1',
-      })
-      .setOrigin(0.5);
-
-    // Right side status / countdown inside digital board
-    const rightTitle = this.add
-      .text(115, -62, 'LOCKDOWN PROTOCOL', {
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '13px',
-        color: '#303943',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5);
-
     const countdownDisplay = this.add
       .text(115, 2, '59:59', {
         fontFamily: 'JetBrains Mono, monospace',
@@ -389,46 +364,27 @@ export class IntroScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setAlpha(0.18);
 
-    const rightSub = this.add
-      .text(115, 68, 'FIND THE FIRST LIE', {
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '12px',
-        color: '#334155',
-      })
-      .setOrigin(0.5);
-
     feedPanel.add(
-      [feedBorder, headerBg, headerLabel, recDot, frameBg, portraitSprite, portraitCaption, rightTitle, countdownDisplay, rightSub].filter(
+      [feedBorder, headerBg, recDot, frameBg, portraitSprite, countdownDisplay].filter(
         Boolean
       ) as Phaser.GameObjects.GameObject[]
     );
 
-    // Switch projected portrait & ignite 59:59 dynamically during Adam's 3-step speech
+    // Switch projected portrait & ignite 59:59 dynamically during Adam's broadcast speech
     this.dialogueUnsub?.();
     this.dialogueUnsub = EventBus.on<{ active: boolean; line: DialogueLine | null }>(
       'dialogue:state',
       (state) => {
         if (!state.active || !state.line) return;
         const id = state.line.id;
-        if (id === 'adam_1') {
+        if (id === 'adam_1' || id === 'adam_2' || id === 'adam_3' || id === 'adam_5') {
           if (portraitSprite && this.textures.exists('portrait_adam_neutral')) {
             portraitSprite.setTexture('portrait_adam_neutral').setDisplaySize(196, 196);
           }
-          portraitCaption.setText('ADAM MOURAD');
-        } else if (id === 'adam_2') {
-          if (portraitSprite && this.textures.exists('portrait_elena_archival')) {
-            portraitSprite.setTexture('portrait_elena_archival').setDisplaySize(196, 196);
+        } else if (id === 'adam_4') {
+          if (portraitSprite && this.textures.exists('portrait_adam_neutral')) {
+            portraitSprite.setTexture('portrait_adam_neutral').setDisplaySize(196, 196);
           }
-          portraitCaption.setText('ELENA MOURAD — 3 YEARS AGO');
-          rightTitle.setText('ARCHIVAL RECORD');
-          rightSub.setText('SEAT 7 — CLASS 3B');
-        } else if (id === 'adam_3') {
-          if (portraitSprite && this.textures.exists('portrait_adam_intense')) {
-            portraitSprite.setTexture('portrait_adam_intense').setDisplaySize(196, 196);
-          }
-          portraitCaption.setText('ADAM MOURAD');
-          rightTitle.setText('COUNTDOWN INITIATED').setColor('#991B1B');
-          rightSub.setText('7 STUDENTS · 7 SEATS').setColor('#7F1D1D');
           countdownDisplay.setAlpha(1);
           timerManager.start();
           audioManager.playClockTick();

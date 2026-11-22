@@ -1,12 +1,6 @@
-export type CharacterId =
-  | 'samer'
-  | 'layan'
-  | 'yacine'
-  | 'nour'
-  | 'karim'
-  | 'mariam'
-  | 'adam'
-  | 'elena';
+export type StudentId = 'samer' | 'layan' | 'yacine' | 'nour' | 'karim' | 'mariam';
+
+export type CharacterId = StudentId | 'adam' | 'elena';
 
 export type ExpressionKey = 'neutral' | 'worried' | 'angry' | 'sad';
 
@@ -168,6 +162,8 @@ export interface DialogueChoice {
   id: string;
   textAr: string;
   textEn: string;
+  proposedBy?: StudentId;
+  proposedByNameAr?: string;
   condition?: FlagCondition;
   nextNodeId?: string;
   setFlags?: Record<string, StoryFlagValue>;
@@ -177,6 +173,10 @@ export interface DialogueChoice {
 
 export type CameraAngleId =
   | 'wide_master'
+  | 'board'
+  | 'teacher_desk'
+  | 'wall_photos'
+  | 'door'
   | 'angle_clock_1620'
   | 'angle_window_rain'
   | 'angle_seat7_empty'
@@ -199,6 +199,7 @@ export interface DialogueLine {
   expression?: ExpressionKey;
   speaking?: boolean;
   cameraShot?: CameraAngleId;
+  proposedBy?: StudentId;
   textAr: string;
   textEn: string;
   condition?: FlagCondition;
@@ -219,11 +220,229 @@ export interface DialogueConversation {
 
 export interface DialogueHistoryEntry {
   conversationId: string;
+  speakerId?: CharacterId | 'narrator' | 'system';
   speakerNameAr: string;
   speakerNameEn: string;
   textAr: string;
   textEn: string;
   timestamp: string;
+}
+
+// ============================================================
+// Batch 2: Task Engine, Clues, Endings, Story State & Save v2
+// ============================================================
+
+export type TaskPhase =
+  | 'adam_intro'
+  | 'waiting_for_click'
+  | 'adam_on_click'
+  | 'students_debate'
+  | 'choice'
+  | 'execution'
+  | 'outcome'
+  | 'after_clue'
+  | 'next'
+  | 'completed';
+
+export type TaskExecutionType =
+  | 'seating_puzzle'
+  | 'register_inspection'
+  | 'photo_inspection'
+  | 'door_choice';
+
+export interface RegisterInspectionLine {
+  id: string;
+  textAr: string;
+  isAltered: boolean;
+}
+
+export interface RegisterInspectionConfig {
+  titleAr: string;
+  instructionsAr: string;
+  lines: RegisterInspectionLine[];
+}
+
+export interface PhotoInspectionHotspot {
+  id: 'cut_edge' | 'date_stamp' | 'photo_back';
+  labelAr: string;
+  isCorrect: boolean;
+  wrongFeedbackAr?: string;
+  revealTextAr?: string;
+}
+
+export interface PhotoInspectionConfig {
+  titleAr: string;
+  instructionsAr: string;
+  imageUrl: string;
+  cutSlotIndex: number;
+  hotspots: PhotoInspectionHotspot[];
+}
+
+export type EndingFlagType = 'confession' | 'force' | 'apology';
+
+export type TaskResultType = 'success' | 'partial' | 'fail';
+
+export type TaskPenalty =
+  | { type: 'lights_out'; params: { seconds: number } }
+  | { type: 'time_loss'; params: { seconds: number } }
+  | { type: 'expose_secret'; params: { studentId: StudentId; adamLineAr?: string } }
+  | { type: 'door_delay'; params: { seconds: number } }
+  | { type: 'camera_cut'; params: { cameraId: CameraAngleId; seconds: number } };
+
+export interface TaskDialogueBeat {
+  speaker?: CharacterId | 'system';
+  textAr: string;
+  expression?: ExpressionKey;
+  cameraShot?: CameraAngleId;
+}
+
+export interface TaskChoiceEffects {
+  fear: Partial<Record<StudentId, number>>;
+  trust: Partial<Record<StudentId, number>>;
+  adamAnger: number;
+  understanding: number;
+  timerDeltaSec: number;
+  flags: Record<string, StoryFlagValue>;
+  exposeSecretOf: StudentId | null;
+}
+
+export interface TaskOutcome {
+  result: TaskResultType;
+  executeAfterOutcome?: boolean;
+  studentLines: Array<{
+    speaker: StudentId;
+    textAr: string;
+    expression?: ExpressionKey;
+    cameraShot?: CameraAngleId;
+  }>;
+  adamLines: Array<{
+    textAr: string;
+    expression?: ExpressionKey;
+    cameraShot?: CameraAngleId;
+  }>;
+  penalty: TaskPenalty | null;
+}
+
+export interface TaskChoice {
+  id: string;
+  proposedBy: StudentId;
+  textAr: string;
+  endingFlag?: EndingFlagType;
+  effects: TaskChoiceEffects;
+  outcome: TaskOutcome;
+}
+
+export interface TaskDefinition {
+  id: string;
+  order: number;
+  isPlaceholder?: boolean;
+  titleAr?: string;
+  objectId: string;
+  cameraId: CameraAngleId;
+  execution?: TaskExecutionType | null;
+  executionConfig?: {
+    registerInspection?: RegisterInspectionConfig;
+    photoInspection?: PhotoInspectionConfig;
+  };
+  onClickFx?: 'school_bell_flicker' | 'faint_bell_double_flicker';
+  adamIntroLines: TaskDialogueBeat[];
+  adamOnClickLines: TaskDialogueBeat[];
+  studentDialogue: Array<{
+    speaker: StudentId;
+    textAr: string;
+    expression?: ExpressionKey;
+    cameraShot?: CameraAngleId;
+  }>;
+  choices: TaskChoice[];
+  clueFragmentId: string | null;
+  afterClueDialogue?: Array<{
+    speaker: StudentId;
+    textAr: string;
+    expression?: ExpressionKey;
+    cameraShot?: CameraAngleId;
+  }>;
+  nextTaskId: string | null;
+}
+
+export interface ClueFragment {
+  id: string;
+  isPlaceholder?: boolean;
+  titleAr?: string;
+  sourceObjectId?: string;
+  textAr: string;
+  answersQuestions: string[];
+}
+
+export interface BigQuestion {
+  id: string;
+  isPlaceholder?: boolean;
+  textAr: string;
+}
+
+export interface CluesConfig {
+  clueFragments: ClueFragment[];
+  bigQuestions: BigQuestion[];
+}
+
+export interface EndingCondition {
+  endingFlags?: EndingFlagType[];
+  minUnderstanding?: number;
+  maxUnderstanding?: number;
+  minAdamAnger?: number;
+  maxAdamAnger?: number;
+  minSecretsExposed?: number;
+  flagCondition?: FlagCondition;
+}
+
+export interface EndingDefinition {
+  id: string;
+  isPlaceholder?: boolean;
+  titleAr: string;
+  conditions: EndingCondition;
+  adamLines?: string[];
+  epilogueAr?: string;
+  textAr: string[];
+}
+
+export interface TaskDecisionRecord {
+  taskId: string;
+  taskTitleAr?: string;
+  choiceId: string;
+  proposedBy: StudentId;
+  proposedByNameAr: string;
+  choiceTextAr: string;
+  outcomeLineAr?: string;
+  result: TaskResultType;
+  effects: TaskChoiceEffects;
+  timestamp: string;
+}
+
+export interface FoundObjectRecord {
+  objectId: string;
+  evidenceId?: string;
+  titleAr: string;
+  rawTextAr: string;
+  timestamp: string;
+}
+
+export interface StoryState {
+  fear: Record<StudentId, number>;
+  trust: Record<StudentId, number>;
+  adamAnger: number;
+  secretsExposed: StudentId[];
+  understanding: number;
+  cluesFound: string[];
+  foundObjects: FoundObjectRecord[];
+  decisions: TaskDecisionRecord[];
+  currentTaskId: string | null;
+  taskPhase: TaskPhase;
+  activeOutcomeChoiceId: string | null;
+  registerAttempts: number;
+  photoAttempts: number;
+  endingFlag: EndingFlagType | null;
+  endingId: string | null;
+  flags: Record<string, StoryFlagValue>;
+  relationships: Record<string, number>;
 }
 
 export interface SeatingChartEntry {
@@ -271,16 +490,19 @@ export interface UiSettings {
 }
 
 export interface SaveData {
-  version: number;
+  version: 2;
   savedAt: string;
   currentSceneId: SceneId;
   playerPosition: { x: number; y: number };
-  flags: Record<string, StoryFlagValue>;
-  relationships: Record<string, number>;
+  storyState: StoryState;
   collectedEvidenceIds: string[];
   unlockedClueIds: string[];
   dialogueHistory: DialogueHistoryEntry[];
   timerRemainingSec: number;
   timerStarted: boolean;
   puzzleAttempts: number;
+  registerAttempts?: number;
+  photoAttempts?: number;
+  doorDelayRemainingSec?: number;
 }
+

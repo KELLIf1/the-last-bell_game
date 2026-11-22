@@ -163,7 +163,7 @@
     { "id": "samer", "label": "Samer (Player)", "pose": "standing", "x": 0.388, "y": 0.788, "normHeight": 0.312, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
     { "id": "mariam", "label": "Mariam", "pose": "seated", "x": 0.682, "y": 0.786, "normHeight": 0.248, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.638, "y": 0.535, "w": 0.090, "h": 0.255 } },
     { "id": "nour", "label": "Nour", "pose": "standing", "x": 0.146, "y": 0.818, "normHeight": 0.304, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.102, "y": 0.518, "w": 0.090, "h": 0.305 } },
-    { "id": "karim", "label": "Karim", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.700, "y": 0.629, "w": 0.095, "h": 0.275 }, "hiddenWhenFlag": "ch1_karim_summoned" }
+    { "id": "karim", "label": "Karim", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.700, "y": 0.629, "w": 0.095, "h": 0.275 } }
   ],
   "evidence": [
     "ev_board_cipher",
@@ -174,8 +174,6 @@
   ],
   "dialogueTriggers": ["conv_layan", "conv_yacine", "conv_nour", "conv_mariam", "conv_karim", "ch1_puzzle_aftermath"],
   "transitions": [
-    { "to": "puzzle_seating", "condition": { "flag": "puzzle_01_unlocked", "equals": true }, "type": "overlay_modal" },
-    { "to": "door_closeup", "condition": { "flag": "ch1_karim_summoned", "equals": true }, "type": "camera_cut" },
-    { "to": "projector_closeup", "condition": { "flag": "ch1_inspect_final_projector", "equals": true }, "type": "camera_cut" }
+    { "to": "puzzle_seating", "condition": { "flag": "puzzle_01_unlocked", "equals": true }, "type": "overlay_modal" }
   ]
 }

@@ -5,23 +5,19 @@ import { AudioSettings } from '../types/game';
 interface MainMenuOverlayProps {
   hasSave: boolean;
   audioSettings: AudioSettings;
-  showEnglish: boolean;
   onNewGame: () => void;
   onContinue: () => void;
   onOpenSettings: () => void;
   onToggleMute: () => void;
-  onToggleEnglish: (show: boolean) => void;
 }
 
 export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
   hasSave,
   audioSettings,
-  showEnglish,
   onNewGame,
   onContinue,
   onOpenSettings,
   onToggleMute,
-  onToggleEnglish,
 }) => {
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
 
@@ -37,11 +33,8 @@ export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
     <div className="pointer-events-auto absolute inset-0 flex flex-col justify-between p-6 md:p-12">
       {/* Top quiet utility */}
       <div className="flex items-center justify-between gap-3">
-        <span
-          dir={showEnglish ? 'ltr' : 'rtl'}
-          className={`${showEnglish ? 'font-sans-en text-xs tracking-[0.2em] uppercase' : 'font-ar text-xs'} text-slate-400`}
-        >
-          {showEnglish ? 'Orion Academy · Chapter 01' : 'أكاديمية أوريون · الفصل الأول'}
+        <span dir="rtl" className="font-ar text-xs text-slate-400">
+          أكاديمية أوريون · الفصل الأول
         </span>
         <button
           type="button"
@@ -54,17 +47,21 @@ export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
       </div>
 
       {/* Right-aligned RTL Title Lockup + Actions */}
-      <div dir="rtl" className="my-auto mr-0 ml-auto flex w-full max-w-md flex-col items-start gap-6 rounded border border-slate-700/50 bg-[#080E1A]/90 p-7">
+      <div
+        dir="rtl"
+        className="my-auto mr-0 ml-auto flex w-full max-w-md flex-col items-start gap-6 rounded border border-slate-700/50 bg-[#080E1A]/90 p-7"
+      >
         <div className="w-full">
           <img
             src="/assets/ui/title_lockup.svg"
-            alt="آخر جرس - The Last Bell"
+            alt="آخر جرس"
             className="h-auto w-full max-w-[360px]"
           />
         </div>
 
         <p className="font-ar text-sm leading-relaxed text-slate-300">
-          الساعة 16:20. ستة طلاب، سبعة مقاعد، وقفل إلكتروني لا يُفتح إلا بكشف أول كذبة قيلت في هذا الفصل.
+          الساعة 16:20. ستة طلاب، سبعة مقاعد، وقفل إلكتروني لا يُفتح إلا بكشف أول كذبة قيلت في هذا
+          الفصل.
         </p>
 
         <div className="flex w-full flex-col gap-3">
@@ -73,7 +70,7 @@ export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
             onClick={handleNewGameClick}
             className="min-h-[44px] w-full rounded border border-red-500/70 bg-red-700 px-5 py-2.5 text-center font-ar text-base font-semibold text-white transition-colors hover:bg-red-600 focus-visible:outline-2 focus-visible:outline-white"
           >
-            {showEnglish ? 'لعبة جديدة · New Game' : 'لعبة جديدة'}
+            لعبة جديدة
           </button>
 
           {hasSave && (
@@ -82,7 +79,7 @@ export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
               onClick={onContinue}
               className="min-h-[44px] w-full rounded border border-slate-600 bg-slate-800/90 px-5 py-2.5 text-center font-ar text-base font-medium text-slate-100 transition-colors hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-white"
             >
-              {showEnglish ? 'متابعة التحقيق · Continue' : 'متابعة التحقيق'}
+              متابعة
             </button>
           )}
 
@@ -91,26 +88,14 @@ export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
             onClick={onOpenSettings}
             className="min-h-[44px] w-full rounded border border-slate-700 bg-[#0F172A] px-5 py-2.5 text-center font-ar text-sm font-medium text-slate-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-white"
           >
-            {showEnglish ? 'الإعدادات · Settings' : 'الإعدادات'}
+            الإعدادات
           </button>
-
-          <label className="flex min-h-[40px] w-full cursor-pointer items-center justify-between rounded border border-slate-800 bg-[#0B1220]/80 px-4 py-2">
-            <span className="font-ar text-xs font-medium text-slate-300">
-              {showEnglish ? 'إظهار الإنجليزية · Show English' : 'إظهار الإنجليزية'}
-            </span>
-            <input
-              type="checkbox"
-              checked={showEnglish}
-              onChange={(e) => onToggleEnglish(e.target.checked)}
-              className="h-4 w-4 accent-red-600"
-            />
-          </label>
         </div>
       </div>
 
       {/* Single flat control-hint line */}
       <div dir="rtl" className="text-center font-ar text-xs text-slate-400">
-        انقر أو استخدم WASD / الأسهم للحركة · E للتفاعل · N دفتر التحقيق · Esc إيقاف مؤقت
+        انقر على العناصر للتفاعل · N سجل الملاحظات · Esc إيقاف مؤقت
       </div>
 
       {/* Overwrite Save Confirmation Dialog */}
@@ -124,11 +109,6 @@ export const MainMenuOverlay: React.FC<MainMenuOverlayProps> = ({
             <p className="font-ar mt-2 text-sm leading-relaxed text-slate-300">
               سيُستبدل تقدمك المحفوظ. هل تريد المتابعة والبدء من جديد؟
             </p>
-            {showEnglish && (
-              <p dir="ltr" className="font-sans-en mt-1 text-left text-xs text-slate-400">
-                Your saved progress will be overwritten. Start a new game?
-              </p>
-            )}
             <div className="mt-5 flex gap-3">
               <button
                 type="button"

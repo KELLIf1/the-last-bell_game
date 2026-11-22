@@ -40,13 +40,17 @@ export class EvidenceSystem {
 
     audioManager.playEvidence();
     EventBus.emit('toast:show', {
-      titleAr: isClue ? `استنتاج جديد: ${item.nameAr}` : `تم جمع دليل: ${item.nameAr}`,
-      titleEn: isClue ? `New Clue: ${item.nameEn}` : `Evidence Collected: ${item.nameEn}`,
+      titleAr: isClue ? `ملاحظة مسموعة: ${item.nameAr}` : `تم فحص: ${item.nameAr}`,
+      titleEn: '',
       tone: 'evidence',
     });
 
     this.emitUpdate();
     return true;
+  }
+
+  getCatalogItem(itemId: string): EvidenceItem | undefined {
+    return this.catalog.get(itemId);
   }
 
   hasItem(itemId: string): boolean {

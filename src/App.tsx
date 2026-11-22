@@ -4,32 +4,40 @@ import type { GameEngine } from './game/GameEngine';
 import { audioManager } from './systems/AudioManager';
 import { dialogueSystem } from './systems/DialogueSystem';
 import { EventBus } from './systems/EventBus';
-import { evidenceSystem } from './systems/EvidenceSystem';
 import { puzzleManager } from './systems/PuzzleManager';
 import { saveManager } from './systems/SaveManager';
 import { storyManager } from './systems/StoryManager';
+import { taskDataLoader } from './systems/TaskDataLoader';
+import { taskEngine } from './systems/TaskEngine';
 import { uiSettings } from './systems/UiSettings';
 import {
   AudioSettings,
   DialogueChoice,
   DialogueHistoryEntry,
   DialogueLine,
+  EndingDefinition,
   EvidenceItem,
   GameScreenMode,
+  StoryState,
+  TaskChoice,
+  TaskDefinition,
+  TaskExecutionType,
   TimerWarningLevel,
-  UiSettings,
 } from './types/game';
 import { DialogueOverlay } from './ui/DialogueOverlay';
+import { DoorChoiceModal } from './ui/DoorChoiceModal';
+import { EndingResponsibilityOverlay } from './ui/EndingResponsibilityOverlay';
 import { HudOverlay } from './ui/HudOverlay';
 import { MainMenuOverlay } from './ui/MainMenuOverlay';
 import { NotebookModal } from './ui/NotebookModal';
 import { PauseSettingsModal } from './ui/PauseSettingsModal';
+import { PhotoInspectionModal } from './ui/PhotoInspectionModal';
 import { PuzzleModal } from './ui/PuzzleModal';
+import { RegisterInspectionModal } from './ui/RegisterInspectionModal';
 
 interface ToastMessage {
   id: number;
   titleAr: string;
-  titleEn: string;
   tone: 'info' | 'evidence' | 'warning';
 }
 
@@ -68,10 +76,8 @@ export default function App() {
     warningLevel: 'normal',
   });
 
-  const [objective, setObjective] = useState({
-    textAr: 'تفقّد الفصل',
-    textEn: 'Investigate the classroom',
-  });
+  const [objectiveAr, setObjectiveAr] = useState('تفقّد الفصل');
+  const [storyState, setStoryState] = useState<StoryState>(() => storyManager.getState());
 
   const [evidenceState, setEvidenceState] = useState<{
     evidence: EvidenceItem[];
@@ -94,25 +100,38 @@ export default function App() {
     choices: [],
   });
 
+  // Batch 2 Penalty Visual States
+  const [timeLossFlashSec, setTimeLossFlashSec] = useState<number | null>(null);
+  const [lightsOutActive, setLightsOutActive] = useState(false);
+  const [doorDelayRemainingSec, setDoorDelayRemainingSec] = useState(0);
+  const [cameraCutActive, setCameraCutActive] = useState(false);
+  const [exposedSecretNameAr, setExposedSecretNameAr] = useState<string | null>(null);
+
   const [puzzleUnlocked, setPuzzleUnlocked] = useState(false);
   const [puzzleSolved, setPuzzleSolved] = useState(false);
-  const [isTimeoutEnding, setIsTimeoutEnding] = useState(false);
-  const [room0TeaserSeen, setRoom0TeaserSeen] = useState(false);
   const [controlsHintVisible, setControlsHintVisible] = useState(false);
   const [desk7CloseupOpen, setDesk7CloseupOpen] = useState(false);
 
   const [interactionPrompt, setInteractionPrompt] = useState<{
     labelAr: string;
-    labelEn: string;
   } | null>(null);
 
   const [notebookOpen, setNotebookOpen] = useState(false);
   const [puzzleOpen, setPuzzleOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [doorChoiceOpen, setDoorChoiceOpen] = useState(false);
+  const [resolvedEnding, setResolvedEnding] = useState<EndingDefinition | null>(null);
+  const [activeExecution, setActiveExecution] = useState<{
+    taskId: string;
+    executionType: TaskExecutionType;
+    config?: TaskDefinition['executionConfig'];
+    choices?: TaskChoice[];
+  } | null>(null);
   const [modalMode, setModalMode] = useState<'pause' | 'settings' | null>(null);
   const [audioSettings, setAudioSettings] = useState<AudioSettings>(() =>
     audioManager.getSettings()
   );
-  const [uiPrefs, setUiPrefs] = useState<UiSettings>(() => uiSettings.getSettings());
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const withEngine = useCallback((action: (engine: GameEngine) => void) => {
@@ -125,9 +144,20 @@ export default function App() {
     });
   }, []);
 
-  // Dynamically load & mount Phaser canvas right after initial Main Menu paint
   useEffect(() => {
     let disposed = false;
+    let timeLossTimer: number | null = null;
+    let secretTimer: number | null = null;
+
+    // Expose internal test/inspection reference cleanly without affecting UI
+    (window as unknown as Record<string, unknown>).__TLB__ = {
+      storyManager,
+      taskEngine,
+      saveManager,
+      taskDataLoader,
+      dialogueSystem,
+    };
+
     const mountTimer = window.setTimeout(() => {
       void loadGameEngine().then((engine) => {
         if (disposed || !containerRef.current) return;
@@ -140,6 +170,15 @@ export default function App() {
       EventBus.on<GameScreenMode>('screen:mode', (mode) => {
         setScreenMode(mode);
         setHasSave(saveManager.hasSave());
+        if (mode === 'MAIN_MENU' || mode === 'CHAPTER_TITLE') {
+          setResolvedEnding(null);
+          setActiveExecution(null);
+          setRegisterOpen(false);
+          setPhotoOpen(false);
+          setDoorChoiceOpen(false);
+          setNotebookOpen(false);
+          setModalMode(null);
+        }
       }),
       EventBus.on<string>('scene:changed', (sceneId) => {
         setCurrentSceneId(sceneId);
@@ -161,8 +200,50 @@ export default function App() {
           warningLevel: data.warningLevel,
         });
       }),
-      EventBus.on<{ textAr: string; textEn: string }>('objective:updated', (obj) => {
-        setObjective(obj);
+      EventBus.on<{ seconds: number }>('timer:penalized', (p) => {
+        if (timeLossTimer) window.clearTimeout(timeLossTimer);
+        setTimeLossFlashSec(p.seconds);
+        timeLossTimer = window.setTimeout(() => {
+          setTimeLossFlashSec(null);
+        }, 3200);
+      }),
+      EventBus.on('penalty:lights_out', () => {
+        setLightsOutActive(true);
+      }),
+      EventBus.on('penalty:lights_out_cleared', () => {
+        setLightsOutActive(false);
+      }),
+      EventBus.on<{ seconds: number }>('penalty:door_delay', (p) => {
+        setDoorDelayRemainingSec(p.seconds);
+      }),
+      EventBus.on<{ remainingSec: number }>('penalty:door_delay_tick', (p) => {
+        setDoorDelayRemainingSec(p.remainingSec);
+      }),
+      EventBus.on('penalty:door_delay_cleared', () => {
+        setDoorDelayRemainingSec(0);
+      }),
+      EventBus.on('penalty:camera_cut', () => {
+        setCameraCutActive(true);
+      }),
+      EventBus.on('penalty:camera_cut_cleared', () => {
+        setCameraCutActive(false);
+      }),
+      EventBus.on<{ studentNameAr: string }>('penalty:expose_secret', (p) => {
+        if (secretTimer) window.clearTimeout(secretTimer);
+        setExposedSecretNameAr(p.studentNameAr);
+        secretTimer = window.setTimeout(() => {
+          setExposedSecretNameAr(null);
+        }, 5500);
+      }),
+      EventBus.on('penalty:cleared_all', () => {
+        setLightsOutActive(false);
+        setDoorDelayRemainingSec(0);
+        setCameraCutActive(false);
+        setTimeLossFlashSec(null);
+        setExposedSecretNameAr(null);
+      }),
+      EventBus.on<{ textAr: string }>('objective:updated', (obj) => {
+        setObjectiveAr(obj.textAr);
       }),
       EventBus.on<{
         evidence: EvidenceItem[];
@@ -171,11 +252,11 @@ export default function App() {
       }>('evidence:updated', (ev) => {
         setEvidenceState(ev);
       }),
-      EventBus.on('story:updated', () => {
-        setPuzzleUnlocked(storyManager.getFlag('puzzle_01_unlocked') === true);
-        setPuzzleSolved(storyManager.getFlag('puzzle_01_solved') === true);
-        setIsTimeoutEnding(storyManager.getFlag('puzzle_01_failed_timeout') === true);
-        setRoom0TeaserSeen(storyManager.getFlag('ch1_room0_teaser_seen') === true);
+      EventBus.on<StoryState>('story:updated', (snapshot) => {
+        const nextState = snapshot ?? storyManager.getState();
+        setStoryState(nextState);
+        setPuzzleUnlocked(nextState.flags.puzzle_01_unlocked === true);
+        setPuzzleSolved(nextState.flags.puzzle_01_solved === true);
       }),
       EventBus.on<DialogueHistoryEntry[]>('dialogue:history_updated', (hist) => {
         setDialogueHistory(hist);
@@ -187,14 +268,47 @@ export default function App() {
       }>('dialogue:state', (dlg) => {
         setDialogueState(dlg);
       }),
-      EventBus.on<{ labelAr: string; labelEn: string } | null>(
-        'interaction:prompt',
-        (prompt) => {
-          setInteractionPrompt(prompt);
-        }
-      ),
+      EventBus.on<{ labelAr: string } | null>('interaction:prompt', (prompt) => {
+        setInteractionPrompt(prompt ? { labelAr: prompt.labelAr } : null);
+      }),
       EventBus.on<boolean>('puzzle:open', (open) => {
         setPuzzleOpen(open);
+      }),
+      EventBus.on<{
+        taskId: string;
+        executionType: TaskExecutionType;
+        config?: TaskDefinition['executionConfig'];
+        choices?: TaskChoice[];
+      }>('task:execution_requested', (payload) => {
+        setActiveExecution(payload);
+        if (payload.executionType === 'seating_puzzle') {
+          withEngine((engine) => engine.openPuzzle());
+        } else if (payload.executionType === 'register_inspection') {
+          setRegisterOpen(true);
+        } else if (payload.executionType === 'photo_inspection') {
+          setPhotoOpen(true);
+        } else if (payload.executionType === 'door_choice') {
+          setDoorChoiceOpen(true);
+        }
+      }),
+      EventBus.on('task:execution_cleared', () => {
+        setActiveExecution(null);
+        setRegisterOpen(false);
+        setPhotoOpen(false);
+        setDoorChoiceOpen(false);
+      }),
+      EventBus.on<EndingDefinition | null>('ending:loaded', (ending) => {
+        setResolvedEnding(ending);
+      }),
+      EventBus.on('game:force_close_modals', () => {
+        setNotebookOpen(false);
+        setRegisterOpen(false);
+        setPhotoOpen(false);
+        setDoorChoiceOpen(false);
+        setModalMode(null);
+        setActiveExecution(null);
+        EventBus.emit('puzzle:close');
+        EventBus.emit('closeup:desk7_close');
       }),
       EventBus.on<boolean>('controls_hint:show', (visible) => {
         setControlsHintVisible(visible);
@@ -205,12 +319,8 @@ export default function App() {
       EventBus.on<AudioSettings>('audio:updated', (s) => {
         setAudioSettings(s);
       }),
-      EventBus.on<UiSettings>('ui_settings:updated', (s) => {
-        setUiPrefs(s);
-      }),
       EventBus.on<{
         titleAr: string;
-        titleEn: string;
         tone?: ToastMessage['tone'];
         durationMs?: number;
       }>('toast:show', (t) => {
@@ -218,7 +328,7 @@ export default function App() {
         const duration = t.durationMs ?? 3600;
         setToasts((prev) => [
           ...prev.slice(-2),
-          { id, titleAr: t.titleAr, titleEn: t.titleEn, tone: t.tone ?? 'info' },
+          { id, titleAr: t.titleAr, tone: t.tone ?? 'info' },
         ]);
         window.setTimeout(() => {
           setToasts((prev) => prev.filter((item) => item.id !== id));
@@ -229,19 +339,19 @@ export default function App() {
     return () => {
       disposed = true;
       window.clearTimeout(mountTimer);
+      if (timeLossTimer) window.clearTimeout(timeLossTimer);
+      if (secretTimer) window.clearTimeout(secretTimer);
       unsubs.forEach((u) => u());
       engineRef.current?.destroy();
       engineRef.current = null;
     };
   }, []);
 
-  // Pause gameplay timer when DOM modals open
   useEffect(() => {
     const anyModal = notebookOpen || modalMode !== null;
     EventBus.emit('game:modal_open', anyModal);
   }, [notebookOpen, modalMode]);
 
-  // Global keyboard shortcuts (N for Notebook, Esc for Pause/Dismiss, Space/Enter for Dialogue)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -251,6 +361,12 @@ export default function App() {
           setNotebookOpen(false);
         } else if (puzzleOpen) {
           EventBus.emit('puzzle:close');
+        } else if (registerOpen) {
+          setRegisterOpen(false);
+        } else if (photoOpen) {
+          setPhotoOpen(false);
+        } else if (doorChoiceOpen) {
+          setDoorChoiceOpen(false);
         } else if (modalMode) {
           setModalMode(null);
         } else if (controlsHintVisible) {
@@ -262,6 +378,9 @@ export default function App() {
         (e.key === 'n' || e.key === 'N') &&
         screenMode === 'PLAYING' &&
         !puzzleOpen &&
+        !registerOpen &&
+        !photoOpen &&
+        !doorChoiceOpen &&
         !desk7CloseupOpen
       ) {
         setNotebookOpen((prev) => !prev);
@@ -270,6 +389,9 @@ export default function App() {
         screenMode === 'PLAYING' &&
         !notebookOpen &&
         !puzzleOpen &&
+        !registerOpen &&
+        !photoOpen &&
+        !doorChoiceOpen &&
         !modalMode &&
         !desk7CloseupOpen &&
         dialogueState.active &&
@@ -288,6 +410,9 @@ export default function App() {
     screenMode,
     notebookOpen,
     puzzleOpen,
+    registerOpen,
+    photoOpen,
+    doorChoiceOpen,
     modalMode,
     dialogueState,
     controlsHintVisible,
@@ -301,14 +426,42 @@ export default function App() {
     screenMode !== 'MAIN_MENU' &&
     !modalMode;
 
+  const activeEnding =
+    resolvedEnding ??
+    (taskDataLoader.isLoaded()
+      ? (taskDataLoader.getEndingById(storyState.endingId) ??
+        taskDataLoader.resolveEnding(storyState, (c) => storyManager.evaluateCondition(c)))
+      : null);
+
+  const canResumeExecution =
+    !puzzleOpen &&
+    !registerOpen &&
+    !photoOpen &&
+    !doorChoiceOpen &&
+    Boolean(activeExecution) &&
+    (storyState.taskPhase === 'execution' ||
+      (storyState.taskPhase === 'choice' && activeExecution?.executionType === 'door_choice'));
+
+  const pendingExecutionLabelAr = canResumeExecution
+    ? activeExecution?.executionType === 'seating_puzzle'
+      ? 'استكمال ترتيب المقاعد'
+      : activeExecution?.executionType === 'register_inspection'
+        ? 'استكمال فحص سجل الحضور'
+        : activeExecution?.executionType === 'photo_inspection'
+          ? 'استكمال فحص الصورة'
+          : activeExecution?.executionType === 'door_choice'
+            ? 'اتخاذ القرار عند الباب'
+            : null
+    : null;
+
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[#080E1A]">
       {/* Isolated Phaser Canvas Mount */}
       <div ref={containerRef} className="h-full w-full" />
 
-      {/* DOM Overlay Layer (Arabic RTL + Crisp Typography) */}
+      {/* DOM Overlay Layer (Arabic RTL Only) */}
       <div className="pointer-events-none absolute inset-0 z-10">
-        {/* Visible Non-Fatal Missing Asset Warning Badge */}
+        {/* Missing Asset Warning */}
         {missingWarnings.length > 0 && (
           <div
             dir="rtl"
@@ -324,7 +477,7 @@ export default function App() {
         {/* Toast Stack */}
         <div
           dir="rtl"
-          className="absolute top-20 left-1/2 z-40 flex -translate-x-1/2 flex-col gap-2 sm:top-16"
+          className="absolute top-20 left-1/2 z-20 flex -translate-x-1/2 flex-col gap-2 sm:top-16"
         >
           {toasts.map((t) => (
             <div
@@ -338,14 +491,11 @@ export default function App() {
               }`}
             >
               <div className="font-ar text-sm font-semibold">{t.titleAr}</div>
-              {uiPrefs.showEnglish && (
-                <div className="font-sans-en text-[11px] text-slate-400">{t.titleEn}</div>
-              )}
             </div>
           ))}
         </div>
 
-        {/* Skip Intro Button (visible if player previously saw the intro) */}
+        {/* Skip Intro Button */}
         {canSkipIntro && (
           <div dir="rtl" className="pointer-events-auto absolute top-16 left-4 z-30">
             <button
@@ -364,7 +514,6 @@ export default function App() {
           <MainMenuOverlay
             hasSave={hasSave}
             audioSettings={audioSettings}
-            showEnglish={uiPrefs.showEnglish}
             onNewGame={() => {
               withEngine((engine) => {
                 engine.startNewGame();
@@ -378,7 +527,6 @@ export default function App() {
             }}
             onOpenSettings={() => setModalMode('settings')}
             onToggleMute={() => audioManager.toggleMute()}
-            onToggleEnglish={(show) => uiSettings.updateSettings({ showEnglish: show })}
           />
         )}
 
@@ -391,16 +539,6 @@ export default function App() {
             <div dir="rtl" className="font-ar mt-4 text-xl font-semibold text-red-400 sm:text-2xl">
               الفصل الأول — الفصل المغلق
             </div>
-            {uiPrefs.showEnglish && (
-              <>
-                <div className="font-display mt-3 text-lg tracking-[0.26em] text-slate-300">
-                  THE LAST BELL
-                </div>
-                <div className="font-sans-en mt-1 text-xs tracking-[0.2em] text-slate-400 uppercase">
-                  Chapter 01 — The Locked Classroom
-                </div>
-              </>
-            )}
           </div>
         )}
 
@@ -410,27 +548,36 @@ export default function App() {
             timerFormatted={timerState.formatted}
             timerStarted={timerState.started}
             warningLevel={timerState.warningLevel}
-            objectiveAr={objective.textAr}
-            objectiveEn={objective.textEn}
-            showEnglish={uiPrefs.showEnglish}
+            timeLossFlashSec={timeLossFlashSec}
+            lightsOutActive={lightsOutActive}
+            doorDelayRemainingSec={doorDelayRemainingSec}
+            cameraCutActive={cameraCutActive}
+            exposedSecretNameAr={exposedSecretNameAr}
+            objectiveAr={objectiveAr}
             evidenceCount={evidenceState.evidence.length}
             totalEvidence={evidenceState.totalEvidence || 5}
             puzzleUnlocked={puzzleUnlocked}
             puzzleSolved={puzzleSolved}
+            pendingExecutionLabelAr={pendingExecutionLabelAr}
             interactionPrompt={dialogueState.active ? null : interactionPrompt}
             audioSettings={audioSettings}
             onOpenNotebook={() => setNotebookOpen(true)}
             onOpenPuzzle={() => withEngine((engine) => engine.openPuzzle())}
+            onResumeExecution={() => taskEngine.requestReopenExecution()}
             onPause={() => setModalMode('pause')}
             onToggleMute={() => audioManager.toggleMute()}
           />
         )}
 
-        {/* First-Time Classroom Controls Onboarding Panel */}
+        {/* Controls Hint Panel */}
         {screenMode === 'PLAYING' &&
           controlsHintVisible &&
+          !dialogueState.active &&
           !desk7CloseupOpen &&
           !puzzleOpen &&
+          !registerOpen &&
+          !photoOpen &&
+          !doorChoiceOpen &&
           !notebookOpen &&
           !modalMode && (
             <div
@@ -438,7 +585,7 @@ export default function App() {
               className="pointer-events-auto absolute right-4 bottom-16 z-20 flex max-w-md items-center gap-3 rounded border border-amber-500/60 bg-[#0B1220]/95 px-4 py-2.5 shadow-xl"
             >
               <span className="font-ar text-xs leading-relaxed font-medium text-slate-100">
-                تحرّك بـ WASD أو بالنقر • تفاعل بـ E أو بالنقر • الدفتر بـ N • الإيقاف المؤقت Esc
+                انقر على عناصر الفصل أو الطلاب للتفاعل • الدفتر بـ N • الإيقاف المؤقت Esc
               </span>
               <button
                 type="button"
@@ -451,7 +598,7 @@ export default function App() {
             </div>
           )}
 
-        {/* Desk 7 Closeup DOM Caption & Close Control (replaces Phaser Canvas Arabic text) */}
+        {/* Desk 7 Closeup DOM Caption & Close Control */}
         {desk7CloseupOpen && (
           <div
             dir="rtl"
@@ -476,19 +623,19 @@ export default function App() {
           <DialogueOverlay
             line={dialogueState.line}
             choices={dialogueState.choices}
-            showEnglish={uiPrefs.showEnglish}
             onAdvance={() => dialogueSystem.advance()}
             onSelectChoice={(choiceId) => dialogueSystem.selectChoice(choiceId)}
           />
         )}
 
-        {/* Investigation Notebook Modal */}
+        {/* Listener's Notebook Modal */}
         {notebookOpen && (
           <NotebookModal
-            evidence={evidenceState.evidence}
-            clues={evidenceState.clues}
             history={dialogueHistory}
-            showEnglish={uiPrefs.showEnglish}
+            foundObjects={storyState.foundObjects}
+            evidence={evidenceState.evidence}
+            cluesFound={storyState.cluesFound}
+            decisions={storyState.decisions}
             onClose={() => setNotebookOpen(false)}
           />
         )}
@@ -497,9 +644,47 @@ export default function App() {
         {puzzleOpen && puzzleConfig && (
           <PuzzleModal
             config={puzzleConfig}
-            showEnglish={uiPrefs.showEnglish}
             onClose={() => EventBus.emit('puzzle:close')}
-            onSolved={() => EventBus.emit('puzzle:close')}
+            onSolved={() => {
+              EventBus.emit('puzzle:close');
+              taskEngine.completeExecution();
+            }}
+          />
+        )}
+
+        {/* Register Inspection Modal (Task 03 execution) */}
+        {registerOpen && activeExecution?.config?.registerInspection && (
+          <RegisterInspectionModal
+            config={activeExecution.config.registerInspection}
+            onClose={() => setRegisterOpen(false)}
+            onSolved={() => {
+              setRegisterOpen(false);
+              taskEngine.completeExecution();
+            }}
+          />
+        )}
+
+        {/* Photo Inspection Modal (Task 04 execution) */}
+        {photoOpen && activeExecution?.config?.photoInspection && (
+          <PhotoInspectionModal
+            config={activeExecution.config.photoInspection}
+            onClose={() => setPhotoOpen(false)}
+            onSolved={() => {
+              setPhotoOpen(false);
+              taskEngine.completeExecution();
+            }}
+          />
+        )}
+
+        {/* Door Choice Modal (Task 05 final decision) */}
+        {doorChoiceOpen && activeExecution?.choices && (
+          <DoorChoiceModal
+            choices={activeExecution.choices}
+            onClose={() => setDoorChoiceOpen(false)}
+            onSelectChoice={(choiceId) => {
+              setDoorChoiceOpen(false);
+              taskEngine.selectDoorChoice(choiceId);
+            }}
           />
         )}
 
@@ -508,9 +693,7 @@ export default function App() {
           <PauseSettingsModal
             mode={modalMode}
             audioSettings={audioSettings}
-            showEnglish={uiPrefs.showEnglish}
             onUpdateAudio={(partial) => audioManager.updateSettings(partial)}
-            onToggleEnglish={(show) => uiSettings.updateSettings({ showEnglish: show })}
             onSaveGame={
               modalMode === 'pause'
                 ? () => {
@@ -518,7 +701,6 @@ export default function App() {
                     setHasSave(ok);
                     EventBus.emit('toast:show', {
                       titleAr: ok ? 'تم حفظ التقدم بنجاح' : 'تعذر حفظ التقدم',
-                      titleEn: ok ? 'Progress saved' : 'Failed to save progress',
                       tone: ok ? 'info' : 'warning',
                     });
                   }
@@ -537,95 +719,26 @@ export default function App() {
           />
         )}
 
-        {/* Chapter Ending Overlay */}
+        {/* Chapter Ending + Responsibility Screen ("ما الذي اخترتَه") */}
         {screenMode === 'ENDING' && (
-          <div
-            dir="rtl"
-            className="pointer-events-auto flex h-full w-full flex-col items-center justify-center bg-[#04070D]/92 p-6 text-center"
-          >
-            <div className="w-full max-w-xl rounded-lg border border-slate-700/80 bg-[#0B1220]/95 p-6 shadow-2xl sm:p-8">
-              <div
-                className={`mx-auto inline-block rounded border px-3 py-1 font-ar text-xs font-semibold ${
-                  isTimeoutEnding
-                    ? 'border-red-500/60 bg-red-950/60 text-red-300'
-                    : 'border-amber-500/60 bg-amber-950/50 text-amber-200'
-                }`}
-              >
-                {isTimeoutEnding
-                  ? 'نهاية انتهاء الوقت — استدعاء مبكر'
-                  : 'نهاية الفصل الأول — المسار المكتمل'}
-              </div>
-
-              {uiPrefs.showEnglish && (
-                <div className="font-display mt-4 text-2xl tracking-[0.22em] text-slate-100 sm:text-3xl">
-                  TO BE CONTINUED
-                </div>
-              )}
-              <div className="font-ar mt-3 text-xl font-bold text-red-400">
-                يتبع — الفصل الثاني: الأرشيف المنسي
-              </div>
-              {uiPrefs.showEnglish && (
-                <div className="font-sans-en mt-1 text-xs tracking-[0.2em] text-slate-400 uppercase">
-                  Chapter 02: The Forgotten Archive
-                </div>
-              )}
-
-              <p className="font-ar mt-4 text-sm leading-relaxed text-slate-300">
-                {isTimeoutEnding
-                  ? 'انقضى العدّ التنازلي قبل إتمام كل الاستجوابات؛ استُدعي كريم مبكراً وغادر الفصل تاركاً أسئلة معلّقة.'
-                  : 'تم حلّ لغز المقاعد السبعة ومحاورة جميع الطلاب الحاضرين قبل استدعاء كريم الأول.'}
-              </p>
-
-              {room0TeaserSeen && !isTimeoutEnding && (
-                <div className="font-ar mt-3 rounded border border-red-900/60 bg-[#060A13] px-3 py-2 text-xs text-red-300">
-                  الغرفة 0 — مشروع الصدى — تم رفض الوصول إلى الأرشيف.
-                  {uiPrefs.showEnglish && (
-                    <div dir="ltr" className="font-mono-num mt-0.5 text-[11px] opacity-80">
-                      ROOM 0 — PROJECT ECHO — ARCHIVE ACCESS DENIED.
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-6 grid grid-cols-3 gap-3 text-center">
-                <div className="rounded border border-slate-700/80 bg-[#080E1A] px-3 py-3">
-                  <div className="font-ar text-[11px] text-slate-400">الوقت المتبقي</div>
-                  <div className="font-mono-num mt-1 text-lg font-bold text-slate-100">
-                    {timerState.formatted}
-                  </div>
-                </div>
-                <div className="rounded border border-slate-700/80 bg-[#080E1A] px-3 py-3">
-                  <div className="font-ar text-[11px] text-slate-400">الأدلة المجمّعة</div>
-                  <div className="font-mono-num mt-1 text-lg font-bold text-sky-300">
-                    {evidenceState.evidence.length}/{evidenceState.totalEvidence || 5}
-                  </div>
-                </div>
-                <div className="rounded border border-slate-700/80 bg-[#080E1A] px-3 py-3">
-                  <div className="font-ar text-[11px] text-slate-400">الخيوط</div>
-                  <div className="font-mono-num mt-1 text-lg font-bold text-amber-300">
-                    {evidenceState.clues.length}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => withEngine((engine) => engine.startNewGame())}
-                  className="min-h-[44px] rounded border border-amber-500/70 bg-amber-950/70 px-6 py-2 font-ar text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-900/80"
-                >
-                  {uiPrefs.showEnglish ? 'إعادة الفصل · Replay Chapter' : 'إعادة الفصل'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => withEngine((engine) => engine.returnToMainMenu())}
-                  className="min-h-[44px] rounded border border-slate-600 bg-slate-900 px-6 py-2 font-ar text-sm font-semibold text-slate-100 transition-colors hover:bg-slate-800"
-                >
-                  {uiPrefs.showEnglish ? 'العودة إلى القائمة الرئيسية · Main Menu' : 'العودة إلى القائمة الرئيسية'}
-                </button>
-              </div>
-            </div>
-          </div>
+          <EndingResponsibilityOverlay
+            ending={activeEnding}
+            decisions={storyState.decisions}
+            onReplay={() => {
+              setResolvedEnding(null);
+              setActiveExecution(null);
+              setNotebookOpen(false);
+              setModalMode(null);
+              withEngine((engine) => engine.startNewGame());
+            }}
+            onReturnToMenu={() => {
+              setResolvedEnding(null);
+              setActiveExecution(null);
+              setNotebookOpen(false);
+              setModalMode(null);
+              withEngine((engine) => engine.returnToMainMenu());
+            }}
+          />
         )}
       </div>
     </div>

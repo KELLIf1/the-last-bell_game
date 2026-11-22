@@ -5,11 +5,8 @@
   "instructionsAr": "قارن جدول الجلوس القديم بالأرقام المكشوفة على السبورة، واستنتج بالحذف هوية الموضع الثالث المقطوع لترتيب الصورة من اليسار إلى اليمين.",
   "instructionsEn": "Cross-reference the old seating chart with the revealed board numbers, and deduce by elimination who belongs in the cut 3rd slot from left to right.",
   "unlockCondition": {
-    "allOf": [
-      { "flag": "ev_board_examined", "equals": true },
-      { "flag": "ev_desk_examined", "equals": true },
-      { "flag": "ev_photo_examined", "equals": true }
-    ]
+    "flag": "ev_board_examined",
+    "equals": true
   },
   "penaltySeconds": 120,
   "boardSequence": [4, 1, 7, 2, 6, 3, 5],
@@ -18,9 +15,9 @@
     { "position": 2, "seatNumber": 1, "requiredFlags": ["ev_board_examined"] },
     { "position": 3, "seatNumber": null, "requiredFlags": [] },
     { "position": 4, "seatNumber": 2, "requiredFlags": ["ev_board_examined"] },
-    { "position": 5, "seatNumber": 6, "requiredFlags": ["ev_board_examined", "ev_desk_examined"] },
+    { "position": 5, "seatNumber": 6, "requiredFlags": ["ev_board_examined"] },
     { "position": 6, "seatNumber": 3, "requiredFlags": ["ev_board_examined"] },
-    { "position": 7, "seatNumber": 5, "requiredFlags": ["ev_board_examined", "ev_photo_examined"] }
+    { "position": 7, "seatNumber": 5, "requiredFlags": ["ev_board_examined"] }
   ],
   "seatingChart": [
     { "seatNumber": 1, "studentNameAr": "ياسين", "studentNameEn": "Yacine" },

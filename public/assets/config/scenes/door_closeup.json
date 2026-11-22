@@ -31,11 +31,9 @@
     { "id": "door_panel", "label": "Modern Wood & Steel Door", "visualMode": "baked", "x": 0.695, "y": 0.540, "w": 0.370, "h": 0.880, "origin": [0.5, 0.5], "depth": 15, "interactive": true, "interactionZone": { "x": 0.510, "y": 0.100, "w": 0.370, "h": 0.880 } },
     { "id": "electronic_keypad", "label": "Electronic Lock Keypad", "visualMode": "baked", "x": 0.922, "y": 0.578, "w": 0.060, "h": 0.130, "origin": [0.5, 0.5], "depth": 25, "interactive": true, "interactionZone": { "x": 0.892, "y": 0.513, "w": 0.060, "h": 0.130 } }
   ],
-  "characters": [
-    { "id": "karim", "label": "Karim (Exiting via Brief Unlock)", "pose": "standing", "x": 0.66, "y": 0.94, "normHeight": 0.55, "origin": [0.5, 1.0], "depthMode": "fixed", "depth": 20, "interactive": false, "conditionFlag": "ch1_karim_summoned" }
-  ],
+  "characters": [],
   "evidence": [],
-  "dialogueTriggers": ["ch1_door_locked_check", "ch1_karim_exit", "ch1_ending_bell"],
+  "dialogueTriggers": ["ch1_door_locked_check", "ch1_ending_bell"],
   "transitions": [
     { "to": "classroom_emergency", "condition": { "flag": "ch1_return_from_door", "equals": true }, "type": "fade", "durationMs": 450 },
     { "to": "ending", "condition": { "flag": "ch1_bell_rung", "equals": true }, "type": "fade_to_black", "durationMs": 1400 }

@@ -10,13 +10,15 @@ export interface InteractableTarget {
   maxDistPx?: number;
   zone: Phaser.GameObjects.Zone;
   highlightRect?: Phaser.GameObjects.Rectangle;
+  disabledReasonAr?: string;
   onInteract: () => void;
 }
 
 export class InteractionSystem {
   private targets: InteractableTarget[] = [];
   private hoveredId: string | null = null;
-  private nearestId: string | null = null;
+  private highlightedGoalId: string | null = null;
+  private blocked = false;
 
   clear(): void {
     this.targets.forEach((t) => {
@@ -25,7 +27,8 @@ export class InteractionSystem {
     });
     this.targets = [];
     this.hoveredId = null;
-    this.nearestId = null;
+    this.highlightedGoalId = null;
+    this.blocked = false;
     EventBus.emit('interaction:prompt', null);
   }
 
@@ -40,7 +43,7 @@ export class InteractionSystem {
     removed.zone.destroy();
     removed.highlightRect?.destroy();
     if (this.hoveredId === id) this.hoveredId = null;
-    if (this.nearestId === id) this.nearestId = null;
+    if (this.highlightedGoalId === id) this.highlightedGoalId = null;
     this.syncVisuals();
   }
 
@@ -48,6 +51,36 @@ export class InteractionSystem {
     const found = this.targets.find((t) => t.id === id);
     if (found) {
       found.maxDistPx = maxDistPx;
+    }
+  }
+
+  setGoalHighlight(id: string | null): void {
+    this.highlightedGoalId = id;
+    this.syncVisuals();
+  }
+
+  setBlocked(blocked: boolean): void {
+    if (this.blocked !== blocked) {
+      this.blocked = blocked;
+      if (blocked) {
+        this.hoveredId = null;
+      }
+      this.syncVisuals();
+    }
+  }
+
+  clearHover(): void {
+    if (this.hoveredId !== null) {
+      this.hoveredId = null;
+      this.syncVisuals();
+    }
+  }
+
+  setDisabledReason(id: string, reasonAr?: string): void {
+    const found = this.targets.find((t) => t.id === id);
+    if (found) {
+      found.disabledReasonAr = reasonAr;
+      this.syncVisuals();
     }
   }
 
@@ -75,28 +108,9 @@ export class InteractionSystem {
     this.targets.push(target);
   }
 
-  updateProximity(playerX: number, playerY: number, maxDistPx = 155): void {
-    let bestId: string | null = null;
-    let bestDist = Infinity;
-
-    for (const t of this.targets) {
-      if (!t.zone.active) continue;
-      const limit = t.maxDistPx ?? maxDistPx;
-      const d = Phaser.Math.Distance.Between(playerX, playerY, t.x, t.y);
-      if (d < limit && d < bestDist) {
-        bestDist = d;
-        bestId = t.id;
-      }
-    }
-
-    if (bestId !== this.nearestId) {
-      this.nearestId = bestId;
-      this.syncVisuals();
-    }
-  }
-
   triggerActive(): boolean {
-    const activeId = this.hoveredId ?? this.nearestId;
+    if (this.blocked) return false;
+    const activeId = this.hoveredId ?? this.highlightedGoalId;
     if (!activeId) return false;
     const found = this.targets.find((t) => t.id === activeId && t.zone.active);
     if (!found) return false;
@@ -105,22 +119,40 @@ export class InteractionSystem {
   }
 
   private syncVisuals(): void {
-    const activeId = this.hoveredId ?? this.nearestId;
+    if (this.blocked) {
+      for (const t of this.targets) {
+        t.highlightRect?.setVisible(false);
+      }
+      EventBus.emit('interaction:prompt', null);
+      return;
+    }
+
+    const activeId = this.hoveredId;
     let activeTarget: InteractableTarget | null = null;
 
     for (const t of this.targets) {
-      const isSelected = t.id === activeId && t.zone.active;
-      if (isSelected) activeTarget = t;
+      const isHovered = t.id === activeId && t.zone.active;
+      const isGoal = t.id === this.highlightedGoalId && t.zone.active;
+      if (isHovered) activeTarget = t;
       if (t.highlightRect) {
-        t.highlightRect.setVisible(isSelected);
+        t.highlightRect.setVisible(isHovered || isGoal);
+        if (isGoal && !isHovered) {
+          t.highlightRect.setStrokeStyle(2.5, 0xfbbf24, 0.95);
+        } else if (t.disabledReasonAr) {
+          t.highlightRect.setStrokeStyle(2, 0xef4444, 0.9);
+        } else {
+          t.highlightRect.setStrokeStyle(2, 0xd6a65d, 0.85);
+        }
       }
     }
 
     if (activeTarget) {
       EventBus.emit('interaction:prompt', {
         id: activeTarget.id,
-        labelAr: activeTarget.labelAr,
-        labelEn: activeTarget.labelEn,
+        labelAr: activeTarget.disabledReasonAr
+          ? `${activeTarget.labelAr} (${activeTarget.disabledReasonAr})`
+          : activeTarget.labelAr,
+        labelEn: '',
         xNorm: activeTarget.x / 1280,
         yNorm: activeTarget.y / 720,
       });
