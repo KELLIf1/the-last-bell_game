@@ -15,7 +15,6 @@ import { timerManager } from '../../systems/TimerManager';
 import { uiSettings } from '../../systems/UiSettings';
 import {
   DialogueLine,
-  SceneCharacterConfig,
   SceneId,
   SceneLayoutConfig,
   SceneObjectConfig,
@@ -66,7 +65,7 @@ export class ClassroomScene extends Phaser.Scene {
 
     this.assembled = SceneAssembler.build(this, layout, this.interactionSystem, {
       onObjectInteract: (obj) => this.handleObjectInteract(obj),
-      onCharacterInteract: (ch) => this.handleCharacterInteract(ch),
+      onCharacterInteract: () => {},
     });
 
     CameraDirector.attach(this, {
@@ -88,7 +87,11 @@ export class ClassroomScene extends Phaser.Scene {
       this.interactionSystem.setBlocked(isOpen || dialogueSystem.isActive());
       if (isOpen) {
         timerManager.pause();
-      } else if (!this.timeoutTriggered && !this.endingTransitioned) {
+      } else if (
+        !dialogueSystem.isActive() &&
+        !this.timeoutTriggered &&
+        !this.endingTransitioned
+      ) {
         timerManager.resume();
       }
     });
@@ -175,6 +178,23 @@ export class ClassroomScene extends Phaser.Scene {
       'dialogue:state',
       (state) => {
         this.interactionSystem.setBlocked(state.active || this.pausedModal);
+        if (
+          !state.active &&
+          !this.pausedModal &&
+          !this.timeoutTriggered &&
+          !this.endingTransitioned
+        ) {
+          timerManager.resume();
+        }
+      }
+    );
+
+    const unsubOutcomeApplied = EventBus.on<{ choiceId: string }>(
+      'task:outcome_applied',
+      (payload) => {
+        if (payload.choiceId === 't5c2') {
+          this.handleYacineLeaves();
+        }
       }
     );
 
@@ -192,6 +212,15 @@ export class ClassroomScene extends Phaser.Scene {
         storyManager.getEndingId()
       ) {
         this.transitionToEnding();
+        return;
+      }
+      if (
+        !this.pausedModal &&
+        !dialogueSystem.isActive() &&
+        !this.timeoutTriggered &&
+        !this.endingTransitioned
+      ) {
+        timerManager.resume();
       }
     };
     this.events.on('resume', onSceneResume);
@@ -217,6 +246,7 @@ export class ClassroomScene extends Phaser.Scene {
       unsubExposeSecret();
       unsubClearedAll();
       unsubDialogueBeat();
+      unsubOutcomeApplied();
       this.clearLightsOutVisual();
       this.clearCameraCutVisual();
       EventBus.emit('controls_hint:show', false);
@@ -281,6 +311,21 @@ export class ClassroomScene extends Phaser.Scene {
     } else {
       // Start or resume TaskEngine loop from current state/phase
       taskEngine.startOrResume();
+    }
+
+    const timerSnap = timerManager.getState();
+    if (timerSnap.started && timerSnap.remainingSeconds <= 0) {
+      this.handleTimeoutConsequence();
+      return;
+    }
+
+    if (
+      !this.pausedModal &&
+      !dialogueSystem.isActive() &&
+      !this.timeoutTriggered &&
+      !this.endingTransitioned
+    ) {
+      timerManager.resume();
     }
   }
 
@@ -582,14 +627,18 @@ export class ClassroomScene extends Phaser.Scene {
     }
   }
 
-  private handleCharacterInteract(ch: SceneCharacterConfig): void {
-    if (this.pausedModal || dialogueSystem.isActive()) return;
-    this.dismissControlsHint();
-    audioManager.playClick();
-    const convId = `conv_${ch.id}`;
-    dialogueSystem.startConversation(convId, () => {
-      this.syncObjectiveText();
-      this.autoSave();
+  private handleYacineLeaves(): void {
+    const yacineContainer = this.assembled?.characterContainers.get('yacine');
+    if (!yacineContainer) return;
+    this.tweens.add({
+      targets: yacineContainer,
+      x: yacineContainer.x + 140,
+      alpha: 0,
+      duration: 650,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        yacineContainer.setVisible(false);
+      },
     });
   }
 

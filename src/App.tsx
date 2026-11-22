@@ -554,8 +554,8 @@ export default function App() {
             cameraCutActive={cameraCutActive}
             exposedSecretNameAr={exposedSecretNameAr}
             objectiveAr={objectiveAr}
-            evidenceCount={evidenceState.evidence.length}
-            totalEvidence={evidenceState.totalEvidence || 5}
+            cluesCount={storyState.cluesFound.length}
+            totalTasks={5}
             puzzleUnlocked={puzzleUnlocked}
             puzzleSolved={puzzleSolved}
             pendingExecutionLabelAr={pendingExecutionLabelAr}
@@ -585,7 +585,7 @@ export default function App() {
               className="pointer-events-auto absolute right-4 bottom-16 z-20 flex max-w-md items-center gap-3 rounded border border-amber-500/60 bg-[#0B1220]/95 px-4 py-2.5 shadow-xl"
             >
               <span className="font-ar text-xs leading-relaxed font-medium text-slate-100">
-                انقر على عناصر الفصل أو الطلاب للتفاعل • الدفتر بـ N • الإيقاف المؤقت Esc
+                انقر على عناصر الفصل للتفاعل • الدفتر بـ N • الإيقاف المؤقت Esc
               </span>
               <button
                 type="button"

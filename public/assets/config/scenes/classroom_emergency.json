@@ -158,12 +158,12 @@
     }
   ],
   "characters": [
-    { "id": "layan", "label": "Layan", "pose": "seated", "x": 0.284, "y": 0.678, "normHeight": 0.200, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.240, "y": 0.478, "w": 0.090, "h": 0.210 } },
-    { "id": "yacine", "label": "Yacine", "pose": "seated", "x": 0.538, "y": 0.686, "normHeight": 0.234, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "left", "interactive": true, "interactionZone": { "x": 0.493, "y": 0.453, "w": 0.090, "h": 0.240 } },
-    { "id": "samer", "label": "Samer (Player)", "pose": "standing", "x": 0.388, "y": 0.788, "normHeight": 0.312, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
-    { "id": "mariam", "label": "Mariam", "pose": "seated", "x": 0.682, "y": 0.786, "normHeight": 0.248, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.638, "y": 0.535, "w": 0.090, "h": 0.255 } },
-    { "id": "nour", "label": "Nour", "pose": "standing", "x": 0.146, "y": 0.818, "normHeight": 0.304, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.102, "y": 0.518, "w": 0.090, "h": 0.305 } },
-    { "id": "karim", "label": "Karim", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": true, "interactionZone": { "x": 0.700, "y": 0.629, "w": 0.095, "h": 0.275 } }
+    { "id": "layan", "label": "Layan", "pose": "seated", "x": 0.284, "y": 0.678, "normHeight": 0.200, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "yacine", "label": "Yacine", "pose": "seated", "x": 0.538, "y": 0.686, "normHeight": 0.234, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "left", "interactive": false, "hiddenWhenFlag": "yacine_left" },
+    { "id": "samer", "label": "Samer", "pose": "standing", "x": 0.388, "y": 0.788, "normHeight": 0.312, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "mariam", "label": "Mariam", "pose": "seated", "x": 0.682, "y": 0.786, "normHeight": 0.248, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "nour", "label": "Nour", "pose": "standing", "x": 0.146, "y": 0.818, "normHeight": 0.304, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false },
+    { "id": "karim", "label": "Karim", "pose": "seated", "x": 0.746, "y": 0.902, "normHeight": 0.274, "origin": [0.5, 1.0], "depthMode": "by_y", "facing": "right", "interactive": false }
   ],
   "evidence": [
     "ev_board_cipher",
@@ -172,7 +172,7 @@
     "ev_cut_photo",
     "ev_attendance_register"
   ],
-  "dialogueTriggers": ["conv_layan", "conv_yacine", "conv_nour", "conv_mariam", "conv_karim", "ch1_puzzle_aftermath"],
+  "dialogueTriggers": [],
   "transitions": [
     { "to": "puzzle_seating", "condition": { "flag": "puzzle_01_unlocked", "equals": true }, "type": "overlay_modal" }
   ]

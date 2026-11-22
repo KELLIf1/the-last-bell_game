@@ -41,14 +41,14 @@ export const PhotoInspectionModal: React.FC<PhotoInspectionModalProps> = ({
     if (hotspot.isCorrect) {
       if (!revealed) {
         audioManager.playEvidence();
-        evidenceSystem.collect('ev_class_photo');
+        evidenceSystem.collect('ev_cut_photo');
         setRevealed(true);
       }
       setFeedback({
         type: 'success',
         textAr:
           hotspot.revealTextAr ??
-          'خلف الصورة تاريخ اليوم الأخير: «المقعد الثالث كان لسامر».',
+          'خلف الصورة تاريخ اليوم الأخير: «الموضع الثالث في الصورة — المقعد السابع — كان لسامر».',
       });
       return;
     }
@@ -147,9 +147,9 @@ export const PhotoInspectionModal: React.FC<PhotoInspectionModalProps> = ({
             {/* 7 Photo Positions: Slot 3 (index 2) is torn/cut */}
             <div className="p-3 sm:p-4">
               <div className="mb-2 font-ar text-xs text-slate-400">
-                ترتيب مواضع الصورة السبع (من اليمين إلى اليسار):
+                ترتيب مواضع الصورة السبع (من اليسار إلى اليمين):
               </div>
-              <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+              <div dir="ltr" className="grid grid-cols-7 gap-1.5 sm:gap-2">
                 {Array.from({ length: TOTAL_SLOTS }, (_, idx) => {
                   const isCut = idx === config.cutSlotIndex;
                   return (

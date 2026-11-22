@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { audioManager } from '../systems/AudioManager';
 import { dialogueSystem } from '../systems/DialogueSystem';
+import { EventBus } from '../systems/EventBus';
 import { evidenceSystem } from '../systems/EvidenceSystem';
 import { puzzleManager } from '../systems/PuzzleManager';
 import { saveManager } from '../systems/SaveManager';
@@ -17,9 +18,24 @@ import { PuzzleScene } from './scenes/PuzzleScene';
 
 export class GameEngine {
   private game: Phaser.Game | null = null;
+  private preloadReady = false;
+  private pendingStartAction: (() => void) | null = null;
+  private unsubPreload: (() => void) | null = null;
 
   mount(parentElement: HTMLElement): void {
     if (this.game) return;
+
+    this.preloadReady = false;
+    this.pendingStartAction = null;
+    this.unsubPreload?.();
+    this.unsubPreload = EventBus.on('preload:complete', () => {
+      this.preloadReady = true;
+      if (this.pendingStartAction) {
+        const action = this.pendingStartAction;
+        this.pendingStartAction = null;
+        queueMicrotask(action);
+      }
+    });
 
     this.game = new Phaser.Game({
       type: Phaser.AUTO,
@@ -46,6 +62,13 @@ export class GameEngine {
   startNewGame(): void {
     if (!this.game) return;
     audioManager.unlock();
+
+    if (!this.preloadReady) {
+      this.game.registry.set('skipAutoMainMenu', true);
+      this.pendingStartAction = () => this.startNewGame();
+      return;
+    }
+
     saveManager.clear();
     storyManager.reset();
     evidenceSystem.reset();
@@ -64,6 +87,15 @@ export class GameEngine {
     if (!saved) return false;
 
     audioManager.unlock();
+
+    if (!this.preloadReady) {
+      this.game.registry.set('skipAutoMainMenu', true);
+      this.pendingStartAction = () => {
+        this.continueGame();
+      };
+      return true;
+    }
+
     taskEngine.reset();
     saveManager.applySave(saved);
     taskEngine.loadPenaltyTimers(saved.doorDelayRemainingSec ?? 0);
@@ -93,6 +125,7 @@ export class GameEngine {
 
   returnToMainMenu(): void {
     if (!this.game) return;
+    this.pendingStartAction = null;
     timerManager.pause();
     audioManager.stopAllLoops();
     dialogueSystem.reset();
@@ -112,16 +145,25 @@ export class GameEngine {
 
   private stopActiveGameplayScenes(): void {
     if (!this.game) return;
-    ['MainMenuScene', 'IntroScene', 'ClassroomScene', 'PuzzleScene', 'EndingScene'].forEach(
-      (key) => {
-        if (this.game?.scene.isActive(key) || this.game?.scene.isPaused(key)) {
-          this.game.scene.stop(key);
-        }
+    [
+      'PreloadScene',
+      'MainMenuScene',
+      'IntroScene',
+      'ClassroomScene',
+      'PuzzleScene',
+      'EndingScene',
+    ].forEach((key) => {
+      if (this.game?.scene.isActive(key) || this.game?.scene.isPaused(key)) {
+        this.game.scene.stop(key);
       }
-    );
+    });
   }
 
   destroy(): void {
+    this.unsubPreload?.();
+    this.unsubPreload = null;
+    this.pendingStartAction = null;
+    this.preloadReady = false;
     audioManager.stopAllLoops();
     if (this.game) {
       this.game.destroy(true);

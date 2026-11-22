@@ -12,8 +12,8 @@ interface HudOverlayProps {
   cameraCutActive: boolean;
   exposedSecretNameAr: string | null;
   objectiveAr: string;
-  evidenceCount: number;
-  totalEvidence: number;
+  cluesCount: number;
+  totalTasks?: number;
   puzzleUnlocked: boolean;
   puzzleSolved: boolean;
   pendingExecutionLabelAr: string | null;
@@ -36,8 +36,8 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
   cameraCutActive,
   exposedSecretNameAr,
   objectiveAr,
-  evidenceCount,
-  totalEvidence,
+  cluesCount,
+  totalTasks = 5,
   puzzleUnlocked,
   puzzleSolved,
   pendingExecutionLabelAr,
@@ -189,7 +189,7 @@ export const HudOverlay: React.FC<HudOverlayProps> = ({
             <BookOpen className="h-4 w-4 text-slate-300" />
             <span className="whitespace-nowrap">سجل الملاحظات</span>
             <span className="font-mono-num text-slate-400">
-              {evidenceCount}/{totalEvidence}
+              {cluesCount}/{totalTasks}
             </span>
           </button>
         </div>

@@ -244,7 +244,12 @@
         "cameraShot": "angle_clock_1620"
       },
       {
-        "textAr": "اسمعوا جيداً. لم يسمعه أحد غير من كان مغلقاً عليه.",
+        "textAr": "اسمعوا جيداً. هي سمعته من الداخل... وأنتم سمعتموه من الخارج ولم تفتحوا.",
+        "expression": "neutral",
+        "cameraShot": "board"
+      },
+      {
+        "textAr": "كانت أختي.",
         "expression": "neutral",
         "cameraShot": "board"
       }
@@ -252,7 +257,7 @@
     "studentDialogue": [
       {
         "speaker": "nour",
-        "textAr": "كان الظلام... لا أريد أن أتذكر.",
+        "textAr": "كنا في الممر خلف الباب... لا أريد أن أتذكر.",
         "expression": "worried",
         "cameraShot": "closeup_nour"
       },
@@ -264,7 +269,7 @@
       },
       {
         "speaker": "layan",
-        "textAr": "نلعب؟ من قال إنها لعبة؟",
+        "textAr": "نلعب؟ هي كانت وحدها في الداخل ونحن في الخارج نسمع الطرق!",
         "expression": "angry",
         "cameraShot": "closeup_layan"
       },
@@ -342,7 +347,7 @@
           "studentLines": [
             {
               "speaker": "layan",
-              "textAr": "الباب أُغلق من الخارج... ونحن سمعنا الجرس.",
+              "textAr": "الباب أُغلق عليها من الخارج... ونحن سمعنا الجرس.",
               "expression": "sad",
               "cameraShot": "closeup_layan"
             },
@@ -615,7 +620,7 @@
           ],
           "adamLines": [
             {
-              "textAr": "من يتهم بسرعة عليه أن يتحمّل أن ينظر أحد إليه. ياسين... من أغلق الباب؟",
+              "textAr": "من يتهم بسرعة عليه أن يتحمّل أن ينظر أحد إليه. ياسين... هل تظن أن الإشارة باليد لا تترك أثراً؟",
               "expression": "neutral",
               "cameraShot": "teacher_desk"
             }
@@ -640,7 +645,7 @@
     "executionConfig": {
       "photoInspection": {
         "titleAr": "صورة الصف القديمة",
-        "instructionsAr": "تظهر في الصورة سبعة مقاعد؛ الموضع الثالث مقصوص. اختر موضع الفحص الذي تريد تفقّده.",
+        "instructionsAr": "تظهر في الصورة سبعة مواضع من اليسار إلى اليمين؛ الموضع الثالث مقصوص. اختر موضع الفحص الذي تريد تفقّده.",
         "imageUrl": "/assets/backgrounds/classroom_desk7_closeup.webp",
         "cutSlotIndex": 2,
         "hotspots": [
@@ -648,7 +653,7 @@
             "id": "cut_edge",
             "labelAr": "حافة القص",
             "isCorrect": false,
-            "wrongFeedbackAr": "القصّ نظيف وبحدّ مقصّ مباشر، لكنه وحده لا يذكر من كان في المقعد الثالث."
+            "wrongFeedbackAr": "القصّ نظيف وبحدّ مقصّ مباشر، لكنه وحده لا يذكر من كان في الموضع الثالث من الصورة."
           },
           {
             "id": "date_stamp",
@@ -660,7 +665,7 @@
             "id": "photo_back",
             "labelAr": "ظهر الصورة",
             "isCorrect": true,
-            "revealTextAr": "خلف الصورة تاريخ اليوم الأخير ومعه سطر بخط مرتجف: «الباب لم يُفتح لأنني قلت إنني لن أخبر أحداً». المقعد الثالث كان لسامر."
+            "revealTextAr": "خلف الصورة تاريخ اليوم الأخير ومعه سطر بخط مرتجف: «الباب لم يُفتح لأنني قلت إنني لن أخبر أحداً». الموضع الثالث في الصورة — المقعد السابع — كان لسامر."
           }
         ]
       }
@@ -698,7 +703,7 @@
       },
       {
         "speaker": "layan",
-        "textAr": "المكان الثالث. كان فيه شخص يبتسم، أنا أتذكر.",
+        "textAr": "الموضع الثالث من اليسار. كان فيه شخص يبتسم، أنا أتذكر.",
         "expression": "sad",
         "cameraShot": "closeup_layan"
       },
@@ -813,7 +818,7 @@
       {
         "id": "t4c3",
         "proposedBy": "karim",
-        "textAr": "«نعرض الصورة على آدم ونسأله مباشرة عن المقعد الثالث.»",
+        "textAr": "«نعرض الصورة على آدم ونسأله مباشرة عن الموضع الثالث.»",
         "effects": {
           "fear": { "nour": 1 },
           "trust": { "karim": 1 },
@@ -841,7 +846,7 @@
           ],
           "adamLines": [
             {
-              "textAr": "تسألني؟ أنا من يسأل هنا. لكن... المقعد الثالث ليس لغزاً. إنه اسم.",
+              "textAr": "تسألني؟ أنا من يسأل هنا. لكن... الموضع الثالث في الصورة ليس لغزاً. إنه اسم.",
               "expression": "neutral",
               "cameraShot": "wall_photos"
             }
@@ -928,40 +933,40 @@
     ],
     "studentDialogue": [
       {
-        "speaker": "samer",
-        "textAr": "أنا من أغلق الباب. كنت أظن أنها مزحة. وبعد ذلك لم أجد الجرأة لأقول.",
-        "expression": "sad",
-        "cameraShot": "closeup_samer"
-      },
-      {
         "speaker": "mariam",
-        "textAr": "كذبتُ في السجل. كتبتُ «غائبة» لأنني خفت من العقاب.",
-        "expression": "sad",
+        "textAr": "ماذا يريد أن نفعله عند الباب؟",
+        "expression": "worried",
         "cameraShot": "closeup_mariam"
       },
       {
         "speaker": "yacine",
-        "textAr": "وأنا أشرت إليها بإصبعي أمام الأستاذ. كنت أنقذ نفسي.",
-        "expression": "worried",
+        "textAr": "الباب أمامنا، يمكننا دفعه معاً والخروج الآن.",
+        "expression": "angry",
         "cameraShot": "closeup_yacine"
       },
       {
-        "speaker": "karim",
-        "textAr": "وأنا غادرتُ وأخذتُ المفتاح، ولم أعد.",
-        "expression": "sad",
-        "cameraShot": "closeup_karim"
-      },
-      {
         "speaker": "layan",
-        "textAr": "كلنا فعلنا شيئاً صغيراً. وكلنا ظننا أنه لا يهم.",
-        "expression": "sad",
+        "textAr": "لا... علينا أن نقرر ما سنواجه به آدم أولاً.",
+        "expression": "worried",
         "cameraShot": "closeup_layan"
       },
       {
         "speaker": "nour",
-        "textAr": "وأنا لم أقل شيئاً. صمتُّ. وكان صمتي مثل أي شيء آخر.",
+        "textAr": "هو ينتظر منا أن نواجه ما حدث، لا أن نهرب.",
         "expression": "sad",
         "cameraShot": "closeup_nour"
+      },
+      {
+        "speaker": "karim",
+        "textAr": "وإن تكلمنا بصراحة... هل سيفتح الباب فعلاً؟",
+        "expression": "worried",
+        "cameraShot": "closeup_karim"
+      },
+      {
+        "speaker": "samer",
+        "textAr": "القرار لنا الآن عند هذا الباب.",
+        "expression": "neutral",
+        "cameraShot": "closeup_samer"
       }
     ],
     "choices": [
@@ -984,15 +989,39 @@
           "studentLines": [
             {
               "speaker": "samer",
-              "textAr": "أنا أولاً. أنا من أغلق الباب.",
+              "textAr": "أنا من أغلق الباب. كنت أظن أنها مزحة. وبعد ذلك لم أجد الجرأة لأقول.",
               "expression": "sad",
               "cameraShot": "closeup_samer"
             },
             {
               "speaker": "mariam",
-              "textAr": "وأنا بعده.",
+              "textAr": "كذبتُ في السجل. كتبتُ «غائبة» لأنني خفت من العقاب.",
               "expression": "sad",
               "cameraShot": "closeup_mariam"
+            },
+            {
+              "speaker": "yacine",
+              "textAr": "وأنا أشرت إليها بإصبعي أمام الأستاذ. كنت أنقذ نفسي.",
+              "expression": "worried",
+              "cameraShot": "closeup_yacine"
+            },
+            {
+              "speaker": "karim",
+              "textAr": "وأنا غادرتُ وأخذتُ المفتاح، ولم أعد.",
+              "expression": "sad",
+              "cameraShot": "closeup_karim"
+            },
+            {
+              "speaker": "layan",
+              "textAr": "كلنا فعلنا شيئاً صغيراً. وكلنا ظننا أنه لا يهم.",
+              "expression": "sad",
+              "cameraShot": "closeup_layan"
+            },
+            {
+              "speaker": "nour",
+              "textAr": "وأنا لم أقل شيئاً. صمتُّ. وكان صمتي مثل أي شيء آخر.",
+              "expression": "sad",
+              "cameraShot": "closeup_nour"
             }
           ],
           "adamLines": [],
@@ -1010,7 +1039,7 @@
           "adamAnger": 2,
           "understanding": 0,
           "timerDeltaSec": 0,
-          "flags": { "endingFlag": "force" },
+          "flags": { "endingFlag": "force", "yacine_left": true },
           "exposeSecretOf": null
         },
         "outcome": {
@@ -1018,13 +1047,13 @@
           "studentLines": [
             {
               "speaker": "yacine",
-              "textAr": "لن أنتظر قراره. أنا خارج.",
+              "textAr": "لن أنتظر قراره. أنا مغادر هذا المكان الآن.",
               "expression": "angry",
               "cameraShot": "closeup_yacine"
             },
             {
               "speaker": "nour",
-              "textAr": "لا! سيزداد الأمر سوءاً.",
+              "textAr": "ياسين، لا تتركنا! سيزداد الأمر سوءاً.",
               "expression": "worried",
               "cameraShot": "closeup_nour"
             }
@@ -1055,15 +1084,15 @@
           "studentLines": [
             {
               "speaker": "layan",
-              "textAr": "الاعتذار ليس اعترافاً. لكنه أول الطريق.",
+              "textAr": "نحن آسفون على ما حدث لإيلينا يا أستاذ آدم... لم نقصد أن ينتهي الأمر هكذا.",
               "expression": "sad",
               "cameraShot": "closeup_layan"
             },
             {
-              "speaker": "karim",
-              "textAr": "أم هو هروب بكلمات أنيقة؟",
-              "expression": "worried",
-              "cameraShot": "closeup_karim"
+              "speaker": "samer",
+              "textAr": "آسفون جميعاً... أرجوك افتح الباب ولننهِ هذا اليوم.",
+              "expression": "sad",
+              "cameraShot": "closeup_samer"
             }
           ],
           "adamLines": [],

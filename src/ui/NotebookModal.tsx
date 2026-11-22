@@ -60,7 +60,8 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
     }
   }
 
-  const foundCount = objectEntries.length + resolvedFragments.length;
+  const TOTAL_TASKS = 5;
+  const foundCount = resolvedFragments.length;
 
   return (
     <div
@@ -73,7 +74,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
           <div>
             <h2 className="font-ar text-lg font-bold text-slate-100">سجل الملاحظات</h2>
             <p className="font-ar text-xs text-slate-400">
-              ما سمعته ({history.length}) · ما وجدته ({foundCount}) · قراراتي ({decisions.length})
+              ما سمعته ({history.length}) · ما وجدته ({foundCount}/{TOTAL_TASKS}) · قراراتي ({decisions.length})
             </p>
           </div>
           <button
@@ -108,7 +109,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            ما وجدته ({foundCount})
+            ما وجدته ({foundCount}/{TOTAL_TASKS})
           </button>
           <button
             type="button"
@@ -152,7 +153,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
 
           {tab === 'found' && (
             <>
-              {foundCount === 0 ? (
+              {resolvedFragments.length === 0 && objectEntries.length === 0 ? (
                 <p className="font-ar text-sm text-slate-400">
                   لم يُسجّل أي عنصر أو نص بعد.
                 </p>

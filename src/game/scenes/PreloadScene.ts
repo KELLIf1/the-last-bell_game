@@ -136,6 +136,10 @@ export class PreloadScene extends Phaser.Scene {
     }
 
     EventBus.emit('preload:complete', { missingCount: this.missingAssets.length });
-    this.scene.start('MainMenuScene');
+    const skipAutoMainMenu = Boolean(this.registry.get('skipAutoMainMenu'));
+    this.registry.remove('skipAutoMainMenu');
+    if (!skipAutoMainMenu) {
+      this.scene.start('MainMenuScene');
+    }
   }
 }
